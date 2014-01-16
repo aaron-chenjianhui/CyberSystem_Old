@@ -1,6 +1,11 @@
 #include "cybersystem.h"
 #include "qregexp.h"
+#include <iostream>
 
+#include "kine7.hpp"
+
+#define DEG2ANG(x) x*180/3.14
+#define	ANG2DEG(x) x*3.14/180
 
 extern CRobonautData g_RobotCmdDeg;     //全局机器人控制指令单位角度
 extern CRobonautData g_SRobotCmdDeg;    //发送的安全机器人控制指令单位角度
@@ -10,6 +15,11 @@ float g_rightArmJointBuf[7];	// global data from slider for joint control
 float g_leftArmJointBuf[7];		// global data from slider for joint control
 
 extern int g_RobotCtrlMode;		// 0 means out of control, 1 means use cyber to control, 2 means use slider to control
+
+//typedef rpp::kine::Kine7<double> kine_type;
+rpp::kine::Kine7<double> m_Kine;
+rpp::kine::SingularityHandler<double> sh;
+rpp::kine::Kine7<double>::angular_interval_vector joint_limits;
 
 CyberSystem::CyberSystem(QWidget *parent)
 	: QMainWindow(parent), m_DisThread(this)/*, m_RobonautCtrlThread(this)*/
@@ -70,6 +80,17 @@ CyberSystem::CyberSystem(QWidget *parent)
 		g_leftArmJointBuf[i] = 0;
 	}
 
+	// Initialize position cmd data
+	for (int i = 0; i<6; i++)
+	{
+		m_rightArmPos[i] = 0;
+		m_leftArmPos[i] = 0;
+	}
+	m_last_arm_angle = 0;
+
+	// Initialize kinetic calculate
+	InitKine();
+
 	// Robonaut joint move management
 	ui.m_pRJo0Sli->setRange(ROBO_J0_MIN,ROBO_J0_MAX);
 	ui.m_pRJo0SpBox->setRange(ROBO_J0_MIN,ROBO_J0_MAX);	
@@ -85,6 +106,7 @@ CyberSystem::CyberSystem(QWidget *parent)
 	ui.m_pRJo5SpBox->setRange(ROBO_J5_MIN,ROBO_J5_MAX);
 	ui.m_pRJo6Sli->setRange(ROBO_J6_MIN,ROBO_J6_MAX);
 	ui.m_pRJo6SpBox->setRange(ROBO_J6_MIN,ROBO_J6_MAX);
+
 
 	ui.m_pLJo0Sli->setRange(ROBO_J0_MIN,ROBO_J0_MAX);
 	ui.m_pLJo0SpBox->setRange(ROBO_J0_MIN,ROBO_J0_MAX);	
@@ -216,6 +238,22 @@ CyberSystem::CyberSystem(QWidget *parent)
 	connect(ui.m_pRoboRunBtn, SIGNAL(clicked()), this, SLOT(CommandStrSelect()));
 	connect(ui.m_pJointCtrlBtn, SIGNAL(clicked()), this, SLOT(CommandStrSelect()));
 	connect(ui.m_pSdDataBtn, SIGNAL(clicked()), this, SLOT(CommandStrSelect()));
+
+	connect(ui.m_pPosRdBtn, SIGNAL(clicked()), this, SLOT(CommandStrSelect()));
+	connect(ui.m_pImpRdBtn, SIGNAL(clicked()), this, SLOT(CommandStrSelect()));
+	connect(ui.m_pResRdBtn, SIGNAL(clicked()), this, SLOT(CommandStrSelect()));
+	connect(ui.m_pInitHandBtn, SIGNAL(clicked()), this, SLOT(CommandStrSelect()));
+	connect(ui.m_pRunHandBtn, SIGNAL(clicked()), this, SLOT(CommandStrSelect()));
+
+	// signals and slots for 5 hand control
+	connect(ui.m_pInitHandBtn, SIGNAL(clicked()), this, SLOT(InitHand()));
+
+	connect(ui.m_pPosRdBtn, SIGNAL(clicked()), this, SLOT(PositionMode()));
+	connect(ui.m_pImpRdBtn, SIGNAL(clicked()), this, SLOT(ImpedanceMode()));
+	connect(ui.m_pResRdBtn, SIGNAL(clicked()), this, SLOT(ResetMode()));
+
+	connect(ui.m_pRunHandBtn, SIGNAL(clicked()), this, SLOT(HandCtrl()));
+
 	
 // 	// signals and slots for timer
 // 	connect(m_pGloDispTimer, SIGNAL(timeout()), this, SLOT(DisData()));
@@ -243,6 +281,7 @@ void CyberSystem::InitSystem()
 	m_LTraContr = true;
 	ui.m_pGlStartBtn->setEnabled(true);
 	ui.m_pTraStartBtn->setEnabled(true);
+
 }
 
 void CyberSystem::InitRHand()
@@ -378,6 +417,8 @@ void CyberSystem::FinGloveCali()
 	
 	// thread to display real data
 	m_DisThread.start();
+
+	ui.m_pInitHandBtn->setEnabled(true);
 }
 
 
@@ -405,6 +446,10 @@ void CyberSystem::CalTraData()
 		QString XOri = ui.m_pROriXLiEd->text();
 		QString YOri = ui.m_pROriYLiEd->text();
 		QString ZOri = ui.m_pROriZLiEd->text();
+
+		double x = 0;
+		double y = 100;
+		double z = 0;
 
 		m_CyberStation.CalTraCoef(true, XPos, YPos, ZPos, XOri, YOri, ZOri);
 		m_bRTraCaliFini = true;
@@ -435,6 +480,10 @@ void CyberSystem::CalTraData()
 		ui.m_pSimuConnBtn->setEnabled(true);
 		ui.m_pRoboConnBtn->setEnabled(true);
 	}
+
+
+	// initialize kinetics
+
 }
 
 void CyberSystem::lineEdit_textChanged()
@@ -537,9 +586,11 @@ void CyberSystem::RobonautCtrl()
 
 //*********************** Robonaut Joints Control Options ***********************//
 void CyberSystem::getSliData()
-{	
-// 	while(m_RobonautCtrlThread.m_bRoboCtrlThreadStop == false)
-// 	{
+{
+	if (ui.m_pRArmTab->isVisible() || ui.m_pLArmTab->isVisible())
+	{
+		// 	while(m_RobonautCtrlThread.m_bRoboCtrlThreadStop == false)
+		// 	{
 		g_rightArmJointBuf[0] = ui.m_pRJo0Sli->value();
 		g_rightArmJointBuf[1] = ui.m_pRJo1Sli->value();
 		g_rightArmJointBuf[2] = ui.m_pRJo2Sli->value();
@@ -555,7 +606,69 @@ void CyberSystem::getSliData()
 		g_leftArmJointBuf[4] = ui.m_pLJo4Sli->value();
 		g_leftArmJointBuf[5] = ui.m_pLJo5Sli->value();
 		g_leftArmJointBuf[6] = ui.m_pLJo6Sli->value();
-/*	}	*/
+		/*	}	*/
+	}
+	else
+	{
+		QString RPosBuf[7],LPosBuf[7];
+		RPosBuf[0] = ui.m_pRPosXCmd->text();
+		RPosBuf[1] = ui.m_pRPosYCmd->text();
+		RPosBuf[2] = ui.m_pRPosZCmd->text();
+		RPosBuf[3] = ui.m_pROri1Cmd->text();
+		RPosBuf[4] = ui.m_pROri2Cmd->text();
+		RPosBuf[5] = ui.m_pROri3Cmd->text();
+		RPosBuf[6] = ui.m_pROri4Cmd->text();
+		LPosBuf[0] = ui.m_pLPosXCmd->text();
+		LPosBuf[1] = ui.m_pLPosYCmd->text();
+		LPosBuf[2] = ui.m_pLPosZCmd->text();
+		LPosBuf[3] = ui.m_pLOri1Cmd->text();
+		LPosBuf[4] = ui.m_pLOri2Cmd->text();
+		LPosBuf[5] = ui.m_pLOri3Cmd->text();
+		LPosBuf[6] = ui.m_pLOri4Cmd->text();
+
+		for (int i = 0; i<7; i++)
+		{
+			m_rightArmPos[i] = RPosBuf[i].toDouble();
+			m_leftArmPos[i] = LPosBuf[i].toDouble();
+		}
+
+		// unit quaternion
+		/*********************
+		n = m_rightArmPos[3];
+		ex = m_rightArmPos[4];
+		ey = m_rightArmPos[5];
+		ez = m_rightArmPos[6];
+		*********************/
+		// calculate inverse kinetics
+		Eigen::Matrix<double, 4, 4> T;
+		// rotate matrix
+		T(0,0) = 2*(pow(m_rightArmPos[3], 2) + pow(m_rightArmPos[4], 2)) - 1;
+		T(0,1) = 2*(m_rightArmPos[4]*m_rightArmPos[5] - m_rightArmPos[3]*m_rightArmPos[6]);
+		T(0,2) = 2*(m_rightArmPos[4]*m_rightArmPos[6] + m_rightArmPos[3]*m_rightArmPos[5]);
+		T(1,0) = 2*(m_rightArmPos[4]*m_rightArmPos[5] + m_rightArmPos[3]*m_rightArmPos[6]);
+		T(1,1) = 2*(pow(m_rightArmPos[3], 2) + pow(m_rightArmPos[5], 2)) - 1;
+		T(1,2) = 2*(m_rightArmPos[5]*m_rightArmPos[6] - m_rightArmPos[3]*m_rightArmPos[4]);
+		T(2,0) = 2*(m_rightArmPos[4]*m_rightArmPos[6] - m_rightArmPos[3]*m_rightArmPos[5]);
+		T(2,1) = 2*(m_rightArmPos[5]*m_rightArmPos[6] + m_rightArmPos[3]*m_rightArmPos[4]);
+		T(2,2) = 2*(pow(m_rightArmPos[3], 2) + pow(m_rightArmPos[6], 2)) - 1;
+		// transpos matrix
+		T(0,3) = m_rightArmPos[0];
+		T(1,3) = m_rightArmPos[1];
+		T(2,3) = m_rightArmPos[2];
+		// vision matrix
+		T(3,0) = 0;
+		T(3,1) = 0;
+		T(3,2) = 0;
+		T(3,3) = 1;
+
+		Eigen::Matrix<double, 7, 1> q = CalKine(T, m_last_arm_angle);
+
+		// final data
+		for (int i = 0; i<7; i++)
+		{		
+			g_rightArmJointBuf[i] = DEG2ANG(q(i));
+		}
+	}
 }
 
 
@@ -602,16 +715,24 @@ void CyberSystem::SendJoData()
 {
 	getSliData();
 
+	// robonaut is connected
 	if (m_RobonautControl.m_nRetRoboCtrlSer == 0)
 	{
 		g_RobotCtrlMode = 2;
 		m_RobonautControl.RoboCtrl();
 	}
 
-	if (m_RobonautControl.m_nRetConSer == 0)
+	// consimulation is connected
+	else if (m_RobonautControl.m_nRetConSer == 0)
 	{
 		g_RobotCtrlMode = 2;
 		m_RobonautControl.SimuControl();
+	}
+
+	// error
+	else
+	{
+		QMessageBox::about(NULL, "Error", "Robonaut is not connected");
 	}
 }
 
@@ -740,7 +861,39 @@ void CyberSystem::CommandStrSelect()
 		QString Str("Send Joint data...\r\n\r\n");
 		emit(InsetCommStr(Str));
 		return;
-	}	
+	}
+
+	// 5 hand control
+	if (ui.m_pPosRdBtn == dynamic_cast<QRadioButton*>(sender()))
+	{
+		QString Str("Hand in Position Control Mode...\r\n\r\n");
+		emit(InsetCommStr(Str));
+		return;
+	}
+	if (ui.m_pImpRdBtn == dynamic_cast<QRadioButton*>(sender()))
+	{
+		QString Str("Hand in Impedance Control Mode...\r\n\r\n");
+		emit(InsetCommStr(Str));
+		return;
+	}
+	if (ui.m_pResRdBtn == dynamic_cast<QRadioButton*>(sender()))
+	{
+		QString Str("Hand in Reset Control Mode...\r\n\r\n");
+		emit(InsetCommStr(Str));
+		return;
+	}
+	if (ui.m_pInitHandBtn == dynamic_cast<QPushButton*>(sender()))
+	{
+		QString Str("Initialize Hand Control...\r\n\r\n");
+		emit(InsetCommStr(Str));
+		return;
+	}
+	if (ui.m_pRunHandBtn == dynamic_cast<QPushButton*>(sender()))
+	{
+		QString Str("Start Hand Control...\r\n\r\n");
+		emit(InsetCommStr(Str));
+		return;
+	}
 }
 
 void CyberSystem::CommadBsDisplay(const QString & Str)
@@ -748,3 +901,123 @@ void CyberSystem::CommadBsDisplay(const QString & Str)
 	m_CommandString = m_CommandString + Str;
 	ui.m_pCommadBs->setText(m_CommandString);
 }
+
+
+//*********************** Control Command Display ***********************//
+
+void CyberSystem::InitHand()
+{
+	m_RobonautControl.HandInit();
+	ui.m_pPosRdBtn->setEnabled(true);
+	ui.m_pImpRdBtn->setEnabled(true);
+	ui.m_pResRdBtn->setEnabled(true);
+	ui.m_pRunHandBtn->setEnabled(true);
+}
+
+void CyberSystem::PositionMode() 
+{
+	m_RobonautControl.setPosMode();
+}
+
+void CyberSystem::ImpedanceMode() 
+{
+	m_RobonautControl.setImpMode();
+}
+
+void CyberSystem::ResetMode() 
+{
+	m_RobonautControl.setResMode();
+}
+
+void CyberSystem::HandCtrl()
+{
+	if (ui.m_pRunHandBtn->text() == "Run")
+	{
+		m_RobonautControl.m_bGloveControl = TRUE;
+		m_RobonautControl.HandControl();
+		ui.m_pRunHandBtn->setText("Stop");
+
+		return;
+	}
+
+	if (ui.m_pRunHandBtn->text() == "Stop")
+	{
+		m_RobonautControl.m_bGloveControl = FALSE;
+		ui.m_pRunHandBtn->setText("Run");
+
+		return;
+	}
+}
+
+//*********************** Kinetics Calculate ***********************//
+void CyberSystem::InitKine()
+{
+	joint_limits.push_back(rpp::kine::Kine7<double>::angular_interval(-2.10, 1.48));
+	joint_limits.push_back(rpp::kine::Kine7<double>::angular_interval(-2.10, 0.01));
+	joint_limits.push_back(rpp::kine::Kine7<double>::angular_interval(-1.57, 1.57));
+	joint_limits.push_back(rpp::kine::Kine7<double>::angular_interval(-1.74, 0.01));
+	joint_limits.push_back(rpp::kine::Kine7<double>::angular_interval(-1.52, 1.97));
+	joint_limits.push_back(rpp::kine::Kine7<double>::angular_interval(-1.22, 1.22));
+	joint_limits.push_back(rpp::kine::Kine7<double>::angular_interval(-1.05, 1.05));
+	// Kine7是求解正逆运动学的基础类
+	m_Kine = rpp::kine::Kine7<double>(400, 285, 300, 0, joint_limits);
+	// SingularHandler处理逆运动学计算中的奇异问题
+	sh = rpp::kine::SingularityHandler<double>(joint_limits);
+}
+
+Eigen::Matrix<double, 7, 1> CyberSystem::CalKine(const Eigen::Matrix<double, 4, 4> &T, double &last_arm_angle)
+{
+	auto self_motions = m_Kine.inverse(T);
+	for (auto it = self_motions.begin(); it != self_motions.end(); ++it)
+	{
+		// 自运动必须在关节限位以内
+		if (joint_limits[3].contains(it->elbow_joint()))
+		{
+			auto arm_angle_ranges = it->arm_angle_range();
+			auto it_arm_angle = arm_angle_ranges.begin();
+			auto ave = abs((it_arm_angle->lower() + it_arm_angle->upper())/2 - last_arm_angle);
+
+			// 取和上一次臂角最为相近的臂角
+			for (auto range = arm_angle_ranges.begin(); range != arm_angle_ranges.end(); ++range)
+			{
+				auto tmp_ave = abs((range->lower() + range->upper())/2 - last_arm_angle);
+				if (tmp_ave < ave)
+				{
+					it_arm_angle = range;
+					ave = tmp_ave;
+				}
+			}
+
+			auto joints = it->get_joints(ave, sh);
+			last_arm_angle = ave;
+			for (auto it2 = joints.begin(); it2 != joints.end(); ++it2)
+			{
+				auto q = *(it2);
+				auto q_valid = true;
+				for (int i = 0; i < 7; ++i)
+				{
+					q_valid = q_valid && joint_limits[i].contains(q[i]);
+				}
+				if (!q_valid)
+				{
+					std::cout << "joint angle out of range: " << q << std::endl;
+					exit(-1);
+				}
+				// 检查末端位置是否与T重合
+				auto TT = m_Kine.forward(q);
+				if ((TT - T).norm() > 0.05)
+				{
+					std::cout << "tool tip position out of range: " << std::endl << T << std::endl
+						<< TT << std::endl; 
+					std::cout << "joints: " << q.transpose() << std::endl;
+					exit(-1);
+				}
+				else
+				{
+					return q;
+				}
+			}
+		}
+	}
+}
+

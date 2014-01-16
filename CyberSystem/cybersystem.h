@@ -1,12 +1,15 @@
-#ifndef CYBERSYSTEM_H
-#define CYBERSYSTEM_H
+#ifndef _CYBERSYSTEM_H
+#define _CYBERSYSTEM_H
 
-#include <QtWidgets/QMainWindow>
+
 #include "ui_cybersystem.h"
 #include "CyberStation.h"
+
+#include <QtWidgets/QMainWindow>
 #include <QMessageBox>
 #include <QTimer>
 
+#include "eigen3/Eigen/Eigen"
 
 
 class CyberSystem : public QMainWindow
@@ -67,6 +70,9 @@ public:
 
 	void DisData();
 	void getSliData();
+	// calculate kinetics and inverse kinetics
+	void InitKine();
+	Eigen::Matrix<double, 7, 1> CalKine(const Eigen::Matrix<double, 4, 4> &, double &);
 
 
 
@@ -106,6 +112,14 @@ private slots:
 	// command browser display
 	void CommadBsDisplay(const QString &);
 	void CommandStrSelect();
+
+	// 5 hand control
+	void InitHand();
+	void PositionMode();
+	void ImpedanceMode();
+	void ResetMode();
+	void HandCtrl();
+
 
 
 
@@ -154,8 +168,14 @@ private:
 	// Robonaut control
 	RobonautControl m_RobonautControl;
 
-	// 
+	// Command browser display string
 	QString m_CommandString;
+
+	//*********************** Control Data ***********************//
+	double m_rightArmPos[7];
+	double m_leftArmPos[7];
+	double m_last_arm_angle;
+
 };
 
 #endif // CYBERSYSTEM_H
