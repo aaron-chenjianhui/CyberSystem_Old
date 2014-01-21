@@ -1,10 +1,12 @@
-#ifndef CyberStation_H
-#define CyberStation_H
+#ifndef _CyberStation_H
+#define _CyberStation_H
 
-
+#include <fstream>
 
 #include "inlib.h"
 #include "RobonautControl.h"
+
+#include "eigen3/Eigen/Eigen"
 
 #include <vhtIOConn.h>
 #include <vhtTracker.h>
@@ -13,6 +15,8 @@
 #include <vhtCyberGlove.h>
 #include <vhtCyberGrasp.h>
 #include <vhtBaseException.h>
+#include <vhtTransform3D.h>
+#include <vhtTrackerData.h>
 
 #include <QString>
 #include <QMessageBox>
@@ -63,6 +67,17 @@ private:
 
 	double m_rTraCoef[6];
 	double m_lTraCoef[6];
+
+	// Matrix Data
+	Eigen::Matrix<double, 4, 4> m_rTraRealMat;
+	Eigen::Matrix<double, 4, 4> m_rTraRawMat;
+	// Matrix coefficient
+	Eigen::Matrix<double, 4, 4> TransCoeffMat;
+	Eigen::Matrix<double, 3, 3> RotCoeffMat;
+
+	Eigen::Matrix<double, 3, 3> RotOSMat;
+	Eigen::Matrix<double, 3, 3> RotOOnMat;
+	Eigen::Matrix<double, 3, 3> RotOnPMat;
 	
 
 	// raw data and real data for glove
@@ -105,12 +120,6 @@ public:
 	// decide which data(raw or real) to display
 	QString GloDisData(bool);
 
-	// cyber tracker calibraton information
-	void GetRRawTraData(double arr[], int arr_size = 6);
-	void GetLRawTraData(double arr[], int arr_size = 6);
-	void CalTrackerCoef(tracali_type, tracali_type);
-	void GetRealTraData();
-
 	void GetRTraData();
 	void GetLTraData();
 	// calculate coefficient for cyber tracker calibration
@@ -118,6 +127,22 @@ public:
 	// decide which data(raw or real) to display
 	QString RTraDisData(bool);
 	QString LTraDisData(bool);
+
+	// Calculate Transformation Matrix
+	Eigen::Matrix<double, 4, 4> CalTransMat(const double Trans[]);
+
+	// TODO(CJH): Use these function to replace the old ones
+	// CyberTracker calibraton information
+	void GetRRawTraData(double arr[], int arr_size = 6);
+	void GetLRawTraData(double arr[], int arr_size = 6);
+	void CalTrackerCoef(tracali_type, tracali_type);
+	void GetRealTraData();
+
+	vhtTransform3D trackerXForm;
+	double FormMat[4][4];
+	double m_sensor_data[1024];
+
+	std::ofstream m_file;
 
 };
 #endif
