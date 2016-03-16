@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/CyberSystem">
+        <file>Resources/Posture 1.bmp</file>
+    </qresource>
+</RCC>

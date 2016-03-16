@@ -1,0 +1,10 @@
+#include "cybersystem.h"
+#include <QtWidgets/QApplication>
+
+int main(int argc, char *argv[])
+{
+	QApplication a(argc, argv);
+	CyberSystem w;
+	w.show();
+	return a.exec();
+}
