@@ -1,6 +1,8 @@
 #include "cybersystem.h"
 #include "qregexp.h"
 
+extern CSimuRoboControl *g_pSimuRoboCtrl;
+
 CyberSystem::CyberSystem(QWidget *parent)
 	: QMainWindow(parent), m_DisThread(this)
 {
@@ -88,6 +90,10 @@ CyberSystem::CyberSystem(QWidget *parent)
 	connect(ui.m_pLOriXLiEd, SIGNAL(textChanged(const QString &)), this, SLOT(lineEdit_textChanged()));
 	connect(ui.m_pLOriYLiEd, SIGNAL(textChanged(const QString &)), this, SLOT(lineEdit_textChanged()));
 	connect(ui.m_pLOriZLiEd, SIGNAL(textChanged(const QString &)), this, SLOT(lineEdit_textChanged()));
+
+	// signals and slots for  consimulation
+	connect(ui.m_pSimuConnBtn, SIGNAL(clicked()), this, SLOT(ConsimuConnContr()));
+	connect(ui.m_pSimuRunBtn, SIGNAL(clicked()), this, SLOT(g_pSimuRoboCtrl->SimuControl()));
 
 // 	// signals and slots for timer
 // 	connect(m_pGloDispTimer, SIGNAL(timeout()), this, SLOT(DisData()));
@@ -268,7 +274,7 @@ void CyberSystem::InitTraCali()
 // push calculate button to calculate the coefficients
 void CyberSystem::CalTraData()
 {
-	bool bRTraTab = ui.m_pRTraTab->isEnabled();
+	//bool bRTraTab = ui.m_pRTraTab->isEnabled();
 	if (ui.m_pRTraTab->isEnabled())
 	{
 		QString XPos = ui.m_pRPosXLiEd->text();
@@ -303,6 +309,8 @@ void CyberSystem::CalTraData()
 	{
 		QMessageBox::about(NULL, "About", "CyberTracker calibration is finished");
 		m_bRTraDisReal = true;
+
+		ui.m_pSimuConnBtn->setEnabled(true);
 	}
 }
 
@@ -330,3 +338,31 @@ void CyberSystem::lineEdit_textChanged()
 								&& ui.m_pLOriYLiEd->hasAcceptableInput() && ui.m_pLOriZLiEd->hasAcceptableInput());
 	}	
 }
+
+
+
+
+//*********************** Consimulation Options ***********************//
+void CyberSystem::ConsimuConnContr()
+{
+	if (ui.m_pSimuConnBtn->text() == "Connect")
+	{
+		g_pSimuRoboCtrl->InitConn();
+		
+		ui.m_pSimuConnBtn->setText("Disconnect");
+		ui.m_pSimuRunBtn->setEnabled(true);
+		return;
+	}
+
+	if (ui.m_pSimuConnBtn->text() == "Disconnect")
+	{
+		g_pSimuRoboCtrl->DisConn();
+
+		ui.m_pSimuConnBtn->setText("Connect");
+		ui.m_pSimuRunBtn->setEnabled(false);
+		return;
+	}
+}
+
+
+//*********************** Robonaut Control Options ***********************//

@@ -8,6 +8,7 @@
 #include <QTimer>
 
 
+
 class CyberSystem : public QMainWindow
 {
 	Q_OBJECT
@@ -41,10 +42,12 @@ public:
 
 	void DisData();
 
+
+
 private slots:
 	// initialize devices
 	void InitSystem();
-	void InitRHand();
+	void InitRHand(); 
 	void InitLHand();
 	void InitRTracker();
 	void InitLTracker();
@@ -61,6 +64,9 @@ private slots:
 	void InitTraCali();
 	void CalTraData();
 	void lineEdit_textChanged();
+
+	// consimulation
+	void ConsimuConnContr();
 
 
 
