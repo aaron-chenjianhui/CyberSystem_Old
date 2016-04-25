@@ -14,6 +14,7 @@ class CyberSystem : public QMainWindow
 	Q_OBJECT
 
 public:
+	// A thread controls cyber data display
 	class Dis_Thread : public QThread
 	{
 	public:
@@ -36,11 +37,36 @@ public:
 		bool m_bDisThreadStop;
 	};
 
+
+// 	// A thread controls slider data getting
+// 	class RobonautCtrl_Thread : public QThread
+// 	{
+// 	public:
+// 		RobonautCtrl_Thread(CyberSystem *parent)
+// 		{
+// 			_parent = parent;
+// 			m_bRoboCtrlThreadStop = false;
+// 		}
+// 		void run()
+// 		{
+// 			_parent->getSliData();
+// 		}
+// 		void stop()
+// 		{
+// 			m_bRoboCtrlThreadStop = true;
+// 		}
+// 	private:
+// 		CyberSystem *_parent;
+// 	public:
+// 		bool m_bRoboCtrlThreadStop;
+// 	};
+
 public:
 	CyberSystem(QWidget *parent = 0);
 	~CyberSystem();
 
 	void DisData();
+	void getSliData();
 
 
 
@@ -67,11 +93,26 @@ private slots:
 
 	// consimulation
 	void ConsimuConnContr();
+	void CyberSimuControl();
+
+	// robonaut control
+	void RobonautConnCtrl();
+	void RobonautCtrl();
+
+	// robonaut joint control
+ 	void RobonautJoCtrl();
+	void SendJoData();
+
+	// command browser display
+	void CommadBsDisplay(const QString &);
+	void CommandStrSelect();
+
 
 
 
 signals:
 	void InsertGloText(const QString &);
+	void InsetCommStr(const QString &);
 
 
 
@@ -82,6 +123,8 @@ private:
 
 	// define multi-thread to display data
 	Dis_Thread m_DisThread;
+// 	// define multi-thread to get slider data
+// 	RobonautCtrl_Thread m_RobonautCtrlThread;
 
 	//*********************** Device Logical Control ***********************//
 	// cyber workstation connection control
@@ -107,6 +150,12 @@ private:
 	bool m_bLTraCaliFini;
 	bool m_bRTraDisReal;
 	bool m_bLTraDisReal;
+
+	// Robonaut control
+	RobonautControl m_RobonautControl;
+
+	// 
+	QString m_CommandString;
 };
 
 #endif // CYBERSYSTEM_H

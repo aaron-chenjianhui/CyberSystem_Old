@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1154</width>
-    <height>632</height>
+    <height>640</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -25,7 +25,7 @@
   <property name="maximumSize">
    <size>
     <width>1154</width>
-    <height>632</height>
+    <height>640</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -41,25 +41,25 @@
    <property name="maximumSize">
     <size>
      <width>1154</width>
-     <height>575</height>
+     <height>640</height>
     </size>
    </property>
-   <layout class="QGridLayout" name="gridLayout_9">
+   <layout class="QGridLayout" name="gridLayout_7">
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <layout class="QHBoxLayout" name="horizontalLayout_9">
       <item>
        <layout class="QVBoxLayout" name="m_pLVerLayout">
         <item>
          <widget class="QGroupBox" name="m_pConnBox">
           <property name="minimumSize">
            <size>
-            <width>330</width>
+            <width>320</width>
             <height>140</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>330</width>
+            <width>320</width>
             <height>140</height>
            </size>
           </property>
@@ -87,6 +87,14 @@
              </item>
              <item row="0" column="1" colspan="2">
               <widget class="QPushButton" name="m_pInitBtn">
+               <property name="font">
+                <font>
+                 <family>Aharoni</family>
+                 <pointsize>9</pointsize>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>Connect Haptic Station</string>
                </property>
@@ -110,6 +118,12 @@
              </item>
              <item row="1" column="0" colspan="2">
               <widget class="QPushButton" name="m_pInitRHBtn">
+               <property name="font">
+                <font>
+                 <family>Aharoni</family>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Conn Right Hand</string>
                </property>
@@ -117,13 +131,31 @@
              </item>
              <item row="1" column="2" colspan="2">
               <widget class="QPushButton" name="m_pInitRTBtn">
+               <property name="font">
+                <font>
+                 <family>Aharoni</family>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Conn Right Tracker</string>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>20</width>
+                 <height>20</height>
+                </size>
                </property>
               </widget>
              </item>
              <item row="2" column="0" colspan="2">
               <widget class="QPushButton" name="m_pInitLHBtn">
+               <property name="font">
+                <font>
+                 <family>Aharoni</family>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Conne Left Hand</string>
                </property>
@@ -131,6 +163,12 @@
              </item>
              <item row="2" column="2" colspan="2">
               <widget class="QPushButton" name="m_pInitLTBtn">
+               <property name="font">
+                <font>
+                 <family>Aharoni</family>
+                 <pointsize>8</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Conn Left Tracker</string>
                </property>
@@ -142,16 +180,29 @@
          </widget>
         </item>
         <item>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
          <widget class="QGroupBox" name="m_pGloveBox">
           <property name="minimumSize">
            <size>
-            <width>330</width>
+            <width>320</width>
             <height>350</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>330</width>
+            <width>320</width>
             <height>350</height>
            </size>
           </property>
@@ -319,13 +370,13 @@
           <property name="minimumSize">
            <size>
             <width>300</width>
-            <height>160</height>
+            <height>225</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>300</width>
-            <height>160</height>
+            <height>210</height>
            </size>
           </property>
          </widget>
@@ -674,9 +725,21 @@
        </layout>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
+       <layout class="QGridLayout" name="gridLayout_9">
+        <item row="0" column="0">
          <widget class="QGroupBox" name="m_pSimuBox">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>67</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>67</height>
+           </size>
+          </property>
           <property name="title">
            <string>Simulation</string>
           </property>
@@ -687,7 +750,7 @@
               <bool>false</bool>
              </property>
              <property name="text">
-              <string>Connect</string>
+              <string>Conn ConSimu</string>
              </property>
             </widget>
            </item>
@@ -697,15 +760,27 @@
               <bool>false</bool>
              </property>
              <property name="text">
-              <string>ConSimu</string>
+              <string>ConSimu Ctrl</string>
              </property>
             </widget>
            </item>
           </layout>
          </widget>
         </item>
-        <item>
+        <item row="1" column="0">
          <widget class="QGroupBox" name="m_pRoboBox">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>67</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>67</height>
+           </size>
+          </property>
           <property name="title">
            <string>Robonaut</string>
           </property>
@@ -723,12 +798,18 @@
              </property>
              <property name="minimumSize">
               <size>
-               <width>150</width>
+               <width>139</width>
                <height>0</height>
               </size>
              </property>
+             <property name="maximumSize">
+              <size>
+               <width>139</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="text">
-              <string>Connect</string>
+              <string>Conn Robonaut</string>
              </property>
             </widget>
            </item>
@@ -744,30 +825,93 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Run</string>
+              <string>Robonaut Ctrl</string>
              </property>
             </widget>
            </item>
           </layout>
          </widget>
         </item>
-        <item>
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
+        <item row="2" column="0">
+         <widget class="QTextBrowser" name="m_pRoboDataDisBs">
+          <property name="maximumSize">
            <size>
-            <width>20</width>
-            <height>40</height>
+            <width>308</width>
+            <height>103</height>
            </size>
           </property>
-         </spacer>
+          <property name="sizeIncrement">
+           <size>
+            <width>308</width>
+            <height>103</height>
+           </size>
+          </property>
+         </widget>
         </item>
-        <item>
+        <item row="3" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QPushButton" name="m_pJointCtrlBtn">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>133</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>133</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Joint Ctrl</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="m_pSdDataBtn">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>133</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>133</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Send Data</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="4" column="0">
          <widget class="QTabWidget" name="m_pJoSetWidget">
+          <property name="maximumSize">
+           <size>
+            <width>308</width>
+            <height>256</height>
+           </size>
+          </property>
+          <property name="sizeIncrement">
+           <size>
+            <width>308</width>
+            <height>256</height>
+           </size>
+          </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="m_pRArmTab">
            <attribute name="title">
@@ -787,6 +931,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="m_pRJo0Sli">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>160</width>
@@ -799,7 +946,14 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="m_pRJo0SpBox"/>
+                 <widget class="QSpinBox" name="m_pRJo0SpBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="value">
+                   <number>0</number>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -814,6 +968,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="m_pRJo1Sli">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>160</width>
@@ -826,7 +983,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="m_pRJo1SpBox"/>
+                 <widget class="QSpinBox" name="m_pRJo1SpBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -841,6 +1002,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="m_pRJo2Sli">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>160</width>
@@ -853,7 +1017,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="m_pRJo2SpBox"/>
+                 <widget class="QSpinBox" name="m_pRJo2SpBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -868,6 +1036,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="m_pRJo3Sli">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>160</width>
@@ -880,7 +1051,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="m_pRJo3SpBox"/>
+                 <widget class="QSpinBox" name="m_pRJo3SpBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -895,6 +1070,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="m_pRJo4Sli">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>160</width>
@@ -907,7 +1085,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="m_pRJo4SpBox"/>
+                 <widget class="QSpinBox" name="m_pRJo4SpBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -922,6 +1104,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="m_pRJo5Sli">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>160</width>
@@ -934,7 +1119,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="m_pRJo5SpBox"/>
+                 <widget class="QSpinBox" name="m_pRJo5SpBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -949,6 +1138,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="m_pRJo6Sli">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>160</width>
@@ -961,7 +1153,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="m_pRJo6SpBox"/>
+                 <widget class="QSpinBox" name="m_pRJo6SpBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -987,6 +1183,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="m_pLJo0Sli">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>160</width>
@@ -999,7 +1198,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="m_pLJo0SpBox"/>
+                 <widget class="QSpinBox" name="m_pLJo0SpBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -1014,6 +1217,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="m_pLJo1Sli">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>160</width>
@@ -1026,7 +1232,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="m_pLJo1SpBox"/>
+                 <widget class="QSpinBox" name="m_pLJo1SpBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -1041,6 +1251,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="m_pLJo2Sli">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>160</width>
@@ -1053,7 +1266,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="m_pLJo2SpBox"/>
+                 <widget class="QSpinBox" name="m_pLJo2SpBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -1068,6 +1285,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="m_pLJo3Sli">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>160</width>
@@ -1080,7 +1300,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="m_pLJo3SpBox"/>
+                 <widget class="QSpinBox" name="m_pLJo3SpBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -1095,6 +1319,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="m_pLJo4Sli">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>160</width>
@@ -1107,7 +1334,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="m_pLJo4SpBox"/>
+                 <widget class="QSpinBox" name="m_pLJo4SpBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -1122,6 +1353,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="m_pLJo5Sli">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>160</width>
@@ -1134,7 +1368,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="m_pLJo5SpBox"/>
+                 <widget class="QSpinBox" name="m_pLJo5SpBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -1149,6 +1387,9 @@
                 </item>
                 <item>
                  <widget class="QSlider" name="m_pLJo6Sli">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="minimumSize">
                    <size>
                     <width>160</width>
@@ -1161,7 +1402,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="m_pLJo6SpBox"/>
+                 <widget class="QSpinBox" name="m_pLJo6SpBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -1200,7 +1445,7 @@
      <x>0</x>
      <y>0</y>
      <width>1154</width>
-     <height>26</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>
