@@ -11,6 +11,8 @@
 
 #include "eigen3/Eigen/Eigen"
 
+enum CTRLMODE {OUT_CTRL, CLICK_CTRL_SIMU, CLICK_CTRL_ROBO, CLICK_CTRL_ALL, 
+				CYBER_CTRL_SIMU, CYBER_CTRL_ROBO, CYBER_CTRL_ALL};
 
 class CyberSystem : public QMainWindow
 {
@@ -28,7 +30,7 @@ public:
 		}
 		void run()
 		{
-			_parent->DisData();
+			_parent->DisTraData();
 		}
 		void stop()
 		{
@@ -68,13 +70,57 @@ public:
 	CyberSystem(QWidget *parent = 0);
 	~CyberSystem();
 
-	void DisData();
+	//*********************** Hand ***********************//
+	
+	//*********************** Click Control ***********************//
+public:
+	void SetCliUIVisi(bool);
+	bool GetRoboData();
+	void SetSliVal(float *, float *);
+
+private slots:
+ 	void ClickCtrl();
+	void SlitoLine();
+	void LinetoSli();
+	void SliUpdata();
 	void getSliData();
-	// calculate kinetics and inverse kinetics
+
+	//*********************** Robonaut Control ***********************//
+public:
+	void SendCmd();		// Multimedia Timer Function
+	void RecvSensor();	
+	void DisRoboData();
+
+private slots:
+	void RoboConnCtrl();		// Robonaut Connection Ctrol
+	void CyberCtrl();
+
+	void CyberCmd();
+	void CyberStop();
+
+private:
+	bool m_bRoboConn;		// True: Means Connected
+
+	//*********************** Consimu Control ***********************//
+private slots:
+	void ConsimuConnCtrl();		// Connect Consimulate
+
+private:
+	bool m_bConsimuConn;		// True: Means Connected
+
+	//*********************** Kinetics ***********************//
+public:
 	void InitKine();
-	Eigen::Matrix<double, 7, 1> CalKine(const Eigen::Matrix<double, 4, 4> &, double &);
+	Eigen::Matrix<double, 7, 1> CalKine(const Eigen::Matrix<double, 4, 4> &, double &, Eigen::Matrix<double, 7, 1> &);
+	
 
+	//*********************** Data Display ***********************//
+public:
+	void DisTraData();
+	void DisGloData();
 
+private:
+	QString m_CmdStr;
 
 private slots:
 	// initialize devices
@@ -97,21 +143,6 @@ private slots:
 	void CalTraData();
 	void lineEdit_textChanged();
 
-	// consimulation
-	void ConsimuConnContr();
-	void CyberSimuControl();
-
-	// robonaut control
-	void RobonautConnCtrl();
-	void RobonautCtrl();
-
-	// robonaut joint control
- 	void RobonautJoCtrl();
-	void SendJoData();
-
-	// command browser display
-	void CommadBsDisplay(const QString &);
-	void CommandStrSelect();
 
 	// 5 hand control
 	void InitHand();
@@ -126,7 +157,9 @@ private slots:
 
 signals:
 	void InsertGloText(const QString &);
+	void InsertRoboText(const QString &);
 	void InsetCommStr(const QString &);
+	void InsertCmdStr(const QString &);
 
 
 
@@ -138,7 +171,9 @@ private:
 	// define multi-thread to display data
 	Dis_Thread m_DisThread;
 // 	// define multi-thread to get slider data
-// 	RobonautCtrl_Thread m_RobonautCtrlThread;
+// 	RobonautCtrl_Thread m_RobonautCtrlThread;	
+	
+	CTRLMODE m_CtrlMode;		// Choose Control Mode
 
 	//*********************** Device Logical Control ***********************//
 	// cyber workstation connection control
@@ -175,7 +210,16 @@ private:
 	double m_rightArmPos[7];
 	double m_leftArmPos[7];
 	double m_last_arm_angle;
+	Eigen::Matrix<double, 7, 1> m_last_joint_angle;
 
+	Eigen::Matrix<double, 4, 4> m_RTraRealMat;
+	Eigen::Matrix<double, 4, 4> m_RTraRawMat;
+
+	std::ofstream m_fRRealMat;
+	std::ofstream m_fRRawMat;
+
+	int RRealCount;
+	int RRawCount;
 };
 
 #endif // CYBERSYSTEM_H

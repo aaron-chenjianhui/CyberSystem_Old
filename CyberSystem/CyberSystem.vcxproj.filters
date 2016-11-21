@@ -97,6 +97,9 @@
     <ClInclude Include="quadratic.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CSocket.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="cybersystem.h">

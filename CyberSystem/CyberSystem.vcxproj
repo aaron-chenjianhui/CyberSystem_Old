@@ -115,6 +115,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angular_interval.hpp" />
+    <ClInclude Include="CSocket.hpp" />
     <ClInclude Include="cyberstation.h" />
     <CustomBuild Include="cybersystem.h">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing cybersystem.h...</Message>

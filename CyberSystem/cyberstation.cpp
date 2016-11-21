@@ -18,7 +18,7 @@
 #define END_ORI_Z 0
 
 
-
+// TODO(CJH): Delete
 // declare global variable for interconnection
 float rTrackerRealPose[6];
 float lTrackerRealPose[6];
@@ -53,12 +53,9 @@ CyberStation::CyberStation()
 	// raw pose data and real pose data for tracker
 	for (int i = 0; i<6; i++)
 	{
-		rTrackerRawPose[i] = 0;
 		rTrackerRealPose[i] = 0;
-		rTrans[i] = 0;
 		lTrackerRawPose[i] = 0;
 		lTrackerRealPose[i] = 0;
-		lTrans[i] = 0;
 	}
 	
 	// raw data and real data for glove
@@ -79,20 +76,14 @@ CyberStation::CyberStation()
 		}
 	}
 
-	m_file.open("test.txt");
-
-// 	// true means CyberGlove calibration is over
-// 	bGloCaliContr = false;
-// 	// true means getting calibraton data is over
-// 	bGesOneContr = false;
-// 	bGesTwoContr = false;
-// 	bGesThrContr = false;
-// 	bGesFourContr = false;
+	// Flag for Calibration
+	m_bRTraCaliFin = false;
+	m_bRTraCaliFin = false;
 }
 
 CyberStation::~CyberStation()
 {
-	m_file.close();
+//	m_file.close();
 }
 
 
@@ -254,6 +245,13 @@ QString CyberStation::GloDisData(bool bGloDisReal)
 	return str;
 }
 
+// TODO(CJH)
+void CyberStation::SaveCaliData(int ges_flag)
+{
+	switch(ges_flag){
+//		case 
+	}
+}
 
 void CyberStation::GetGesOneData()
 {
@@ -604,60 +602,22 @@ void CyberStation::RealGloData(bool bGloCaliFin)
 		// protections
 		for (int i=0;i<5;i++)
 		{
-			if(fabs(m_rGloveRealData[i][2]) < 1)
-			{
-				m_rGloveRealData[i][2] = 0;
+			SETCUT(m_rGloveRealData[i][2], 1);
+		}
+		SETRANGE(m_rGloveRealData[2][2], -3, 3);
+		for(int i = 0; i < 5; ++i)
+		{
+			SETMIN(m_rGloveRealData[i][1], 8.0);
+			SETMIN(m_rGloveRealData[i][0], 5.0);
+			for(int j = 0; j < 2; ++j){
+				SETMAX(m_rGloveRealData[i][j], 75);
 			}
 		}
+		SETMAX(m_rGloveRealData[0][0], 40);
+		SETMAX(m_rGloveRealData[1][0], 45);
+		SETMAX(m_rGloveRealData[2][0], 60);
 
-		if (m_rGloveRealData[2][2] < -3)
-		{
-			m_rGloveRealData[2][2] = -3;
-		}
-		if (m_rGloveRealData[2][2] > 3)
-		{
-			m_rGloveRealData[2][2] = 3;
-		}
 
-		for(int i=0;i<5;i++)
-		{
-			if(m_rGloveRealData[i][1] <= 8.0)
-			{
-				m_rGloveRealData[i][1] = 8.0;
-			}
-		}
-
-		for (int i=0;i<5;i++)
-		{
-			if (m_rGloveRealData[i][0] <= 5.0)
-			{
-				m_rGloveRealData[i][0] = 5.0;
-			}
-		}
-
-		for(int i=0;i<5;i++)
-		{
-			for(int j=0; j<2; j++)
-			{
-				if(m_rGloveRealData[i][j] >= 75)
-					m_rGloveRealData[i][j] = 75;
-			}
-		}
-
-		if (m_rGloveRealData[0][0] >= 40)
-		{
-			m_rGloveRealData[0][0] = 40;
-		}
-
-		if (m_rGloveRealData[1][0] >= 45)
-		{
-			m_rGloveRealData[1][0] = 45;
-		}
-
-		if (m_rGloveRealData[2][0] >= 60)
-		{
-			m_rGloveRealData[2][0] = 60;
-		}
 
 		// 	if (!g_TouchForceCtrl){
 		// 		double forces[6] = {0};
@@ -672,8 +632,7 @@ void CyberStation::RealGloData(bool bGloCaliFin)
 		// 		pDlg->_pTouch->setVibrationAmplitude(forces);
 		// 	}
 	}
-	else
-	{}
+	else{}
 }
 //****************************** CyberGlove Calibration is over ******************************//
 
@@ -681,15 +640,217 @@ void CyberStation::RealGloData(bool bGloCaliFin)
 
 //****************************** CyberTracker Calibration ******************************//
 // get raw data from CyberTracker
-void CyberStation::GetRRawTraData(double RT_arr[6], int RT_size)
+Eigen::Matrix<double, 4, 4> CyberStation::GetRRawTraData()
 {
 	m_pRightRcvr->update();
-	for (int i = 0; i<RT_size; i++)
+	m_pRightTracker->getLogicalDevice(0)->getTransform(&RTraXForm);
+	RTraXForm.getTransform(RFormMat);
+
+	Eigen::Matrix<double, 4, 4> Mat;
+	for (int i = 0; i < 4; i++)
 	{
-		RT_arr[i] = m_pRightRcvr->getRawData((vht6DofDevice::Freedom)i);
+		for (int j = 0; j < 4; j++)
+		{
+			Mat(i, j) = RFormMat[i][j];
+		}
+	}
+	return Mat;
+}
+
+
+
+// Calculate Transformation Matrxi,
+// TODO(CJH): Without Add Left Tracker Calibration
+void CyberStation::CalTraCoef(bool bRTraisChecked, QString PosX, QString PosY, QString PosZ, QString OriX, QString OriY, QString OriZ)
+{
+	if (bRTraisChecked == true)
+	{
+		double RPosX = PosX.toDouble();
+		double RPosY = PosY.toDouble();
+		double RPosZ = PosZ.toDouble();
+		double ROriX = OriX.toDouble();
+		double ROriY = OriY.toDouble();
+		double ROriZ = OriZ.toDouble();
+
+		// position data of a special pose
+		RPosX = 0;
+		RPosY = -33.7;
+		RPosZ = 30.7;
+
+		// orient data of a special pose
+		Eigen::Matrix<double, 3, 3> ROriMat;
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				ROriMat(i, j) = 0;
+			}
+		}
+		ROriMat(0, 0) = 1;
+		ROriMat(1, 2) = 1;
+		ROriMat(2, 1) = -1;
+
+		// position matrix calculate
+		TransCoeffMat(0, 0) = TransCoeffMat(0, 2) = 0;
+		TransCoeffMat(1, 0) = TransCoeffMat(1, 1) = 0;
+		TransCoeffMat(2, 1) = TransCoeffMat(2, 2) = 0;
+		TransCoeffMat(3, 0) = TransCoeffMat(3, 1) = TransCoeffMat(3, 2) = 0;
+		TransCoeffMat(0, 1) = TransCoeffMat(1, 2) = TransCoeffMat(2, 0) = TransCoeffMat(3, 3) = 1;
+		TransCoeffMat(0, 3) = RPosX - RFormMat[1][3];
+		TransCoeffMat(1, 3) = RPosY - RFormMat[2][3];
+		TransCoeffMat(2, 3) = RPosZ - RFormMat[0][3];
+
+		// orientation matrix calculate
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				RotOnPMat(i, j) = ROriMat(i, j);
+			}
+		}
+
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				RotOOnMat(i, j) = 0;
+			}
+		}
+		RotOOnMat(0, 1) = 1;
+		RotOOnMat(1, 2) = 1;
+		RotOOnMat(2, 0) = 1;
+
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				RotOSMat(i, j) = RFormMat[i][j];
+			}
+		}
+
+		RotCoeffMat = RotOSMat.inverse()*RotOOnMat*RotOnPMat;
+
+		// Indicate: Right Tracker Calibration is Finished
+		m_bRTraCaliFin = true;
+	} 
+
+	// TODO(CJH): left tracker calibration
+	else
+	{
 	}
 }
 
+// Get Right Tracker's Real Transformation Matrix, 
+// Must After a Tracker Calibration
+Eigen::Matrix<double, 4, 4> CyberStation::GetRTraRealData()
+{
+	if (m_bRTraCaliFin == true){
+		// update raw data
+		m_pRightRcvr->update();
+		m_pRightTracker->getLogicalDevice(0)->getTransform(&RTraXForm);
+		RTraXForm.getTransform(RFormMat);
+
+		// translation data
+		Eigen::Matrix<double, 4, 4> RTransMat;
+		RTransMat(0, 3) = TransCoeffMat(0, 0)*RFormMat[0][3] + TransCoeffMat(0, 1)*RFormMat[1][3]
+		+ TransCoeffMat(0, 2)*RFormMat[2][3] + TransCoeffMat(0, 3);
+		RTransMat(1, 3) = TransCoeffMat(1, 0)*RFormMat[0][3] + TransCoeffMat(1, 1)*RFormMat[1][3]
+		+ TransCoeffMat(1, 2)*RFormMat[2][3] + TransCoeffMat(1, 3);
+		RTransMat(2, 3) = TransCoeffMat(2, 0)*RFormMat[0][3] + TransCoeffMat(2, 1)*RFormMat[1][3]
+		+ TransCoeffMat(2, 2)*RFormMat[2][3] + TransCoeffMat(2, 3);
+
+		// vision data
+		RTransMat(3, 0) = RTransMat(3, 1) = RTransMat(3, 2) = 0;
+		RTransMat(3, 3) = 1;
+
+		// rotation data
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				RotOSMat(i, j) = RFormMat[i][j];
+			}
+		}
+		RotOnPMat = RotOOnMat.inverse()*RotOSMat*RotCoeffMat;
+		for (int i = 0; i<3; i++)
+		{
+			for (int j = 0; j<3; j++)
+			{
+				RTransMat(i, j) = RotOnPMat(i, j);
+			}
+		}
+
+		// end coordinate is not correct
+		for (int i = 1; i<3; i++)
+		{
+			for (int j = 0; j<3; j++)
+			{
+				RTransMat(i, j) = -RTransMat(i, j);
+			}
+		}
+
+
+		// trans calibartion
+		RTransMat(0, 3) = RTransMat(0, 3)*10 - 156;
+		RTransMat(1, 3) = RTransMat(1, 3)*10 - 156;
+		RTransMat(2, 3) = RTransMat(2, 3)*10 + 52;
+
+		// 
+		for (int i = 0; i<4; i++)
+		{
+			for (int j = 0; j<4; j++)
+			{
+				if (abs(RTransMat(i,j))<1e-5)
+				{
+					RTransMat(i,j) = 0;
+				}
+			}
+		}
+
+		return RTransMat;
+	}
+	// TODO(CJH): If Calibration is not finished,
+	// DO Something!!!
+	else{
+	}
+}
+
+
+// TODO(CJH): delete
+QString CyberStation::LTraDisData(bool bLTraDisReal)
+{
+	QString Str;
+	if (bLTraDisReal == true)
+	{
+		for (int i = 0; i<6; i++)
+		{
+			lTrackerRealPose[i] = lTrackerRawPose[i];
+		}
+		Str = QString("leftTracker_Real:\r\n %1 %2 %3 %4 %5 %6\r\n")
+			.arg(lTrackerRealPose[0]).arg(lTrackerRealPose[1]).arg(lTrackerRealPose[2])
+			.arg(lTrackerRealPose[3]).arg(lTrackerRealPose[4]).arg(lTrackerRealPose[5]);
+	} 
+	else
+	{
+		Str = QString("leftTracker_Raw:\r\n %1 %2 %3 %4 %5 %6\r\n")
+			.arg(lTrackerRawPose[0]).arg(lTrackerRawPose[1]).arg(lTrackerRawPose[2])
+			.arg(lTrackerRawPose[3]).arg(lTrackerRawPose[4]).arg(lTrackerRawPose[5]);
+	}
+	return Str;
+}
+// TODO(CJH): delete
+void CyberStation::GetLTraData()
+{
+	m_pLeftRcvr->update();
+	for (int i = 0; i<6; i++)
+	{
+		lTrackerRawPose[i] = m_pLeftRcvr->getRawData((vht6DofDevice::Freedom)i);
+	}
+}
+
+
+
+// TODO(CJH): without writing left tracker
 void CyberStation::GetLRawTraData(double LT_arr[6], int LT_size)
 {
 	m_pLeftRcvr->update();
@@ -701,6 +862,7 @@ void CyberStation::GetLRawTraData(double LT_arr[6], int LT_size)
 
 // TODO(CJH): Use vector to store calibration data
 // Replace the old calibration function
+// perhaps useless
 void CyberStation::CalTrackerCoef(tracali_type r_data, tracali_type l_data)
 {
 	// read data
@@ -725,42 +887,10 @@ void CyberStation::CalTrackerCoef(tracali_type r_data, tracali_type l_data)
 	double* l_realori_second = l_it->real_ori;
 	double* l_rawpos_second = l_it->raw_pos;
 	double* l_rawori_second = l_it->raw_ori;
-
-	// calculate coefficients
-	//m_rTraCoef;
-	//m_lTraCoef;
 }
 
 
-
-void CyberStation::GetRTraData()
-{
-	m_pRightRcvr->update();
-	for (int i = 0; i < 3; i++)
-	{
-		rTrackerRawPose[i] = m_pRightRcvr->getRawData((vht6DofDevice::Freedom)i);
-	}
-	for (int i = 3; i < 6; i++)
-	{
-		rTrackerRawPose[i] = m_pRightRcvr->getRawData((vht6DofDevice::Freedom)i);
-		rTrackerRawPose[i] = rTrackerRawPose[i]*180/3.14;
-	}
-	m_pRightTracker->getLogicalDevice(0)->getTransform(&trackerXForm);
-	trackerXForm.getTransform(FormMat);
-	
-//	m_pRightTracker->getLogicalDevice(0)->setRawData()
-
-}
-
-void CyberStation::GetLTraData()
-{
-	m_pLeftRcvr->update();
-	for (int i = 0; i<6; i++)
-	{
-		lTrackerRawPose[i] = m_pLeftRcvr->getRawData((vht6DofDevice::Freedom)i);
-	}
-}
-
+// TODO(CJH): Perhaps Need to Delete
 // Recieve six pose data, calculate translation matrix
 Eigen::Matrix<double, 4, 4> CyberStation::CalTransMat(const double Trans[])
 {
@@ -797,232 +927,4 @@ Eigen::Matrix<double, 4, 4> CyberStation::CalTransMat(const double Trans[])
 
 	return TransMat;
 }
-
-// calculate the transformation matrix
-void CyberStation::CalTraCoef(bool bRTraisChecked, QString PosX, QString PosY, QString PosZ, QString OriX, QString OriY, QString OriZ)
-{
-	if (bRTraisChecked == true)
-	{
-		double RPosX = PosX.toDouble();
-		double RPosY = PosY.toDouble();
-		double RPosZ = PosZ.toDouble();
-		double ROriX = OriX.toDouble();
-		double ROriY = OriY.toDouble();
-		double ROriZ = OriZ.toDouble();
-
-		// position data of a special pose
-		RPosX = 0;
-		RPosY = -33.7;
-		RPosZ = 30.7;
-
-		// orient data of a special pose
-		Eigen::Matrix<double, 3, 3> ROriMat;
-		for (int i = 0; i < 3; i++)
-		{
-			for (int j = 0; j < 3; j++)
-			{
-				ROriMat(i, j) = 0;
-			}
-		}
-		ROriMat(0, 0) = 1;
-		ROriMat(1, 2) = 1;
-		ROriMat(2, 1) = -1;
-
-		// position matrix calculate
-		TransCoeffMat(0, 0) = TransCoeffMat(0, 2) = 0;
-		TransCoeffMat(1, 0) = TransCoeffMat(1, 1) = 0;
-		TransCoeffMat(2, 1) = TransCoeffMat(2, 2) = 0;
-		TransCoeffMat(3, 0) = TransCoeffMat(3, 1) = TransCoeffMat(3, 2) = 0;
-		TransCoeffMat(0, 1) = TransCoeffMat(1, 2) = TransCoeffMat(2, 0) = TransCoeffMat(3, 3) = 1;
-		TransCoeffMat(0, 3) = RPosX - rTrackerRawPose[1];
-		TransCoeffMat(1, 3) = RPosY - rTrackerRawPose[2];
-		TransCoeffMat(2, 3) = RPosZ - rTrackerRawPose[0];
-
-		// orientation matrix calculate
-		for (int i = 0; i < 3; i++)
-		{
-			for (int j = 0; j < 3; j++)
-			{
-				RotOnPMat(i, j) = ROriMat(i, j);
-			}
-		}
-
-		for (int i = 0; i < 3; i++)
-		{
-			for (int j = 0; j < 3; j++)
-			{
-				RotOOnMat(i, j) = 0;
-			}
-		}
-		RotOOnMat(0, 1) = 1;
-		RotOOnMat(1, 2) = 1;
-		RotOOnMat(2, 0) = 1;
-
-		for (int i = 0; i < 3; i++)
-		{
-			for (int j = 0; j < 3; j++)
-			{
-				RotOSMat(i, j) = FormMat[i][j];
-			}
-		}
-
-		RotCoeffMat = RotOSMat.inverse()*RotOOnMat*RotOnPMat;
-
-// 		m_file << "Start to Calculate:" << std::endl;
-// 		for (int i = 0; i < 3; i++)
-// 		{
-// 			for (int j = 0; j < 3; j++)
-// 			{
-// 				m_file << FormMat[i][j] << " ";
-// 			}
-// 			m_file << std::endl;
-// 		}
-// 		m_file << std::endl;
-	} 
-	else
-	{
-		double LPosX = PosX.toDouble();
-		double LPosY = PosY.toDouble();
-		double LPosZ = PosZ.toDouble();
-		double LOriX = OriX.toDouble();
-		double LOriY = OriY.toDouble();
-		double LOriZ = OriZ.toDouble();
-
-// 		lTrans[0] = LPosX - 0.01*lTrackerRawPose[0];
-// 		lTrans[1] = LPosY - 0.01*lTrackerRawPose[1];
-// 		lTrans[2] = LPosZ - 0.01*lTrackerRawPose[2];
-// 		lTrans[3] = LOriX - 0.01*lTrackerRawPose[3];
-// 		lTrans[4] = LOriY - 0.01*lTrackerRawPose[4];
-// 		lTrans[5] = LOriZ - 0.01*lTrackerRawPose[5];
-
-		lTrans[0] = LPosX - lTrackerRawPose[0];
-		lTrans[1] = LPosY - lTrackerRawPose[1];
-		lTrans[2] = LPosZ - lTrackerRawPose[2];
-		lTrans[3] = LOriX - lTrackerRawPose[3];
-		lTrans[4] = LOriY - lTrackerRawPose[4];
-		lTrans[5] = LOriZ - lTrackerRawPose[5];
-
-	}
-}
-
-// CyberTracker display control
-QString CyberStation::RTraDisData(bool bRTraDisReal)
-{ 
-	QString Str;
-	if (bRTraDisReal == true)
-	{
-//		m_rTraRawMat = CalTransMat(rTrackerRawPose);
-//		m_rTraRealMat = m_rTraRawMat*CoeffMat;
-
-		// translation data
-		m_rTraRealMat(0, 3) = TransCoeffMat(0, 0)*FormMat[0][3] + TransCoeffMat(0, 1)*FormMat[1][3]
-							  + TransCoeffMat(0, 2)*FormMat[2][3] + TransCoeffMat(0, 3);
-		m_rTraRealMat(1, 3) = TransCoeffMat(1, 0)*FormMat[0][3] + TransCoeffMat(1, 1)*FormMat[1][3]
-							  + TransCoeffMat(1, 2)*FormMat[2][3] + TransCoeffMat(1, 3);
-		m_rTraRealMat(2, 3) = TransCoeffMat(2, 0)*FormMat[0][3] + TransCoeffMat(2, 1)*FormMat[1][3]
-							  + TransCoeffMat(2, 2)*FormMat[2][3] + TransCoeffMat(2, 3);
-		
-		// vision data
-		m_rTraRealMat(3, 0) = m_rTraRealMat(3, 1) = m_rTraRealMat(3, 2) = 0;
-		m_rTraRealMat(3, 3) = 1;
-
-		// rotation data
-		for (int i = 0; i < 3; i++)
-		{
-			for (int j = 0; j < 3; j++)
-			{
-				RotOSMat(i, j) = FormMat[i][j];
-			}
-		}
-		RotOnPMat = RotOOnMat.inverse()*RotOSMat*RotCoeffMat;
-		for (int i = 0; i<3; i++)
-		{
-			for (int j = 0; j<3; j++)
-			{
-				m_rTraRealMat(i, j) = RotOnPMat(i, j);
-			}
-		}
-
-
-		// 
-		for (int i = 0; i<4; i++)
-		{
-			for (int j = 0; j<4; j++)
-			{
-				if (abs(m_rTraRealMat(i,j))<1e-5)
-				{
-					m_rTraRealMat(i,j) = 0;
-				}
-			}
-		}
-
-//		m_file << "Data after calibration:" << std::endl;
-		for (int i = 0; i < 4; i++)
-		{
-			for (int j = 0; j < 4; j++)
-			{
-				m_file << m_rTraRealMat(i,j) << " ";
-			}
-			m_file << std::endl;
-		}
-		m_file << std::endl;
-
-// 		Str = QString("rightTracker_Real:\r\n %1 %2 %3 %4 %5 %6\r\nrightTracker_RealTransMat:\r\n%7 %8 %9\r\n%10 %11 %12\r\n%13 %14 %15\r\n")
-// 			.arg(rTrackerRealPose[0]).arg(rTrackerRealPose[1]).arg(rTrackerRealPose[2])
-// 			.arg(rTrackerRealPose[3]).arg(rTrackerRealPose[4]).arg(rTrackerRealPose[5]);
-		// Display real transformation matrix
-		Str = QString("rightTracker_RealTransMat:\r\n%1 %2 %3 %4\r\n%5 %6 %7 %8\r\n%9 %10 %11 %12\r\n%13 %14 %15 %16\r\n")
-			.arg(m_rTraRealMat(0,0)).arg(m_rTraRealMat(0,1)).arg(m_rTraRealMat(0,2)).arg(m_rTraRealMat(0,3))
-			.arg(m_rTraRealMat(1,0)).arg(m_rTraRealMat(1,1)).arg(m_rTraRealMat(1,2)).arg(m_rTraRealMat(1,3))
-			.arg(m_rTraRealMat(2,0)).arg(m_rTraRealMat(2,1)).arg(m_rTraRealMat(2,2)).arg(m_rTraRealMat(2,3))
-			.arg(m_rTraRealMat(3,0)).arg(m_rTraRealMat(3,1)).arg(m_rTraRealMat(3,2)).arg(m_rTraRealMat(3,3));
-	} 
-	else
-	{
-// 		Str = QString("rightTracker_Raw:\r\n %1 %2 %3 %4 %5 %6\r\n")
-// 			.arg(rTrackerRawPose[0]).arg(rTrackerRawPose[1]).arg(rTrackerRawPose[2])
-// 			.arg(rTrackerRawPose[3]).arg(rTrackerRawPose[4]).arg(rTrackerRawPose[5]);
-
-//		m_rTraRawMat = CalTransMat(rTrackerRawPose);
-
-// 		Str = QString("rightTracker_Raw:\r\n %1 %2 %3 %4 %5 %6\r\nrightTracker_RawTransMat:\r\n%7 %8 %9\r\n%10 %11 %12\r\n%13 %14 %15\r\n")
-// 			.arg(rTrackerRawPose[0]).arg(rTrackerRawPose[1]).arg(rTrackerRawPose[2])
-// 			.arg(rTrackerRawPose[3]).arg(rTrackerRawPose[4]).arg(rTrackerRawPose[5])
-// 			.arg(m_rTraRawMat(0,0)).arg(m_rTraRawMat(0,1)).arg(m_rTraRawMat(0,2))
-// 			.arg(m_rTraRawMat(1,0)).arg(m_rTraRawMat(1,1)).arg(m_rTraRawMat(1,2))
-// 			.arg(m_rTraRawMat(2,0)).arg(m_rTraRawMat(2,1)).arg(m_rTraRawMat(2,2));
-
-		Str = QString("rightTracker_RawTransMat:\r\n%1 %2 %3 %4\r\n%5 %6 %7 %8\r\n%9 %10 %11 %12\r\n%13 %14 %15 %16\r\n")
-			.arg(FormMat[0][0]).arg(FormMat[0][1]).arg(FormMat[0][2]).arg(FormMat[0][3])
-			.arg(FormMat[1][0]).arg(FormMat[1][1]).arg(FormMat[1][2]).arg(FormMat[1][3])
-			.arg(FormMat[2][0]).arg(FormMat[2][1]).arg(FormMat[2][2]).arg(FormMat[2][3])
-			.arg(FormMat[3][0]).arg(FormMat[3][1]).arg(FormMat[3][2]).arg(FormMat[3][3]);	
-	}
-	return Str;
-}
-
-QString CyberStation::LTraDisData(bool bLTraDisReal)
-{
-	QString Str;
-	if (bLTraDisReal == true)
-	{
-		for (int i = 0; i<6; i++)
-		{
-			/*lTrackerRealPose[i] = 0.01*lTrackerRawPose[i] + lTrans[i];*/
-
-			lTrackerRealPose[i] = lTrackerRawPose[i] + lTrans[i];
-		}
-		Str = QString("leftTracker_Real:\r\n %1 %2 %3 %4 %5 %6\r\n")
-			.arg(lTrackerRealPose[0]).arg(lTrackerRealPose[1]).arg(lTrackerRealPose[2])
-			.arg(lTrackerRealPose[3]).arg(lTrackerRealPose[4]).arg(lTrackerRealPose[5]);
-	} 
-	else
-	{
-		Str = QString("leftTracker_Raw:\r\n %1 %2 %3 %4 %5 %6\r\n")
-			.arg(lTrackerRawPose[0]).arg(lTrackerRawPose[1]).arg(lTrackerRawPose[2])
-			.arg(lTrackerRawPose[3]).arg(lTrackerRawPose[4]).arg(lTrackerRawPose[5]);
-	}
-	return Str;
-}
-
 //****************************** CyberTracker Calibration is over ******************************//

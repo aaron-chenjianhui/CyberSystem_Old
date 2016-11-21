@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1154</width>
-    <height>640</height>
+    <width>1463</width>
+    <height>788</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,8 +24,8 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>1154</width>
-    <height>640</height>
+    <width>1920</width>
+    <height>1080</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -40,982 +40,981 @@
    </property>
    <property name="maximumSize">
     <size>
-     <width>1154</width>
-     <height>640</height>
+     <width>1920</width>
+     <height>1080</height>
     </size>
    </property>
-   <layout class="QGridLayout" name="gridLayout_13">
+   <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <layout class="QGridLayout" name="gridLayout_12">
-      <item row="0" column="0">
-       <layout class="QVBoxLayout" name="verticalLayout_5">
+     <layout class="QHBoxLayout" name="horizontalLayout_26">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_11">
         <item>
-         <widget class="QGroupBox" name="m_pConnBox">
-          <property name="minimumSize">
-           <size>
-            <width>320</width>
-            <height>140</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>320</width>
-            <height>140</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Connect Options</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_10">
-           <item row="0" column="0">
-            <layout class="QGridLayout" name="m_pConnLayout">
-             <item row="0" column="0">
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Fixed</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>30</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="0" column="1" colspan="2">
-              <widget class="QPushButton" name="m_pInitBtn">
-               <property name="minimumSize">
-                <size>
-                 <width>200</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <pointsize>9</pointsize>
-                 <weight>50</weight>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Connect Haptic Station</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="3">
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Fixed</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>30</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="1" column="0" colspan="2">
-              <widget class="QPushButton" name="m_pInitRHBtn">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <pointsize>8</pointsize>
-                </font>
-               </property>
-               <property name="text">
-                <string>Conn Right Hand</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2" colspan="2">
-              <widget class="QPushButton" name="m_pInitRTBtn">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <pointsize>8</pointsize>
-                </font>
-               </property>
-               <property name="text">
-                <string>Conn Right Tracker</string>
-               </property>
-               <property name="iconSize">
-                <size>
-                 <width>20</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0" colspan="2">
-              <widget class="QPushButton" name="m_pInitLHBtn">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <pointsize>8</pointsize>
-                </font>
-               </property>
-               <property name="text">
-                <string>Conne Left Hand</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2" colspan="2">
-              <widget class="QPushButton" name="m_pInitLTBtn">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <pointsize>8</pointsize>
-                </font>
-               </property>
-               <property name="text">
-                <string>Conn Left Tracker</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="m_pGloveBox">
-          <property name="minimumSize">
-           <size>
-            <width>320</width>
-            <height>400</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>320</width>
-            <height>400</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Glove Calibration</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_9">
-           <item row="0" column="0">
-            <layout class="QGridLayout" name="gridLayout_2">
-             <item row="4" column="0">
-              <widget class="QLabel" name="m_pGes_three">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>100</height>
-                </size>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="pixmap">
-                <pixmap resource="cybersystem.qrc">:/CyberSystem/Resources/Posture 3.bmp</pixmap>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QLabel" name="m_pGes_four">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>100</height>
-                </size>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="pixmap">
-                <pixmap resource="cybersystem.qrc">:/CyberSystem/Resources/Posture 4.bmp</pixmap>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QPushButton" name="m_pGesBtn_three">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Gesture 3</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="1">
-              <widget class="QPushButton" name="m_pGesBtn_four">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Gesture 4</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QPushButton" name="m_pFinshBtn">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Finish</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLabel" name="m_pGes_two">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>100</height>
-                </size>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="pixmap">
-                <pixmap resource="cybersystem.qrc">:/CyberSystem/Resources/Posture 2.bmp</pixmap>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QPushButton" name="m_pGesBtn_one">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Gesture 1</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QPushButton" name="m_pGesBtn_two">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Gesture 2</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QRadioButton" name="m_pRHCaliRdBtn">
-               <property name="text">
-                <string>Right Hand</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QRadioButton" name="m_pLHCaliRdBtn">
-               <property name="text">
-                <string>Left Hand</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QPushButton" name="m_pGlStartBtn">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Start</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="m_pGes_one">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>100</height>
-                </size>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="pixmap">
-                <pixmap resource="cybersystem.qrc">:/CyberSystem/Resources/Posture 1.bmp</pixmap>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="0" column="1">
-       <layout class="QVBoxLayout" name="m_pMVerLayout">
-        <item>
-         <widget class="QTextBrowser" name="m_pDataDisBs">
-          <property name="minimumSize">
-           <size>
-            <width>300</width>
-            <height>225</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>300</width>
-            <height>210</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="m_pTrackerBox">
-          <property name="minimumSize">
-           <size>
-            <width>300</width>
-            <height>330</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>300</width>
-            <height>330</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>CyberTracker Calibration</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_8">
-           <item row="0" column="0">
-            <layout class="QGridLayout" name="m_pTracker">
-             <item row="0" column="0">
-              <widget class="QPushButton" name="m_pTraStartBtn">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>Start</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QPushButton" name="m_pTraCalBtn">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>Calculate</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" colspan="2">
-              <widget class="QLabel" name="m_pnoticelbl">
-               <property name="font">
-                <font>
-                 <pointsize>12</pointsize>
-                </font>
-               </property>
-               <property name="cursor">
-                <cursorShape>ArrowCursor</cursorShape>
-               </property>
-               <property name="text">
-                <string>Input your real Pose here</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0" colspan="2">
-              <widget class="QTabWidget" name="m_pTraCaliWidget">
-               <property name="currentIndex">
-                <number>1</number>
-               </property>
-               <widget class="QWidget" name="m_pRTraTab">
-                <attribute name="title">
-                 <string>Right Tracker</string>
-                </attribute>
-                <layout class="QGridLayout" name="gridLayout_5">
-                 <item row="0" column="0">
-                  <layout class="QVBoxLayout" name="verticalLayout_6">
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_37">
-                     <item>
-                      <widget class="QLabel" name="m_pRPosXLbl">
-                       <property name="text">
-                        <string>R_pos_X</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="m_pRPosXLiEd">
-                       <property name="minimumSize">
-                        <size>
-                         <width>120</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_38">
-                     <item>
-                      <widget class="QLabel" name="m_pRPosYLbl">
-                       <property name="text">
-                        <string>R_pos_Y</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="m_pRPosYLiEd">
-                       <property name="minimumSize">
-                        <size>
-                         <width>120</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_39">
-                     <item>
-                      <widget class="QLabel" name="m_pRPosZLbl_2">
-                       <property name="text">
-                        <string>R_pos_Z</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="m_pRPosZLiEd">
-                       <property name="minimumSize">
-                        <size>
-                         <width>120</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_40">
-                     <item>
-                      <widget class="QLabel" name="m_pROriXLbl">
-                       <property name="text">
-                        <string>R_ori_X</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="m_pROriXLiEd">
-                       <property name="minimumSize">
-                        <size>
-                         <width>120</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_41">
-                     <item>
-                      <widget class="QLabel" name="m_pROriYLbl">
-                       <property name="text">
-                        <string>R_ori_Y</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="m_pROriYLiEd">
-                       <property name="minimumSize">
-                        <size>
-                         <width>120</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_42">
-                     <item>
-                      <widget class="QLabel" name="m_pROriZLbl">
-                       <property name="text">
-                        <string>R_ori_Z</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="m_pROriZLiEd">
-                       <property name="minimumSize">
-                        <size>
-                         <width>120</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                  </layout>
-                 </item>
-                </layout>
-               </widget>
-               <widget class="QWidget" name="m_pLTraTab">
-                <attribute name="title">
-                 <string>Left Tracker</string>
-                </attribute>
-                <layout class="QGridLayout" name="gridLayout_6">
-                 <item row="0" column="0">
-                  <layout class="QVBoxLayout" name="verticalLayout_7">
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_43">
-                     <item>
-                      <widget class="QLabel" name="m_pLPosXLbl">
-                       <property name="text">
-                        <string>L_pos_X</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="m_pLPosXLiEd">
-                       <property name="minimumSize">
-                        <size>
-                         <width>120</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_44">
-                     <item>
-                      <widget class="QLabel" name="m_pLPosYLbl">
-                       <property name="text">
-                        <string>L_pos_Y</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="m_pLPosYLiEd">
-                       <property name="minimumSize">
-                        <size>
-                         <width>120</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_45">
-                     <item>
-                      <widget class="QLabel" name="m_pLPosZLbl">
-                       <property name="text">
-                        <string>L_pos_Z</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="m_pLPosZLiEd">
-                       <property name="minimumSize">
-                        <size>
-                         <width>120</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_46">
-                     <item>
-                      <widget class="QLabel" name="m_pLOriXLbl">
-                       <property name="text">
-                        <string>L_ori_X</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="m_pLOriXLiEd">
-                       <property name="minimumSize">
-                        <size>
-                         <width>120</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_47">
-                     <item>
-                      <widget class="QLabel" name="m_pLOriYLbl">
-                       <property name="text">
-                        <string>L_ori_Y</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="m_pLOriYLiEd">
-                       <property name="minimumSize">
-                        <size>
-                         <width>120</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_48">
-                     <item>
-                      <widget class="QLabel" name="m_pLOriZLbl">
-                       <property name="text">
-                        <string>L_ori_Z</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="m_pLOriZLiEd">
-                       <property name="minimumSize">
-                        <size>
-                         <width>120</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                  </layout>
-                 </item>
-                </layout>
-               </widget>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="0" column="2">
-       <layout class="QVBoxLayout" name="verticalLayout_9">
-        <item>
-         <widget class="QGroupBox" name="m_pSimuBox">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>67</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>67</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Simulation</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0">
-            <widget class="QPushButton" name="m_pSimuConnBtn">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Conn ConSimu</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QPushButton" name="m_pSimuRunBtn">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>ConSimu Ctrl</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="m_pRoboBox">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>67</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>67</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Robonaut</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout">
-           <item row="0" column="0">
-            <widget class="QPushButton" name="m_pRoboConnBtn">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>139</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>139</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Conn Robonaut</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QPushButton" name="m_pRoboRunBtn">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Robonaut Ctrl</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>100</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>100</height>
-           </size>
-          </property>
-          <property name="title">
-           <string>Hand Control</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_7">
-           <item row="0" column="0">
-            <layout class="QVBoxLayout" name="verticalLayout_2">
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_10">
-               <item>
-                <widget class="QRadioButton" name="m_pPosRdBtn">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="text">
-                  <string>Position</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="m_pImpRdBtn">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="text">
-                  <string>Impedance</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="m_pResRdBtn">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="text">
-                  <string>Reset</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_9">
-               <item>
-                <widget class="QPushButton" name="m_pInitHandBtn">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="text">
-                  <string>Init Hand</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="m_pRunHandBtn">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="text">
-                  <string>Run</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <layout class="QHBoxLayout" name="horizontalLayout_25">
           <item>
-           <widget class="QPushButton" name="m_pJointCtrlBtn">
-            <property name="enabled">
-             <bool>false</bool>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="m_pConnBox">
             <property name="minimumSize">
              <size>
-              <width>133</width>
+              <width>320</width>
+              <height>140</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>320</width>
+              <height>140</height>
+             </size>
+            </property>
+            <property name="title">
+             <string>Connect Options</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_10">
+             <item row="0" column="0">
+              <layout class="QGridLayout" name="m_pConnLayout">
+               <item row="0" column="0">
+                <spacer name="horizontalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="0" column="1" colspan="2">
+                <widget class="QPushButton" name="m_pInitBtn">
+                 <property name="minimumSize">
+                  <size>
+                   <width>200</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <pointsize>9</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Connect Haptic Station</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3">
+                <spacer name="horizontalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>30</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="1" column="0" colspan="2">
+                <widget class="QPushButton" name="m_pInitRHBtn">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <pointsize>8</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Conn Right Hand</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2" colspan="2">
+                <widget class="QPushButton" name="m_pInitRTBtn">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <pointsize>8</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Conn Right Tracker</string>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0" colspan="2">
+                <widget class="QPushButton" name="m_pInitLHBtn">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <pointsize>8</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Conne Left Hand</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2" colspan="2">
+                <widget class="QPushButton" name="m_pInitLTBtn">
+                 <property name="font">
+                  <font>
+                   <family>Arial</family>
+                   <pointsize>8</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Conn Left Tracker</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_13">
+          <item>
+           <widget class="QGroupBox" name="m_pGloveBox">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>133</width>
-              <height>16777215</height>
+              <width>1000</width>
+              <height>1000</height>
              </size>
             </property>
-            <property name="text">
-             <string>Joint Ctrl</string>
+            <property name="title">
+             <string>Glove Calibration</string>
             </property>
+            <layout class="QGridLayout" name="gridLayout_9">
+             <item row="0" column="0">
+              <layout class="QHBoxLayout" name="horizontalLayout_12">
+               <property name="sizeConstraint">
+                <enum>QLayout::SetFixedSize</enum>
+               </property>
+               <item>
+                <layout class="QGridLayout" name="gridLayout_2">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="m_pGes_one">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>100</width>
+                     <height>100</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="pixmap">
+                    <pixmap resource="cybersystem.qrc">:/CyberSystem/Resources/Posture 1.bmp</pixmap>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLabel" name="m_pGes_two">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>100</width>
+                     <height>100</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="pixmap">
+                    <pixmap resource="cybersystem.qrc">:/CyberSystem/Resources/Posture 2.bmp</pixmap>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="m_pGes_three">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>100</width>
+                     <height>100</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="pixmap">
+                    <pixmap resource="cybersystem.qrc">:/CyberSystem/Resources/Posture 3.bmp</pixmap>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLabel" name="m_pGes_four">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>100</width>
+                     <height>100</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="pixmap">
+                    <pixmap resource="cybersystem.qrc">:/CyberSystem/Resources/Posture 4.bmp</pixmap>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_5">
+                 <item>
+                  <widget class="QPushButton" name="m_pGlStartBtn">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>100</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>100</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Start</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_11">
+                   <item>
+                    <widget class="QRadioButton" name="m_pRHCaliRdBtn">
+                     <property name="text">
+                      <string>R</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QRadioButton" name="m_pLHCaliRdBtn">
+                     <property name="text">
+                      <string>L</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="m_pGesBtn_one">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>100</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Gesture 1</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="m_pGesBtn_two">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>100</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Gesture 2</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="m_pGesBtn_four">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>100</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Gesture 4</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="m_pGesBtn_three">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>100</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Gesture 3</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="m_pSdDataBtn">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
+           <widget class="QTextBrowser" name="m_pGloDataDisBs">
             <property name="minimumSize">
              <size>
-              <width>133</width>
-              <height>28</height>
+              <width>300</width>
+              <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>133</width>
-              <height>28</height>
+              <width>300</width>
+              <height>210</height>
              </size>
             </property>
-            <property name="text">
-             <string>Send Data</string>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_14">
+          <item>
+           <widget class="QGroupBox" name="m_pTrackerBox">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>1000</width>
+              <height>1000</height>
+             </size>
+            </property>
+            <property name="title">
+             <string>CyberTracker Calibration</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_8">
+             <item row="1" column="0">
+              <layout class="QGridLayout" name="gridLayout_12">
+               <item row="0" column="0">
+                <widget class="QPushButton" name="m_pTraStartBtn">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Start</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QPushButton" name="m_pTraCalBtn">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Calculate</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0" colspan="2">
+                <widget class="QTabWidget" name="m_pTraCaliWidget">
+                 <property name="currentIndex">
+                  <number>0</number>
+                 </property>
+                 <widget class="QWidget" name="m_pRTraTab">
+                  <attribute name="title">
+                   <string>Right Tracker</string>
+                  </attribute>
+                  <layout class="QGridLayout" name="gridLayout_5">
+                   <item row="0" column="0">
+                    <layout class="QVBoxLayout" name="verticalLayout_6">
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_37">
+                       <item>
+                        <widget class="QLabel" name="m_pRPosXLbl">
+                         <property name="text">
+                          <string>R_pos_X</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="m_pRPosXLiEd">
+                         <property name="minimumSize">
+                          <size>
+                           <width>120</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_38">
+                       <item>
+                        <widget class="QLabel" name="m_pRPosYLbl">
+                         <property name="text">
+                          <string>R_pos_Y</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="m_pRPosYLiEd">
+                         <property name="minimumSize">
+                          <size>
+                           <width>120</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_39">
+                       <item>
+                        <widget class="QLabel" name="m_pRPosZLbl_2">
+                         <property name="text">
+                          <string>R_pos_Z</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="m_pRPosZLiEd">
+                         <property name="minimumSize">
+                          <size>
+                           <width>120</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_40">
+                       <item>
+                        <widget class="QLabel" name="m_pROriXLbl">
+                         <property name="text">
+                          <string>R_ori_X</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="m_pROriXLiEd">
+                         <property name="minimumSize">
+                          <size>
+                           <width>120</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_41">
+                       <item>
+                        <widget class="QLabel" name="m_pROriYLbl">
+                         <property name="text">
+                          <string>R_ori_Y</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="m_pROriYLiEd">
+                         <property name="minimumSize">
+                          <size>
+                           <width>120</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_42">
+                       <item>
+                        <widget class="QLabel" name="m_pROriZLbl">
+                         <property name="text">
+                          <string>R_ori_Z</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="m_pROriZLiEd">
+                         <property name="minimumSize">
+                          <size>
+                           <width>120</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="m_pLTraTab">
+                  <attribute name="title">
+                   <string>Left Tracker</string>
+                  </attribute>
+                  <layout class="QGridLayout" name="gridLayout_6">
+                   <item row="0" column="0">
+                    <layout class="QVBoxLayout" name="verticalLayout_7">
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_43">
+                       <item>
+                        <widget class="QLabel" name="m_pLPosXLbl">
+                         <property name="text">
+                          <string>L_pos_X</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="m_pLPosXLiEd">
+                         <property name="minimumSize">
+                          <size>
+                           <width>120</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_44">
+                       <item>
+                        <widget class="QLabel" name="m_pLPosYLbl">
+                         <property name="text">
+                          <string>L_pos_Y</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="m_pLPosYLiEd">
+                         <property name="minimumSize">
+                          <size>
+                           <width>120</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_45">
+                       <item>
+                        <widget class="QLabel" name="m_pLPosZLbl">
+                         <property name="text">
+                          <string>L_pos_Z</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="m_pLPosZLiEd">
+                         <property name="minimumSize">
+                          <size>
+                           <width>120</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_46">
+                       <item>
+                        <widget class="QLabel" name="m_pLOriXLbl">
+                         <property name="text">
+                          <string>L_ori_X</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="m_pLOriXLiEd">
+                         <property name="minimumSize">
+                          <size>
+                           <width>120</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_47">
+                       <item>
+                        <widget class="QLabel" name="m_pLOriYLbl">
+                         <property name="text">
+                          <string>L_ori_Y</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="m_pLOriYLiEd">
+                         <property name="minimumSize">
+                          <size>
+                           <width>120</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_48">
+                       <item>
+                        <widget class="QLabel" name="m_pLOriZLbl">
+                         <property name="text">
+                          <string>L_ori_Z</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="m_pLOriZLiEd">
+                         <property name="minimumSize">
+                          <size>
+                           <width>120</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTextBrowser" name="m_pTraDataDisBs">
+            <property name="minimumSize">
+             <size>
+              <width>300</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>300</width>
+              <height>210</height>
+             </size>
             </property>
            </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_10">
+        <item>
+         <widget class="QTextBrowser" name="m_pRoboDataDisBs">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>230</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>1000</width>
+            <height>230</height>
+           </size>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_9">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_24">
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_23">
+              <item>
+               <widget class="QPushButton" name="m_pSimuConnBtn">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>140</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Conn Consimu</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="m_pRoboConnBtn">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>140</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Conn Robonaut</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_22">
+            <item>
+             <widget class="QPushButton" name="m_pJointCtrlBtn">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>120</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>133</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Click</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="m_pSdDataBtn">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>120</width>
+                <height>28</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>133</width>
+                <height>28</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Send Data</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="m_pUpdataBtn">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Updata</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QPushButton" name="m_pCyberCtrlBtn">
+              <property name="text">
+               <string>Cyber</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="m_pCyberStartBtn">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Start</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="m_pCyberStopBtn">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Stop</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
@@ -1024,10 +1023,16 @@
           <property name="enabled">
            <bool>true</bool>
           </property>
+          <property name="minimumSize">
+           <size>
+            <width>400</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="maximumSize">
            <size>
-            <width>308</width>
-            <height>256</height>
+            <width>400</width>
+            <height>1000</height>
            </size>
           </property>
           <property name="sizeIncrement">
@@ -1051,7 +1056,7 @@
                 <item>
                  <widget class="QLabel" name="m_pRJo0Lbl">
                   <property name="text">
-                   <string>Joint 0</string>
+                   <string>Joint 1</string>
                   </property>
                  </widget>
                 </item>
@@ -1062,8 +1067,14 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>160</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>20</height>
                    </size>
                   </property>
                   <property name="orientation">
@@ -1072,12 +1083,24 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="m_pRJo0SpBox">
+                 <widget class="QLineEdit" name="m_pRJo1Line">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
-                  <property name="value">
-                   <number>0</number>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
@@ -1088,7 +1111,7 @@
                 <item>
                  <widget class="QLabel" name="m_pRJo1Lbl">
                   <property name="text">
-                   <string>Joint 1</string>
+                   <string>Joint 2</string>
                   </property>
                  </widget>
                 </item>
@@ -1099,8 +1122,8 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>160</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>20</height>
                    </size>
                   </property>
                   <property name="orientation">
@@ -1109,9 +1132,24 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="m_pRJo1SpBox">
+                 <widget class="QLineEdit" name="m_pRJo2Line">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
@@ -1122,7 +1160,7 @@
                 <item>
                  <widget class="QLabel" name="m_pRJo2Lbl">
                   <property name="text">
-                   <string>Joint 2</string>
+                   <string>Joint 3</string>
                   </property>
                  </widget>
                 </item>
@@ -1133,8 +1171,8 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>160</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>20</height>
                    </size>
                   </property>
                   <property name="orientation">
@@ -1143,9 +1181,24 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="m_pRJo2SpBox">
+                 <widget class="QLineEdit" name="m_pRJo3Line">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
@@ -1156,7 +1209,7 @@
                 <item>
                  <widget class="QLabel" name="m_pRJo3Lbl">
                   <property name="text">
-                   <string>Joint 3</string>
+                   <string>Joint 4</string>
                   </property>
                  </widget>
                 </item>
@@ -1167,8 +1220,8 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>160</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>20</height>
                    </size>
                   </property>
                   <property name="orientation">
@@ -1177,9 +1230,24 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="m_pRJo3SpBox">
+                 <widget class="QLineEdit" name="m_pRJo4Line">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
@@ -1190,7 +1258,7 @@
                 <item>
                  <widget class="QLabel" name="m_pRJo4Lbl">
                   <property name="text">
-                   <string>Joint 4</string>
+                   <string>Joint 5</string>
                   </property>
                  </widget>
                 </item>
@@ -1201,8 +1269,8 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>160</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>20</height>
                    </size>
                   </property>
                   <property name="orientation">
@@ -1211,9 +1279,24 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="m_pRJo4SpBox">
+                 <widget class="QLineEdit" name="m_pRJo5Line">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
@@ -1224,7 +1307,7 @@
                 <item>
                  <widget class="QLabel" name="m_pRJo5Lbl">
                   <property name="text">
-                   <string>Joint 5</string>
+                   <string>Joint 6</string>
                   </property>
                  </widget>
                 </item>
@@ -1235,8 +1318,8 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>160</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>20</height>
                    </size>
                   </property>
                   <property name="orientation">
@@ -1245,9 +1328,24 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="m_pRJo5SpBox">
+                 <widget class="QLineEdit" name="m_pRJo6Line">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
@@ -1258,7 +1356,7 @@
                 <item>
                  <widget class="QLabel" name="m_pRJo6Lbl">
                   <property name="text">
-                   <string>Joint 6</string>
+                   <string>Joint 7</string>
                   </property>
                  </widget>
                 </item>
@@ -1269,8 +1367,8 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>160</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>20</height>
                    </size>
                   </property>
                   <property name="orientation">
@@ -1279,9 +1377,24 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="m_pRJo6SpBox">
+                 <widget class="QLineEdit" name="m_pRJo7Line">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
@@ -1299,11 +1412,11 @@
             <item row="0" column="0">
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_16">
+               <layout class="QHBoxLayout" name="horizontalLayout_15">
                 <item>
                  <widget class="QLabel" name="m_pLJo0Lbl">
                   <property name="text">
-                   <string>Joint 0</string>
+                   <string>Joint 1</string>
                   </property>
                  </widget>
                 </item>
@@ -1314,8 +1427,8 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>160</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>20</height>
                    </size>
                   </property>
                   <property name="orientation">
@@ -1324,20 +1437,35 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="m_pLJo0SpBox">
+                 <widget class="QLineEdit" name="m_pLJo1Line">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
                </layout>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_17">
+               <layout class="QHBoxLayout" name="horizontalLayout_16">
                 <item>
                  <widget class="QLabel" name="m_pLJo1Lbl">
                   <property name="text">
-                   <string>Joint 1</string>
+                   <string>Joint 2</string>
                   </property>
                  </widget>
                 </item>
@@ -1348,8 +1476,8 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>160</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>20</height>
                    </size>
                   </property>
                   <property name="orientation">
@@ -1358,20 +1486,35 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="m_pLJo1SpBox">
+                 <widget class="QLineEdit" name="m_pLJo2Line">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
                </layout>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_18">
+               <layout class="QHBoxLayout" name="horizontalLayout_17">
                 <item>
                  <widget class="QLabel" name="m_pLJo2Lbl">
                   <property name="text">
-                   <string>Joint 2</string>
+                   <string>Joint 3</string>
                   </property>
                  </widget>
                 </item>
@@ -1382,8 +1525,8 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>160</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>20</height>
                    </size>
                   </property>
                   <property name="orientation">
@@ -1392,20 +1535,35 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="m_pLJo2SpBox">
+                 <widget class="QLineEdit" name="m_pLJo3Line">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
                </layout>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_19">
+               <layout class="QHBoxLayout" name="horizontalLayout_18">
                 <item>
                  <widget class="QLabel" name="m_pLJo3Lbl">
                   <property name="text">
-                   <string>Joint 3</string>
+                   <string>Joint 4</string>
                   </property>
                  </widget>
                 </item>
@@ -1416,8 +1574,8 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>160</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>20</height>
                    </size>
                   </property>
                   <property name="orientation">
@@ -1426,20 +1584,35 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="m_pLJo3SpBox">
+                 <widget class="QLineEdit" name="m_pLJo4Line">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
                </layout>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_20">
+               <layout class="QHBoxLayout" name="horizontalLayout_19">
                 <item>
                  <widget class="QLabel" name="m_pLJo4Lbl">
                   <property name="text">
-                   <string>Joint 4</string>
+                   <string>Joint 5</string>
                   </property>
                  </widget>
                 </item>
@@ -1450,8 +1623,8 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>160</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>20</height>
                    </size>
                   </property>
                   <property name="orientation">
@@ -1460,20 +1633,35 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="m_pLJo4SpBox">
+                 <widget class="QLineEdit" name="m_pLJo5Line">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
                </layout>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_21">
+               <layout class="QHBoxLayout" name="horizontalLayout_20">
                 <item>
                  <widget class="QLabel" name="m_pLJo5Lbl">
                   <property name="text">
-                   <string>Joint 5</string>
+                   <string>Joint 6</string>
                   </property>
                  </widget>
                 </item>
@@ -1484,8 +1672,8 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>160</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>20</height>
                    </size>
                   </property>
                   <property name="orientation">
@@ -1494,20 +1682,35 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="m_pLJo5SpBox">
+                 <widget class="QLineEdit" name="m_pLJo6Line">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
                </layout>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_22">
+               <layout class="QHBoxLayout" name="horizontalLayout_21">
                 <item>
                  <widget class="QLabel" name="m_pLJo6Lbl">
                   <property name="text">
-                   <string>Joint 6</string>
+                   <string>Joint 7</string>
                   </property>
                  </widget>
                 </item>
@@ -1518,8 +1721,8 @@
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>160</width>
-                    <height>0</height>
+                    <width>200</width>
+                    <height>20</height>
                    </size>
                   </property>
                   <property name="orientation">
@@ -1528,9 +1731,24 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="m_pLJo6SpBox">
+                 <widget class="QLineEdit" name="m_pLJo7Line">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
                   </property>
                  </widget>
                 </item>
@@ -1858,19 +2076,102 @@
           </widget>
          </widget>
         </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>100</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>100</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Hand Control</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_7">
+           <item row="0" column="0">
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_10">
+               <item>
+                <widget class="QRadioButton" name="m_pPosRdBtn">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Position</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="m_pImpRdBtn">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Impedance</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="m_pResRdBtn">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Reset</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_9">
+               <item>
+                <widget class="QPushButton" name="m_pInitHandBtn">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Init Hand</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="m_pRunHandBtn">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Run</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
        </layout>
       </item>
-      <item row="0" column="3">
+      <item>
        <widget class="QTextBrowser" name="m_pCommadBs">
         <property name="minimumSize">
          <size>
-          <width>180</width>
+          <width>300</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>180</width>
+          <width>300</width>
           <height>16777215</height>
          </size>
         </property>
@@ -1878,16 +2179,31 @@
       </item>
      </layout>
     </item>
+    <item row="1" column="1">
+     <widget class="QPushButton" name="m_pFinshBtn">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>100</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Finish</string>
+      </property>
+     </widget>
+    </item>
    </layout>
-   <zorder></zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1154</width>
-     <height>26</height>
+     <width>1463</width>
+     <height>23</height>
     </rect>
    </property>
   </widget>

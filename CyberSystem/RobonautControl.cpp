@@ -20,13 +20,9 @@ extern float g_rightArmJointBuf[7];	// global data from slider for joint control
 extern float g_leftArmJointBuf[7];		// global data from slider for joint control
 
 
-// declare global multimedia timer
-UINT PTimerId=-1;
-void PASCAL TimerProcPredictDis(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWORD dw2);
 
-UINT STimerId=-1;
-void PASCAL TimerProcSendCmd(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWORD dw2);
 
+// TODO(CJH): Add to cybersystem.cpp
 UINT HTimerId=-1;
 void PASCAL TimerProcHandCtrl(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWORD dw2);
 
@@ -38,26 +34,17 @@ int g_nCollisionFlag=0;
 //爆炸标志位333关，222开
 int g_nRunFlag=222; 
 
-// 0 means out of control, 1 means use cyber to control, 2 means use slider to control
-int g_RobotCtrlMode;		
-
-
 
 RobonautControl::RobonautControl()
 {
 	g_pRobonautCtrl = this;
 
 	// Initialize data
-	m_bConsimuInitFini = false;
+	m_bConsimuSockConn = false;
 	m_nPCount = 0;
 
 	m_hSocketSendCmd = NULL;
 	m_nRCount = 0;
-
-	// m_nRetConSer != 0, means consimulation is disconnected
-	m_nRetConSer = -1;
-	// m_nRetRoboCtrlSer != 0, means robonaut control  is disconnected
-	m_nRetRoboCtrlSer = -1;
 
 	for (int i = 0; i<ORDER_BUF_LEN; i++)
 	{
@@ -68,9 +55,6 @@ RobonautControl::RobonautControl()
 
 	m_bSaveData = FALSE;
 	m_bSaveDataFinish = FALSE;
-
-	// Initialize control mode
-	g_RobotCtrlMode = 0;
 
 	fileToTxt = fopen("Record\\Data.txt","w+");
 
@@ -98,75 +82,55 @@ RobonautControl::~RobonautControl()
 	WSACleanup();
 	m_ClientSocketPredictive.m_hSocket = NULL;
 
-	timeKillEvent(PTimerId);
+	m_ServerSocketRobo.CloseSock();
+	m_ClientSocketRobo.CloseSock();
 }
 
 
 
 //*********************** Consimulation Options ***********************//
-void RobonautControl::InitConsimuConn()
+// When there is no Socket Conncted(m_bConsimuSockConn == false), then Connect
+// If Connect Success, Return True
+// When there existing Socket Connected, Return last Connection Status
+bool RobonautControl::ConnConsimu()
 {
-	if (m_bConsimuInitFini == false)
+	if (m_bConsimuSockConn == false)
 	{
 		UINT PREDICTIVE_Port = PREDICTIVE_PORT; 
 		char *pPREDICTIVE_IP = PREDICTIVE_IP;
 
-		m_nRetConSer = m_ClientSocketPredictive.ConnectServer(pPREDICTIVE_IP,PREDICTIVE_Port);
-
-		if (m_nRetConSer == 0)
+		int ret = m_ClientSocketPredictive.ConnectServer(pPREDICTIVE_IP,PREDICTIVE_Port);
+		if (ret == 0)
 		{
 			QMessageBox::about(NULL, "About", "Communication is connected");
-			m_bConsimuInitFini = true;
+			m_bConsimuSockConn = true;
 		}
 	}
-}
-
-void RobonautControl::DisConsimuConn()
-{
-	m_bConsimuInitFini = false;
+	return m_bConsimuSockConn;
 }
 
 
-void RobonautControl::SimuControl()
+
+// TODO(CJH): Add Disconnect Function
+bool RobonautControl::DisConnConsimu()
 {
-	if (m_bConsimuInitFini == true)
+	m_bConsimuSockConn = false;
+	return true;
+}
+
+
+
+// TODO(CJH): Do not Use Global Variable
+// Send Consimulation Msg, when Consimulation Socket is Connected
+bool RobonautControl::SendConsimuMsg()
+{
+	if (m_bConsimuSockConn == true)
 	{
-		PTimerId = timeSetEvent(250,1,(LPTIMECALLBACK)TimerProcPredictDis,0,TIME_PERIODIC);
-	}
-}
-
-
-void PASCAL TimerProcPredictDis(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWORD dw2)
-{
-	g_pRobonautCtrl->SendConsimuMsg();
-}
-
-void RobonautControl::SendConsimuMsg()
-{
-	if (m_bConsimuInitFini == true)
-	{
-		// judge control mode
-		if(g_RobotCtrlMode == 1)
+		for (int i=0;i<7;i++)
 		{
-			// calculate the inverse kinematics
-			CalInKine(rTrackerRealPose, g_RobotCmdDeg.rightArmJoint);
-			CalInKine(lTrackerRealPose, g_RobotCmdDeg.leftArmJoint);
+			g_RobotCmdDeg.rightArmJoint[i] = g_rightArmJointBuf[i];
+			g_RobotCmdDeg.leftArmJoint[i] = g_leftArmJointBuf[i];
 		}
-
-		if (g_RobotCtrlMode == 2)
-		{
-			for (int i=0;i<7;i++)
-			{
-				g_RobotCmdDeg.rightArmJoint[i] = g_rightArmJointBuf[i];
-				g_RobotCmdDeg.leftArmJoint[i] = g_leftArmJointBuf[i];
-			}
-		}
-
-		if (g_RobotCtrlMode == 0)
-		{
-			return;
-		}
-
 		m_nPCount++;
 
 		// get the format data sending to simulation
@@ -211,229 +175,172 @@ void RobonautControl::SendConsimuMsg()
 
 			mmmionij=0;
 		}
-	}	
+		
+		// Send and Recv Success
+		if (retSendData == 0 && retReceiveData == 0)
+		{
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+
+	// Socket is not Connected
+	else{
+		return false;
+	}
 }
 
 
 
 //*********************** Robonaut control Options ***********************//
-void RobonautControl::InitRoboCtrlConn()
+bool RobonautControl::ConnRobo()
 {
-	if (m_bRoboCtrlInitFini == false)
-	{
-		if(m_hSocketSendCmd == NULL)
-		{
-			int ret;
-
-			WSADATA wsaData;
-
-			ret = WSAStartup(0x202, &wsaData);
-
-			if(ret != 0)
-			{
-				//TRACE("WSAStartup Error!");
-				QMessageBox::about(NULL, "About", "WSASocket1");
-
-			}
-
-
-			//创建套接字
-			m_hSocketSendCmd = WSASocket(AF_INET,SOCK_DGRAM,IPPROTO_UDP,NULL,0,WSA_FLAG_OVERLAPPED);
-
-			if(m_hSocketSendCmd == INVALID_SOCKET)
-			{
-				QMessageBox::about(NULL, "About", "WSASocket2");
-			}
-
-			memset(&addrSendCmdHost,0,sizeof(addrSendCmdHost));
-			memset(&addrSendCmdRemote,0,sizeof(addrSendCmdRemote));
-
-			//将套接字绑定到本机端口
-			unsigned short port = ROB_TELE_PORT;
-			addrSendCmdHost.sin_family = PF_INET;
-			addrSendCmdHost.sin_port = htons(port);
-			addrSendCmdHost.sin_addr.s_addr = inet_addr(ROB_TELE_IP);		
-
-			//////远程IP和端口
-			addrSendCmdRemote.sin_family = PF_INET;
-			addrSendCmdRemote.sin_port = htons(port);
-			addrSendCmdRemote.sin_addr.s_addr = inet_addr(ROB_CONTRL_IP);	
-
-			m_nRetRoboCtrlSer = bind(m_hSocketSendCmd,(struct sockaddr*)&addrSendCmdHost,sizeof(addrSendCmdHost));
-
-			if(m_nRetRoboCtrlSer == SOCKET_ERROR)
-			{
-				QMessageBox::about(NULL, "About", "WSASocket3");
-			}	
-
-			if(m_nRetRoboCtrlSer == 0)
-			{
-				QMessageBox::about(NULL, "About", "Robonaut Control is connected");
-				m_bRoboCtrlInitFini = true;
-			}
-		}
-		else
-		{
-			closesocket(m_hSocketSendCmd);
-			WSACleanup();
-			m_hSocketSendCmd = NULL;
-			timeKillEvent(STimerId);		
-		}
-	}	
+	bool ret_server = m_ServerSocketRobo.Init(ROB_TELE_IP, ROB_TELE_PORT);
+	bool ret_client = m_ClientSocketRobo.Init(ROB_CONTRL_IP, ROB_CONTRL_PORT);
+	return (ret_server && ret_client);
 }
 
 
-
-void RobonautControl::DisRoboCtrlConn()
+// TODO(CJH): How to disconnect a socket
+bool RobonautControl::DisConnRobo()
 {
-	m_bRoboCtrlInitFini = false;
+	bool ret_server = m_ServerSocketRobo.CloseSock();
+	bool ret_client = m_ClientSocketRobo.CloseSock();
+	return (ret_server && ret_client);
 }
 
 
-
-void RobonautControl::RoboCtrl()
+// TODO(CJH): Do not use global variable
+bool RobonautControl::RecvRoboMsg()
 {
-	if (m_bRoboCtrlInitFini == true)
+	bool ret_flag = m_ServerSocketRobo.Recv(cRevbufferp,sizeof(cRevbufferp));
+
+	if (ret_flag == true)
 	{
-		STimerId = timeSetEvent(250,1,(LPTIMECALLBACK)TimerProcSendCmd,0,TIME_PERIODIC);
-		if (STimerId==NULL)
-		{
-			//	MessageBox("TimerId error");
-		}
+		g_RobotSensorDeg.count = MAKEWORD(cRevbufferp[0],cRevbufferp[1]);
+		g_RobotSensorDeg.CtlMode = MAKEWORD(cRevbufferp[2],cRevbufferp[3]);
+
+		//左臂
+		g_RobotSensorDeg.leftArmJoint[0] = MAKELONG(MAKEWORD(cRevbufferp[4],cRevbufferp[5]),MAKEWORD(cRevbufferp[6],cRevbufferp[7]))*0.0001;
+		g_RobotSensorDeg.leftArmJoint[1] = MAKELONG(MAKEWORD(cRevbufferp[8],cRevbufferp[9]),MAKEWORD(cRevbufferp[10],cRevbufferp[11]))*0.0001;
+		g_RobotSensorDeg.leftArmJoint[2] = MAKELONG(MAKEWORD(cRevbufferp[12],cRevbufferp[13]),MAKEWORD(cRevbufferp[14],cRevbufferp[15]))*0.0001;
+		g_RobotSensorDeg.leftArmJoint[3] = MAKELONG(MAKEWORD(cRevbufferp[16],cRevbufferp[17]),MAKEWORD(cRevbufferp[18],cRevbufferp[19]))*0.0001;
+		g_RobotSensorDeg.leftArmJoint[4] = MAKELONG(MAKEWORD(cRevbufferp[20],cRevbufferp[21]),MAKEWORD(cRevbufferp[22],cRevbufferp[23]))*0.0001;
+		g_RobotSensorDeg.leftArmJoint[5] = MAKELONG(MAKEWORD(cRevbufferp[24],cRevbufferp[25]),MAKEWORD(cRevbufferp[26],cRevbufferp[27]))*0.0001;
+		g_RobotSensorDeg.leftArmJoint[6] = MAKELONG(MAKEWORD(cRevbufferp[28],cRevbufferp[29]),MAKEWORD(cRevbufferp[30],cRevbufferp[31]))*0.0001;		
+
+		//右臂
+		g_RobotSensorDeg.rightArmJoint[0] = MAKELONG(MAKEWORD(cRevbufferp[32],cRevbufferp[33]),MAKEWORD(cRevbufferp[34],cRevbufferp[35]))*0.0001;
+		g_RobotSensorDeg.rightArmJoint[1] = MAKELONG(MAKEWORD(cRevbufferp[36],cRevbufferp[37]),MAKEWORD(cRevbufferp[38],cRevbufferp[39]))*0.0001;
+		g_RobotSensorDeg.rightArmJoint[2] = MAKELONG(MAKEWORD(cRevbufferp[40],cRevbufferp[41]),MAKEWORD(cRevbufferp[42],cRevbufferp[43]))*0.0001;
+		g_RobotSensorDeg.rightArmJoint[3] = MAKELONG(MAKEWORD(cRevbufferp[44],cRevbufferp[45]),MAKEWORD(cRevbufferp[46],cRevbufferp[47]))*0.0001;
+		g_RobotSensorDeg.rightArmJoint[4] = MAKELONG(MAKEWORD(cRevbufferp[48],cRevbufferp[49]),MAKEWORD(cRevbufferp[50],cRevbufferp[51]))*0.0001;
+		g_RobotSensorDeg.rightArmJoint[5] = MAKELONG(MAKEWORD(cRevbufferp[52],cRevbufferp[53]),MAKEWORD(cRevbufferp[54],cRevbufferp[55]))*0.0001;
+		g_RobotSensorDeg.rightArmJoint[6] = MAKELONG(MAKEWORD(cRevbufferp[56],cRevbufferp[57]),MAKEWORD(cRevbufferp[58],cRevbufferp[59]))*0.0001;	
+
+		//头部
+		g_RobotSensorDeg.headJoint[0] = MAKELONG(MAKEWORD(cRevbufferp[60],cRevbufferp[61]),MAKEWORD(cRevbufferp[62],cRevbufferp[63]))*0.0001;
+		g_RobotSensorDeg.headJoint[1] = MAKELONG(MAKEWORD(cRevbufferp[64],cRevbufferp[65]),MAKEWORD(cRevbufferp[66],cRevbufferp[67]))*0.0001;
+		g_RobotSensorDeg.headJoint[2] = MAKELONG(MAKEWORD(cRevbufferp[68],cRevbufferp[69]),MAKEWORD(cRevbufferp[70],cRevbufferp[71]))*0.0001;
+
+		//腰部
+		g_RobotSensorDeg.waistJoint[0] = MAKELONG(MAKEWORD(cRevbufferp[72],cRevbufferp[73]),MAKEWORD(cRevbufferp[74],cRevbufferp[75]))*0.0001;
+		g_RobotSensorDeg.waistJoint[1] = MAKELONG(MAKEWORD(cRevbufferp[76],cRevbufferp[77]),MAKEWORD(cRevbufferp[78],cRevbufferp[79]))*0.0001;
+
+		//右臂关节力
+		g_RobotSensorDeg.RightJointFT[0] = MAKELONG(MAKEWORD(cRevbufferp[108],cRevbufferp[109]),MAKEWORD(cRevbufferp[110],cRevbufferp[111]))*0.0001;;
+		g_RobotSensorDeg.RightJointFT[1] = MAKELONG(MAKEWORD(cRevbufferp[112],cRevbufferp[113]),MAKEWORD(cRevbufferp[114],cRevbufferp[115]))*0.0001;;
+		g_RobotSensorDeg.RightJointFT[2] = MAKELONG(MAKEWORD(cRevbufferp[116],cRevbufferp[117]),MAKEWORD(cRevbufferp[118],cRevbufferp[119]))*0.0001;;
+		g_RobotSensorDeg.RightJointFT[3] = MAKELONG(MAKEWORD(cRevbufferp[120],cRevbufferp[121]),MAKEWORD(cRevbufferp[122],cRevbufferp[123]))*0.0001;;
+		g_RobotSensorDeg.RightJointFT[4] = MAKELONG(MAKEWORD(cRevbufferp[124],cRevbufferp[125]),MAKEWORD(cRevbufferp[126],cRevbufferp[127]))*0.0001;;
+		g_RobotSensorDeg.RightJointFT[5] = MAKELONG(MAKEWORD(cRevbufferp[128],cRevbufferp[129]),MAKEWORD(cRevbufferp[130],cRevbufferp[131]))*0.0001;;
+		g_RobotSensorDeg.RightJointFT[6] = MAKELONG(MAKEWORD(cRevbufferp[132],cRevbufferp[133]),MAKEWORD(cRevbufferp[134],cRevbufferp[135]))*0.0001;;
+
+		//左臂关节力
+		g_RobotSensorDeg.LeftJointFT[0] = MAKELONG(MAKEWORD(cRevbufferp[80],cRevbufferp[81]),MAKEWORD(cRevbufferp[82],cRevbufferp[83]))*0.0001;
+		g_RobotSensorDeg.LeftJointFT[1] = MAKELONG(MAKEWORD(cRevbufferp[84],cRevbufferp[85]),MAKEWORD(cRevbufferp[86],cRevbufferp[87]))*0.0001;
+		g_RobotSensorDeg.LeftJointFT[2] = MAKELONG(MAKEWORD(cRevbufferp[88],cRevbufferp[89]),MAKEWORD(cRevbufferp[90],cRevbufferp[91]))*0.0001;
+		g_RobotSensorDeg.LeftJointFT[3] = MAKELONG(MAKEWORD(cRevbufferp[92],cRevbufferp[93]),MAKEWORD(cRevbufferp[94],cRevbufferp[95]))*0.0001;
+		g_RobotSensorDeg.LeftJointFT[4] = MAKELONG(MAKEWORD(cRevbufferp[96],cRevbufferp[97]),MAKEWORD(cRevbufferp[98],cRevbufferp[99]))*0.0001;
+		g_RobotSensorDeg.LeftJointFT[5] = MAKELONG(MAKEWORD(cRevbufferp[100],cRevbufferp[101]),MAKEWORD(cRevbufferp[102],cRevbufferp[103]))*0.0001;
+		g_RobotSensorDeg.LeftJointFT[6] = MAKELONG(MAKEWORD(cRevbufferp[104],cRevbufferp[105]),MAKEWORD(cRevbufferp[106],cRevbufferp[107]))*0.0001;
+
+		//力判断标志
+		m_DecideFlag = MAKELONG(MAKEWORD(cRevbufferp[136],cRevbufferp[137]),MAKEWORD(cRevbufferp[138],cRevbufferp[139]));
 	}
+	return ret_flag;
 }
 
-
-
-void PASCAL TimerProcSendCmd(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWORD dw2)
+// TODO(CJH): change
+// Now: get global data, and send to robonaut
+bool RobonautControl::SendRoboMsg()
 {
-	//	CTaskPlanDlg* pDlg = (CTaskPlanDlg*)dwUser;
-	g_pRobonautCtrl->SendCmdData();
+	// Communication Count
+	ADDCOUNT(m_nRCount, 99999);
 
-}
-
-void RobonautControl::SendCmdData()
-{
-	// judge control mode
-	if(g_RobotCtrlMode == 1)
-	{
-		// calculate the inverse kinematics
-		CalInKine(rTrackerRealPose, g_RobotCmdDeg.rightArmJoint);
-		CalInKine(lTrackerRealPose, g_RobotCmdDeg.leftArmJoint);
-	}
-
-	if (g_RobotCtrlMode == 2)
-	{
-		for (int i=0;i<7;i++)
-		{
-			g_RobotCmdDeg.rightArmJoint[i] = g_rightArmJointBuf[i];
-			g_RobotCmdDeg.leftArmJoint[i] = g_leftArmJointBuf[i];
-		}
-	}
-
-	if (g_RobotCtrlMode == 0)
-	{
-		return;
+	for (int i=0;i<7;i++)
+	{	
+		g_RobotCmdDeg.rightArmJoint[i] = g_rightArmJointBuf[i];
+		g_RobotCmdDeg.leftArmJoint[i] = g_leftArmJointBuf[i];
 	}
 	
+	// 限位
+	SETRANGE(g_RobotCmdDeg.leftArmJoint[0], -49, 170);
+	SETRANGE(g_RobotCmdDeg.leftArmJoint[1], -100, 70);
+	SETRANGE(g_RobotCmdDeg.leftArmJoint[2], -120, 120);
+	SETRANGE(g_RobotCmdDeg.leftArmJoint[3], -129, 0);
+	SETRANGE(g_RobotCmdDeg.leftArmJoint[4], -120, 120);
+	SETRANGE(g_RobotCmdDeg.leftArmJoint[5], -90, 90);
+	SETRANGE(g_RobotCmdDeg.leftArmJoint[6], -120, 120);
+	ADDCOUNT(g_RobotCmdDeg.count, 1000);
+
+	// 转换数据为可发送的buffer		
+	DataConvert(g_nRunFlag, g_RobotCmdDeg, cSendRobotCommandBuffer);
 	
-	if(m_nRCount > 99999)
+	bool ret_flag = m_ClientSocketRobo.Send(cSendRobotCommandBuffer, sizeof(cSendRobotCommandBuffer)); 
+
+	// TODO(CJH): change ip and port
+	if(ret_flag == true)
+	{	
+		return true;
+	}
+	else     
+	{
 		m_nRCount = 0;
-	else				
-		m_nRCount++;
-	//////////////////////////////////////////////////////////////////////////
-	//************限位***********//		
-	if (g_RobotCmdDeg.leftArmJoint[0] < -49.0)
-	{
-		g_RobotCmdDeg.leftArmJoint[0] = -49.0;
-	}
-	else if (g_RobotCmdDeg.leftArmJoint[0] >170.0)
-	{
-		g_RobotCmdDeg.leftArmJoint[0] = 170.0;
+		QMessageBox::about(NULL, "About", "Send Error!");  
 	}
 
-	if (g_RobotCmdDeg.leftArmJoint[1]< -100.0)  //
-	{
-		g_RobotCmdDeg.leftArmJoint[1] = -100.0;  //
-	}
-	else if (g_RobotCmdDeg.leftArmJoint[1] > 70.0) //
-	{
-		g_RobotCmdDeg.leftArmJoint[1] = 70.0;
-	}
+	//保存数据
+	CString cstemp;
+	cstemp.Format(_T("%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\r\n"),
+		g_RobotCmdDeg.rightArmJoint[0],g_RobotCmdDeg.rightArmJoint[1],g_RobotCmdDeg.rightArmJoint[2],
+		g_RobotCmdDeg.rightArmJoint[3],g_RobotCmdDeg.rightArmJoint[4],g_RobotCmdDeg.rightArmJoint[5],
+		g_RobotCmdDeg.rightArmJoint[6],
+		g_RobotSensorDeg.rightArmJoint[0],g_RobotSensorDeg.rightArmJoint[1],g_RobotSensorDeg.rightArmJoint[2],
+		g_RobotSensorDeg.rightArmJoint[3],g_RobotSensorDeg.rightArmJoint[4],g_RobotSensorDeg.rightArmJoint[5],
+		g_RobotSensorDeg.rightArmJoint[6],
+		g_RobotSensorDeg.RightJointFT[0],g_RobotSensorDeg.RightJointFT[1],g_RobotSensorDeg.RightJointFT[2],
+		g_RobotSensorDeg.RightJointFT[3],g_RobotSensorDeg.RightJointFT[4],g_RobotSensorDeg.RightJointFT[5],
+		g_RobotSensorDeg.RightJointFT[6]
+	);
 
-	if (g_RobotCmdDeg.leftArmJoint[2] < -120.0)   //
+	// 保存数据
+	if(m_bSaveData)
 	{
-		g_RobotCmdDeg.leftArmJoint[2] = -120.0;
+		fwrite(cstemp,1,cstemp.GetLength(),fileToTxt);
+		// 	fwrite(cstemparmangle,1,cstemparmangle.GetLength(),fileToTxt);
 	}
-	else if (g_RobotCmdDeg.leftArmJoint[2] > 120.0)  // 
+	if (m_bSaveDataFinish)
 	{
-		g_RobotCmdDeg.leftArmJoint[2] = 120.0;
+		fclose(fileToTxt);
 	}
+}
 
-	if (g_RobotCmdDeg.leftArmJoint[3] > 0.0)
-	{
-		g_RobotCmdDeg.leftArmJoint[3] = 0.0;
-	}
-	else if (g_RobotCmdDeg.leftArmJoint[3] < -129.0)
-	{
-		g_RobotCmdDeg.leftArmJoint[3] = -129.0;
-	}
-
-	if (g_RobotCmdDeg.leftArmJoint[4] < -120.0)
-	{
-		g_RobotCmdDeg.leftArmJoint[4] = -120.0;
-	}
-	else if (g_RobotCmdDeg.leftArmJoint[4] > 120.0)
-	{
-		g_RobotCmdDeg.leftArmJoint[4] = 120.0;
-	}
-
-	if (g_RobotCmdDeg.leftArmJoint[5] > 90.0)
-	{
-		g_RobotCmdDeg.leftArmJoint[5] = 90.0;
-	}
-	else if (g_RobotCmdDeg.leftArmJoint[5] < -90.0)
-	{
-		g_RobotCmdDeg.leftArmJoint[5] = -90.0;
-	}
-
-	if (g_RobotCmdDeg.leftArmJoint[6] > 120.0)
-	{
-		g_RobotCmdDeg.leftArmJoint[6] = 120.0;
-	}
-	else if (g_RobotCmdDeg.leftArmJoint[6] < -120.0)
-	{
-		g_RobotCmdDeg.leftArmJoint[6] = -120.0;
-	}
-
-	g_RobotCmdDeg.count++;
-
-	if(g_RobotCmdDeg.count >= 1000)
-		g_RobotCmdDeg.count = 0;
-
-	//////////////////////////////////////////////////////////////////////////
-	//碰撞时在预测仿真端显示实际角度和碰撞角度闪烁
-	// 			if(g_nCollisionFlag!=0)  
-	// 			{
-	// 				for (int i=0;i<7;i++)
-	// 				{
-	// 					g_RobotCmdDeg.leftArmJoint[i]=g_RobotCmdDeg.leftArmJoint[i];
-	// 					g_RobotCmdDeg.rightArmJoint[i]=g_RobotCmdDeg.rightArmJoint[i];
-	// 				}
-	// 				for (i=0;i<3;i++)
-	// 				{
-	// 					g_RobotCmdDeg.headJoint[i]=g_RobotCmdDeg.headJoint[i];
-	// 				}
-	// 
-	// 				for (i=0;i<2;i++)
-	// 				{
-	// 					g_RobotCmdDeg.waistJoint[i]=g_RobotCmdDeg.waistJoint[i];
-	// 				}
-	// 			
-	// 			}
-
-	//////////////////////////////////////////////////////////////////////////
-	//			
+// TODO(CJH): change function input name
+void RobonautControl::DataConvert(const int &g_nRunFlag, const CRobonautData &g_RobotCmdDeg, char cSendRobotCommandBuffer[])
+{
 	cSendRobotCommandBuffer[0] = LOBYTE(LOWORD(g_RobotCmdDeg.count));         //??????
 	cSendRobotCommandBuffer[1] = HIBYTE(LOWORD(g_RobotCmdDeg.count));         //??????
 
@@ -545,30 +452,12 @@ void RobonautControl::SendCmdData()
 	cSendRobotCommandBuffer[81] = HIBYTE(LOWORD(int(g_RobotCmdDeg.waistJoint[1]*10000)));         
 	cSendRobotCommandBuffer[82] = LOBYTE(HIWORD(int(g_RobotCmdDeg.waistJoint[1]*10000)));        
 	cSendRobotCommandBuffer[83] = HIBYTE(HIWORD(int(g_RobotCmdDeg.waistJoint[1]*10000))); 
+}
 
-
-
-	//unsigned long cbRet = 0;
-
-	int nReturnCode = -1;		
-
-	DWORD dFlag = 0;
-	DWORD BytesofSend;
-
-	int iLen = sizeof(SOCKADDR_IN);  
-
-	int LastError = 0;
-
-	wsaSendBuf.buf = cSendRobotCommandBuffer;
-	wsaSendBuf.len = sizeof(cSendRobotCommandBuffer);
-
-	
-
-	nReturnCode = WSASendTo(m_hSocketSendCmd,&wsaSendBuf,1,&BytesofSend,dFlag,(struct sockaddr*)&addrSendCmdRemote,iLen,NULL,NULL);			
-
-	if(nReturnCode == 0)
-	{	
-		CString str;
+// TODO(CJH): Parse Buffer from command buffer
+void RobonautControl::BuffParse()
+{
+	CString str;
 		str.Format(_T("%s:%d %d %d %d\r\nRight: %0.3f %0.3f %0.3f %0.3f %0.3f %0.3f %0.3f\r\nLeft: %0.3f %0.3f %0.3f %0.3f %0.3f %0.3f %0.3f"),//%d\r\n%d",
 			ROB_CONTRL_IP, ROB_TELE_PORT,
 			MAKEWORD(cSendRobotCommandBuffer[0],cSendRobotCommandBuffer[1]),
@@ -593,69 +482,7 @@ void RobonautControl::SendCmdData()
 			// 				m_VMotion
 			);
 		//SetDlgItemText(IDC_SENDCMDROB,str);
-	}
-	else     
-	{
-		m_nRCount = 0;
-		QMessageBox::about(NULL, "About", "Send Error!");  
-	}
-
-	//保存数据
-	CString cstemp; 
-	cstemp.Format(_T("%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\r\n"),
-		g_RobotCmdDeg.rightArmJoint[0],g_RobotCmdDeg.rightArmJoint[1],g_RobotCmdDeg.rightArmJoint[2],
-		g_RobotCmdDeg.rightArmJoint[3],g_RobotCmdDeg.rightArmJoint[4],g_RobotCmdDeg.rightArmJoint[5],
-		g_RobotCmdDeg.rightArmJoint[6],
-		g_RobotSensorDeg.rightArmJoint[0],g_RobotSensorDeg.rightArmJoint[1],g_RobotSensorDeg.rightArmJoint[2],
-		g_RobotSensorDeg.rightArmJoint[3],g_RobotSensorDeg.rightArmJoint[4],g_RobotSensorDeg.rightArmJoint[5],
-		g_RobotSensorDeg.rightArmJoint[6],
-		g_RobotSensorDeg.RightJointFT[0],g_RobotSensorDeg.RightJointFT[1],g_RobotSensorDeg.RightJointFT[2],
-		g_RobotSensorDeg.RightJointFT[3],g_RobotSensorDeg.RightJointFT[4],g_RobotSensorDeg.RightJointFT[5],
-		g_RobotSensorDeg.RightJointFT[6]);
-
-	// 			CString cstemparmangle;
-	// 			cstemparmangle.Format("%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\r\n",
-	// 				m_farmanglerange1[0],m_farmanglerange1[1],m_farmanglerange1[2],m_farmanglerange1[3],m_farmanglerange1[4],m_farmanglerange1[5],
-	// 				m_farmanglerange2[0],m_farmanglerange2[1],m_farmanglerange2[2],m_farmanglerange2[3],m_farmanglerange2[4],m_farmanglerange2[5],
-	// 				m_farmanglerange3[0],m_farmanglerange3[1],m_farmanglerange3[2],m_farmanglerange3[3],m_farmanglerange3[4],m_farmanglerange3[5],
-	// 				m_farmanglerange4[0],m_farmanglerange4[1],m_farmanglerange4[2],m_farmanglerange4[3],m_farmanglerange4[4],m_farmanglerange4[5],
-	// 				optarmangle1[2],optarmangle[0]
-	//			);
-
-	if(m_bSaveData)
-	{
-		fwrite(cstemp,1,cstemp.GetLength(),fileToTxt);
-		// 	fwrite(cstemparmangle,1,cstemparmangle.GetLength(),fileToTxt);
-	}
-	if (m_bSaveDataFinish)
-	{
-		fclose(fileToTxt);
-	}
 }
-
-
-
-//*********************** Kinematics Calculation ***********************//
-// Transfer in coordinates in Cartesian axis, transfer out coordinates in Joint axis
-void RobonautControl::CalInKine(float ArmCartes[], float ArmJoint[])
-{
-// 	ArmJoint[0] = 0;
-// 	ArmJoint[1] = 0;
-// 	ArmJoint[2] = 0;
-// 	ArmJoint[3] = 0;
-// 	ArmJoint[4] = 0;
-// 	ArmJoint[5] = 0;
-// 	ArmJoint[6] = 0;
-
-	ArmJoint[0] = rTrackerRealPose[0];
-	ArmJoint[1] = rTrackerRealPose[1];
-	ArmJoint[2] = rTrackerRealPose[2];
-	ArmJoint[3] = 0;
-	ArmJoint[4] = 0;
-	ArmJoint[5] = 0;
-	ArmJoint[6] = 0;
-}
-
 
 //*********************** 5 Hand Control ***********************//
 void RobonautControl::HandInit()
