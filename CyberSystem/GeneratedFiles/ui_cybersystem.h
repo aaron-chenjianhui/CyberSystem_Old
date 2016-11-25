@@ -40,7 +40,7 @@ public:
     QWidget *centralWidget;
     QGridLayout *gridLayout;
     QHBoxLayout *horizontalLayout_26;
-    QVBoxLayout *verticalLayout_11;
+    QVBoxLayout *verticalLayout_12;
     QHBoxLayout *horizontalLayout_25;
     QSpacerItem *horizontalSpacer_3;
     QGroupBox *m_pConnBox;
@@ -54,6 +54,9 @@ public:
     QPushButton *m_pInitLHBtn;
     QPushButton *m_pInitLTBtn;
     QSpacerItem *horizontalSpacer_4;
+    QVBoxLayout *verticalLayout_11;
+    QPushButton *m_pSaveCali;
+    QPushButton *m_pOpenCali;
     QHBoxLayout *horizontalLayout_13;
     QGroupBox *m_pGloveBox;
     QGridLayout *gridLayout_9;
@@ -139,7 +142,7 @@ public:
     QHBoxLayout *horizontalLayout_6;
     QPushButton *m_pCyberCtrlBtn;
     QPushButton *m_pCyberStartBtn;
-    QPushButton *m_pCyberStopBtn;
+    QPushButton *m_pCyberPauseBtn;
     QTabWidget *m_pJoSetWidget;
     QWidget *m_pRArmTab;
     QGridLayout *gridLayout_14;
@@ -271,7 +274,7 @@ public:
     {
         if (CyberSystemClass->objectName().isEmpty())
             CyberSystemClass->setObjectName(QStringLiteral("CyberSystemClass"));
-        CyberSystemClass->resize(1463, 788);
+        CyberSystemClass->resize(1415, 841);
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -290,9 +293,9 @@ public:
         horizontalLayout_26 = new QHBoxLayout();
         horizontalLayout_26->setSpacing(6);
         horizontalLayout_26->setObjectName(QStringLiteral("horizontalLayout_26"));
-        verticalLayout_11 = new QVBoxLayout();
-        verticalLayout_11->setSpacing(6);
-        verticalLayout_11->setObjectName(QStringLiteral("verticalLayout_11"));
+        verticalLayout_12 = new QVBoxLayout();
+        verticalLayout_12->setSpacing(6);
+        verticalLayout_12->setObjectName(QStringLiteral("verticalLayout_12"));
         horizontalLayout_25 = new QHBoxLayout();
         horizontalLayout_25->setSpacing(6);
         horizontalLayout_25->setObjectName(QStringLiteral("horizontalLayout_25"));
@@ -369,8 +372,24 @@ public:
 
         horizontalLayout_25->addItem(horizontalSpacer_4);
 
+        verticalLayout_11 = new QVBoxLayout();
+        verticalLayout_11->setSpacing(6);
+        verticalLayout_11->setObjectName(QStringLiteral("verticalLayout_11"));
+        m_pSaveCali = new QPushButton(centralWidget);
+        m_pSaveCali->setObjectName(QStringLiteral("m_pSaveCali"));
 
-        verticalLayout_11->addLayout(horizontalLayout_25);
+        verticalLayout_11->addWidget(m_pSaveCali);
+
+        m_pOpenCali = new QPushButton(centralWidget);
+        m_pOpenCali->setObjectName(QStringLiteral("m_pOpenCali"));
+
+        verticalLayout_11->addWidget(m_pOpenCali);
+
+
+        horizontalLayout_25->addLayout(verticalLayout_11);
+
+
+        verticalLayout_12->addLayout(horizontalLayout_25);
 
         horizontalLayout_13 = new QHBoxLayout();
         horizontalLayout_13->setSpacing(6);
@@ -502,7 +521,7 @@ public:
         horizontalLayout_13->addWidget(m_pGloDataDisBs);
 
 
-        verticalLayout_11->addLayout(horizontalLayout_13);
+        verticalLayout_12->addLayout(horizontalLayout_13);
 
         horizontalLayout_14 = new QHBoxLayout();
         horizontalLayout_14->setSpacing(6);
@@ -773,16 +792,16 @@ public:
 
         m_pTraDataDisBs = new QTextBrowser(centralWidget);
         m_pTraDataDisBs->setObjectName(QStringLiteral("m_pTraDataDisBs"));
-        m_pTraDataDisBs->setMinimumSize(QSize(300, 0));
+        m_pTraDataDisBs->setMinimumSize(QSize(300, 250));
         m_pTraDataDisBs->setMaximumSize(QSize(300, 210));
 
         horizontalLayout_14->addWidget(m_pTraDataDisBs);
 
 
-        verticalLayout_11->addLayout(horizontalLayout_14);
+        verticalLayout_12->addLayout(horizontalLayout_14);
 
 
-        horizontalLayout_26->addLayout(verticalLayout_11);
+        horizontalLayout_26->addLayout(verticalLayout_12);
 
         verticalLayout_10 = new QVBoxLayout();
         verticalLayout_10->setSpacing(6);
@@ -886,11 +905,11 @@ public:
 
         horizontalLayout_6->addWidget(m_pCyberStartBtn);
 
-        m_pCyberStopBtn = new QPushButton(centralWidget);
-        m_pCyberStopBtn->setObjectName(QStringLiteral("m_pCyberStopBtn"));
-        m_pCyberStopBtn->setEnabled(false);
+        m_pCyberPauseBtn = new QPushButton(centralWidget);
+        m_pCyberPauseBtn->setObjectName(QStringLiteral("m_pCyberPauseBtn"));
+        m_pCyberPauseBtn->setEnabled(false);
 
-        horizontalLayout_6->addWidget(m_pCyberStopBtn);
+        horizontalLayout_6->addWidget(m_pCyberPauseBtn);
 
 
         verticalLayout_9->addLayout(horizontalLayout_6);
@@ -1640,8 +1659,8 @@ public:
 
         m_pCommadBs = new QTextBrowser(centralWidget);
         m_pCommadBs->setObjectName(QStringLiteral("m_pCommadBs"));
-        m_pCommadBs->setMinimumSize(QSize(300, 0));
-        m_pCommadBs->setMaximumSize(QSize(300, 16777215));
+        m_pCommadBs->setMinimumSize(QSize(320, 0));
+        m_pCommadBs->setMaximumSize(QSize(320, 16777215));
 
         horizontalLayout_26->addWidget(m_pCommadBs);
 
@@ -1653,12 +1672,12 @@ public:
         m_pFinshBtn->setEnabled(false);
         m_pFinshBtn->setMaximumSize(QSize(100, 16777215));
 
-        gridLayout->addWidget(m_pFinshBtn, 1, 1, 1, 1);
+        gridLayout->addWidget(m_pFinshBtn, 1, 0, 1, 1);
 
         CyberSystemClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(CyberSystemClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1463, 23));
+        menuBar->setGeometry(QRect(0, 0, 1415, 23));
         CyberSystemClass->setMenuBar(menuBar);
         mainToolBar = new QToolBar(CyberSystemClass);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -1685,6 +1704,8 @@ public:
         m_pInitRTBtn->setText(QApplication::translate("CyberSystemClass", "Conn Right Tracker", 0));
         m_pInitLHBtn->setText(QApplication::translate("CyberSystemClass", "Conne Left Hand", 0));
         m_pInitLTBtn->setText(QApplication::translate("CyberSystemClass", "Conn Left Tracker", 0));
+        m_pSaveCali->setText(QApplication::translate("CyberSystemClass", "Save Config", 0));
+        m_pOpenCali->setText(QApplication::translate("CyberSystemClass", "Load Config...", 0));
         m_pGloveBox->setTitle(QApplication::translate("CyberSystemClass", "Glove Calibration", 0));
         m_pGes_one->setText(QString());
         m_pGes_two->setText(QString());
@@ -1720,8 +1741,8 @@ public:
         m_pSdDataBtn->setText(QApplication::translate("CyberSystemClass", "Send Data", 0));
         m_pUpdataBtn->setText(QApplication::translate("CyberSystemClass", "Updata", 0));
         m_pCyberCtrlBtn->setText(QApplication::translate("CyberSystemClass", "Cyber", 0));
-        m_pCyberStartBtn->setText(QApplication::translate("CyberSystemClass", "Start", 0));
-        m_pCyberStopBtn->setText(QApplication::translate("CyberSystemClass", "Stop", 0));
+        m_pCyberStartBtn->setText(QApplication::translate("CyberSystemClass", "Cyber Start", 0));
+        m_pCyberPauseBtn->setText(QApplication::translate("CyberSystemClass", "Cyber Pause", 0));
         m_pRJo0Lbl->setText(QApplication::translate("CyberSystemClass", "Joint 1", 0));
         m_pRJo1Line->setText(QString());
         m_pRJo1Lbl->setText(QApplication::translate("CyberSystemClass", "Joint 2", 0));

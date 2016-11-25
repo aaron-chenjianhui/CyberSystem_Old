@@ -27,6 +27,10 @@
 #include <QFile>
 #include <QThread>
 
+#include "rapidxml/rapidxml.hpp"
+#include "rapidxml/rapidxml_print.hpp"
+#include "rapidxml/rapidxml_utils.hpp"
+
 struct CaliData
 {
 	double raw_pos[3];
@@ -74,6 +78,10 @@ private:
 	Eigen::Matrix<double, 3, 3> RotOSMat;
 	Eigen::Matrix<double, 3, 3> RotOOnMat;
 	Eigen::Matrix<double, 3, 3> RotOnPMat;
+	// Mapping Coefficient
+	Eigen::Matrix<double, 3, 3> m_RotMapCoeff;
+	double m_TransMapCoeff[3];
+
 	// Tracker Calibration Finish Flag
 	bool m_bRTraCaliFin;
 	bool m_bLTraCaliFin;
@@ -107,17 +115,29 @@ public:
 
 	//*********************** Tracker Control ***********************//
 	// Connect Tracker
-	void RTraConn();
+	bool RTraConn(std::string &);
 	void LTraConn();
 	// Get right tracker data
 	Eigen::Matrix<double, 4, 4> GetRRawTraData();
 	Eigen::Matrix<double, 4, 4> GetRTraRealData();
 	// Calculate Transformation Matrix
 	Eigen::Matrix<double, 4, 4> CalTransMat(const double Trans[]);
+	// 
 
 	// TODO(CJH): change these function
 	// calculate coefficient for cyber tracker calibration
-	void CalTraCoef(bool, QString, QString, QString, QString, QString, QString);
+	void CalRTraCoef(const double *, const int &);
+	void CalRTraCoef(const Eigen::Matrix<double, 4, 4> &);
+	void CalRTraMapCoeff();
+	void RTraMapping(const Eigen::Matrix<double, 4, 4> &in, Eigen::Matrix<double, 4, 4> &out);
+
+	void CalLTraCoef(const double *, const int &);
+	void CalLTraCoef(const Eigen::Matrix<double, 4, 4> &);
+	void LTraMapping();
+
+	void UpdataCaliCoef(const Eigen::Matrix<double, 4, 4> &RTransMat, const Eigen::Matrix<double, 3, 3> &RRotMat);
+	bool GetCaliCoef(Eigen::Matrix<double, 4, 4> &RTransMat, Eigen::Matrix<double, 3, 3> &RRotMat);
+
 	void CalTrackerCoef(tracali_type, tracali_type);
 	void GetLTraRealData(Eigen::Matrix<double, 4, 4> &);
 	void GetLRawTraData(double arr[], int arr_size = 6);

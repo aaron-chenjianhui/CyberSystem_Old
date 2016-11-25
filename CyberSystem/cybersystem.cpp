@@ -5,16 +5,45 @@
 
 #include "kine7.hpp"
 
-#define DEG2ANG(x) x*180/3.14
-#define	ANG2DEG(x) x*3.14/180
+#define DEG2ANG(x) (x*180/3.14)
+#define	ANG2DEG(x) (x*3.14/180)
 
-#define INIT_JOINT1 -39.1323
-#define INIT_JOINT2 -11.2267
-#define INIT_JOINT3 96.994
-#define INIT_JOINT4 -102.1614
-#define INIT_JOINT5 -82.8184
-#define INIT_JOINT6 41.125
-#define INIT_JOINT7 -27.5551
+
+// 初始关节角
+// #define INIT_JOINT1 -39.1323
+// #define INIT_JOINT2 -11.2267
+// #define INIT_JOINT3 96.994
+// #define INIT_JOINT4 -102.1614
+// #define INIT_JOINT5 -82.8184
+// #define INIT_JOINT6 41.125
+// #define INIT_JOINT7 -27.5551
+
+
+#define INIT_JOINT1 33.095
+#define INIT_JOINT2 -24.239
+#define INIT_JOINT3 35.020
+#define INIT_JOINT4 -92.413
+#define INIT_JOINT5 14.749
+#define INIT_JOINT6 -28.523
+#define INIT_JOINT7 -29.902
+
+// 初始位置
+#define POS11 -0.176
+#define POS12 -0.984
+#define POS13 0.01
+#define POS14 -219.62
+#define POS21 -0.7
+#define POS22 0.119
+#define POS23 -0.7
+#define POS24 -550
+#define POS31 0.688
+#define POS32 -0.13
+#define POS33 -0.71
+#define POS34 44.192
+#define POS41 0
+#define POS42 0
+#define POS43 0
+#define POS44 1
 
 
 
@@ -140,10 +169,15 @@ CyberSystem::CyberSystem(QWidget *parent)
 	m_last_joint_angle << ANG2DEG( INIT_JOINT1 ), ANG2DEG( INIT_JOINT2 ), ANG2DEG( INIT_JOINT3 ), 
 						  ANG2DEG( INIT_JOINT4 ), ANG2DEG( INIT_JOINT5 ), ANG2DEG( INIT_JOINT6 ), 
 						  ANG2DEG( INIT_JOINT7 );
-	m_RTraRealMat << 1, 0, 0, -154,
-					  0, 0, -1, -490,
-					  0, 1, 0, 360,
-					  0, 0, 0, 1;
+// 	m_RTraRealMat << 1, 0, 0, -154,
+// 					  0, 0, -1, -490,
+// 					  0, 1, 0, 360,
+// 					  0, 0, 0, 1;
+
+	m_RTraRealMat << POS11, POS12, POS13, POS14,
+					POS21, POS22, POS23, POS24,
+					POS31, POS32, POS33, POS34,
+					POS41, POS42, POS43, POS44;
 
 	// Initialize kinetic calculate
 	InitKine();
@@ -200,6 +234,9 @@ CyberSystem::CyberSystem(QWidget *parent)
 	connect(ui.m_pInitLHBtn, SIGNAL(clicked()), this, SLOT(InitLHand()));
 	connect(ui.m_pInitLTBtn, SIGNAL(clicked()), this, SLOT(InitLTracker()));
 
+	connect(ui.m_pOpenCali, SIGNAL(clicked()), this, SLOT(LoadCaliData()));
+	connect(ui.m_pSaveCali, SIGNAL(clicked()), this, SLOT(SaveCaliData()));
+
 	// signals and slots for glove calibration
 	connect(ui.m_pGlStartBtn, SIGNAL(clicked()), this, SLOT(InitGloveCali()));
 	connect(this, SIGNAL(InsertGloText(const QString &)), ui.m_pTraDataDisBs, SLOT(setText(const QString &))); // display glove data when calibration begin
@@ -235,7 +272,7 @@ CyberSystem::CyberSystem(QWidget *parent)
 	connect(ui.m_pRoboConnBtn, SIGNAL(clicked()), this, SLOT(RoboConnCtrl()));
 	connect(ui.m_pCyberCtrlBtn, SIGNAL(clicked()), this, SLOT(CyberCtrl()));
 	connect(ui.m_pCyberStartBtn, SIGNAL(clicked()), this, SLOT(CyberCmd()));
-	connect(ui.m_pCyberStopBtn, SIGNAL(clicked()), this, SLOT(CyberStop()));
+	connect(ui.m_pCyberPauseBtn, SIGNAL(clicked()), this, SLOT(CyberStop()));
 
 	// signals and slots for robonaut joint control
 	connect(ui.m_pJointCtrlBtn, SIGNAL(clicked()), this, SLOT(ClickCtrl()));
@@ -298,7 +335,9 @@ CyberSystem::CyberSystem(QWidget *parent)
 CyberSystem::~CyberSystem()
 { 
 	timeKillEvent(SendTimerId);
+	SendTimerId = NULL;
 	timeKillEvent(RecvTimerId);
+	RecvTimerId = NULL;
 
 
 	m_DisThread.stop();
@@ -312,14 +351,23 @@ CyberSystem::~CyberSystem()
 //*********************** Initialization options ***********************//
 void CyberSystem::InitSystem()
 {
+	std::string err_str;
+
+	m_CmdStr += "Connecting System......";
+	emit InsertCmdStr(m_CmdStr);
+
 	m_CyberStation.RHandConn();
 	m_CyberStation.LHandConn();
-	m_CyberStation.RTraConn();
+	
+	
+	m_RTraContr = m_CyberStation.RTraConn(err_str);
+	
 	m_CyberStation.LTraConn();
 	m_RGloContr = true;
 	m_LGloContr = true;
-	m_RTraContr = true;
+
 	m_LTraContr = true;
+
 	ui.m_pGlStartBtn->setEnabled(true);
 	ui.m_pTraStartBtn->setEnabled(true);
 
@@ -342,16 +390,24 @@ void CyberSystem::InitLHand()
 // TODO(CJH): Add judgement
 void CyberSystem::InitRTracker()
 {
+	std::string err_str;
+
 	m_CmdStr += "Connecting Right Tracker......";
 	emit InsertCmdStr(m_CmdStr);
 
-	m_CyberStation.RTraConn();
-	m_RTraContr = true;
+	m_RTraContr = m_CyberStation.RTraConn(err_str);
 
-	m_CmdStr += "OK!\r\n";
-	emit InsertCmdStr(m_CmdStr);
+	if (m_RTraContr == true)
+	{
+		m_CmdStr += "OK!\r\n";
+		emit InsertCmdStr(m_CmdStr);
 
-	ui.m_pTraStartBtn->setEnabled(true);
+		ui.m_pTraStartBtn->setEnabled(true);
+	}
+	else{
+		m_CmdStr += "Failed!\r\n";
+		emit InsertCmdStr(m_CmdStr);
+	}
 }
 
 void CyberSystem::InitLTracker()
@@ -443,7 +499,7 @@ void CyberSystem::DisTraData()
 						.arg(m_RTraRawMat(3,0)).arg(m_RTraRawMat(3,1)).arg(m_RTraRawMat(3,2)).arg(m_RTraRawMat(3,3));
 
 
-					// TODO(CJH)
+// 					//TODO(CJH)
 // 					m_file << "raw mat" << std::endl;
 // 					for (int i = 0; i < 4; i++)
 // 					{
@@ -466,7 +522,7 @@ void CyberSystem::DisTraData()
 		}
 		QString Str = RGloStr + LGloStr + RTraStr + LTraStr;
 		emit InsertGloText(Str);	
-		m_DisThread.msleep(100);
+		m_DisThread.msleep(250);
 	}
 	// ensure that you will get into the thread next time
 	m_DisThread.m_bDisThreadStop = false;
@@ -544,7 +600,7 @@ void CyberSystem::FinGloveCali()
 // start display
 void CyberSystem::InitTraCali()
 {
-	if (QMessageBox::Yes == QMessageBox::question(this, tr("Question"), tr("Start Calibration?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes))  
+	if (QMessageBox::Yes == QMessageBox::question(this, tr("Question"), tr("Start Tracker?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes))  
 	{  
 		// new thread to display raw data
 		m_bDisTraData = true;
@@ -573,7 +629,13 @@ void CyberSystem::CalTraData()
 		double y = 100;
 		double z = 0;
 
-		m_CyberStation.CalTraCoef(true, XPos, YPos, ZPos, XOri, YOri, ZOri);
+		// TODO(CJH): Add Calibration Data
+		double pose[6];
+		pose[0] = 0;
+		pose[1] = -33.7;
+		pose[2] = 30.7;
+
+		m_CyberStation.CalRTraCoef(pose, 6);
 		m_bRTraCaliFini = true;
 	} 
 	else
@@ -585,7 +647,9 @@ void CyberSystem::CalTraData()
 		QString YOri = ui.m_pLOriYLiEd->text();
 		QString ZOri = ui.m_pLOriZLiEd->text();
 
-		m_CyberStation.CalTraCoef(false, XPos, YPos, ZPos, XOri, YOri, ZOri);
+		double pose[6];
+
+		m_CyberStation.CalLTraCoef(pose, sizeof(pose));
 		m_bLTraCaliFini = true;
 	}
 
@@ -606,6 +670,245 @@ void CyberSystem::CalTraData()
 
 	// initialize kinetics
 
+}
+
+void CyberSystem::LoadCaliData()
+{
+	Eigen::Matrix<double, 4, 4> TransMat;
+	Eigen::Matrix<double, 3, 3> RotMat;
+
+	QString fileName = QFileDialog::getOpenFileName(this,
+		tr("Open Calibration Data"), ".",
+		tr("XML files (*.xml)"));
+
+	if (!fileName.isEmpty()){
+		std::string str_filename = fileName.toStdString();
+		//******************************* Read in XML *******************************//
+		rapidxml::file<> fCalibration(str_filename.c_str());
+
+		rapidxml::xml_document<> Calibration;
+		Calibration.parse<0>(fCalibration.data());
+
+		// 获取根节点
+		rapidxml::xml_node<>* TrackerCalibration = Calibration.first_node();
+
+		// 获取相关矩阵
+		rapidxml::xml_node<>* TransMatrix = TrackerCalibration->first_node("TransMatrix");
+		rapidxml::xml_attribute<>* TransMatrix_DataType = TransMatrix->first_attribute();
+		// 第一行
+		rapidxml::xml_node<>* TransFirst = TransMatrix->first_node("TransFirst");
+		rapidxml::xml_node<>* TransFirstA = TransFirst->first_node("A");
+		TransMat(0, 0) = atof(TransFirstA->value());
+		rapidxml::xml_node<>* TransFirstB = TransFirst->first_node("B");
+		TransMat(0, 1) = atof(TransFirstB->value());
+		rapidxml::xml_node<>* TransFirstC = TransFirst->first_node("C");
+		TransMat(0, 2) = atof(TransFirstC->value());
+		rapidxml::xml_node<>* TransFirstD = TransFirst->first_node("D");
+		TransMat(0, 3) = atof(TransFirstD->value());
+
+		// 第二行
+		rapidxml::xml_node<>* TransSecond = TransMatrix->first_node("TransSecond");
+		rapidxml::xml_node<>* TransSecondA = TransSecond->first_node("A");
+		TransMat(1, 0) = atof(TransSecondA->value());
+		rapidxml::xml_node<>* TransSecondB = TransSecond->first_node("B");
+		TransMat(1, 1) = atof(TransSecondB->value());
+		rapidxml::xml_node<>* TransSecondC = TransSecond->first_node("C");
+		TransMat(1, 2) = atof(TransSecondC->value());
+		rapidxml::xml_node<>* TransSecondD = TransSecond->first_node("D");
+		TransMat(1, 3) = atof(TransSecondD->value());
+
+		// 第三行
+		rapidxml::xml_node<>* TransThird = TransMatrix->first_node("TransThird");
+		rapidxml::xml_node<>* TransThirdA = TransThird->first_node("A");
+		TransMat(2, 0) = atof(TransThirdA->value());
+		rapidxml::xml_node<>* TransThirdB = TransThird->first_node("B");
+		TransMat(2, 1) = atof(TransThirdB->value());
+		rapidxml::xml_node<>* TransThirdC = TransThird->first_node("C");
+		TransMat(2, 2) = atof(TransThirdC->value());
+		rapidxml::xml_node<>* TransThirdD = TransThird->first_node("D");
+		TransMat(2, 3) = atof(TransThirdD->value());
+
+		// 第四行
+		rapidxml::xml_node<>* TransFourth = TransMatrix->first_node("TransFourth");
+		rapidxml::xml_node<>* TransFourthA = TransFourth->first_node("A");
+		TransMat(3, 0) = atof(TransFourthA->value());
+		rapidxml::xml_node<>* TransFourthB = TransFourth->first_node("B");
+		TransMat(3, 1) = atof(TransFourthB->value());
+		rapidxml::xml_node<>* TransFourthC = TransFourth->first_node("C");
+		TransMat(3, 2) = atof(TransFourthC->value());
+		rapidxml::xml_node<>* TransFourthD = TransFourth->first_node("D");
+		TransMat(3, 3) = atof(TransFourthD->value());
+
+
+		//
+		rapidxml::xml_node<>* RotMatrix = TrackerCalibration->first_node("RotMatrix");
+		rapidxml::xml_attribute<>* RotMatrix_DataType = RotMatrix->first_attribute();
+		//第一行
+		rapidxml::xml_node<>* RotFirst = RotMatrix->first_node("RotFirst");
+		rapidxml::xml_node<>* RotFirstA = RotFirst->first_node("A");
+		RotMat(0, 0) = atof(RotFirstA->value());
+		rapidxml::xml_node<>* RotFirstB = RotFirst->first_node("B");
+		RotMat(0, 1) = atof(RotFirstB->value());
+		rapidxml::xml_node<>* RotFirstC = RotFirst->first_node("C");
+		RotMat(0, 2) = atof(RotFirstC->value());
+		//第二行
+		rapidxml::xml_node<>* RotSecond = RotMatrix->first_node("RotSecond");
+		rapidxml::xml_node<>* RotSecondA = RotSecond->first_node("A");
+		RotMat(1, 0) = atof(RotSecondA->value());
+		rapidxml::xml_node<>* RotSecondB = RotSecond->first_node("B");
+		RotMat(1, 1) = atof(RotSecondB->value());
+		rapidxml::xml_node<>* RotSecondC = RotSecond->first_node("C");
+		RotMat(1, 2) = atof(RotSecondC->value());
+		//第三行
+		rapidxml::xml_node<>* RotThird = RotMatrix->first_node("RotThird");
+		rapidxml::xml_node<>* RotThirdA = RotThird->first_node("A");
+		RotMat(2, 0) = atof(RotThirdA->value());
+		rapidxml::xml_node<>* RotThirdB = RotThird->first_node("B");
+		RotMat(2, 1) = atof(RotThirdB->value());
+		rapidxml::xml_node<>* RotThirdC = RotThird->first_node("C");
+		RotMat(2, 2) = atof(RotThirdC->value());
+
+
+		m_CyberStation.UpdataCaliCoef(TransMat, RotMat);
+		m_bRTraDisReal = true;
+		m_bRTraCaliFini = true;
+		m_CmdStr += "Load Config Success!!!";
+		InsertCmdStr(m_CmdStr);
+	}
+	else{
+		m_CmdStr += "Config File is Empty!!!";
+		InsertCmdStr(m_CmdStr);
+	}
+}
+
+void CyberSystem::SaveCaliData()
+{
+	Eigen::Matrix<double, 4, 4> TransMat;
+	Eigen::Matrix<double, 3, 3> RotMat;
+	m_CyberStation.GetCaliCoef(TransMat, RotMat);
+
+	// XML中需要储存char型的变量
+	char ch_TransMat[4][4][8];
+	char ch_RotMat[3][3][8];
+
+	
+	std::ostringstream out_str;
+
+	for (int i = 0; i < 4; ++i){
+		for(int j = 0; j < 4; ++j){
+//			gcvt(TransMat(i, j),5,ch_TransMat[i][j]);
+
+			out_str << TransMat(i, j);
+			memcpy(ch_TransMat[i][j], out_str.str().c_str(), 8);
+			out_str.str("");
+		}
+	}
+
+	for (int i = 0; i < 3; i++){
+		for (int j = 0; j < 3; j++){
+//			gcvt(RotMat(i,j),5,ch_RotMat[i][j]);			
+
+ 			out_str << RotMat(i, j);
+ 			memcpy(ch_RotMat[i][j], out_str.str().c_str(), 8);
+ 			out_str.str("");
+		}
+	}
+
+
+	//建立.xml文件节点
+	rapidxml::xml_document<> Calibration;
+	//建立声明节点
+	rapidxml::xml_node<>* prolog = Calibration.allocate_node(rapidxml::node_pi,Calibration.allocate_string("xml version='1.0' encoding='utf-8' standalone='yes'"));
+	Calibration.append_node(prolog);
+	//建立根节点
+	rapidxml::xml_node<>* TrackerCalibration = Calibration.allocate_node(rapidxml::node_element,"TrackerCalibration");
+	Calibration.append_node(TrackerCalibration);
+
+
+	//建立相关矩阵节点
+	rapidxml::xml_node<>* TransMatrix = Calibration.allocate_node(rapidxml::node_element,"TransMatrix");
+	TrackerCalibration->append_node(TransMatrix);
+	rapidxml::xml_attribute<>* TransMatrixAttribute = Calibration.allocate_attribute("DataType","float");
+	TransMatrix->append_attribute(TransMatrixAttribute);
+
+	//第一行
+	rapidxml::xml_node<>* TransFirst = Calibration.allocate_node(rapidxml::node_element,"TransFirst");
+	TransMatrix->append_node(TransFirst);
+	TransFirst->append_node(Calibration.allocate_node(rapidxml::node_element,"A",ch_TransMat[0][0]));
+	TransFirst->append_node(Calibration.allocate_node(rapidxml::node_element,"B",ch_TransMat[0][1]));
+	TransFirst->append_node(Calibration.allocate_node(rapidxml::node_element,"C",ch_TransMat[0][2]));
+	TransFirst->append_node(Calibration.allocate_node(rapidxml::node_element,"D",ch_TransMat[0][3]));
+	//第二行
+	rapidxml::xml_node<>* TransSecond = Calibration.allocate_node(rapidxml::node_element,"TransSecond");
+	TransMatrix->append_node(TransSecond);
+	TransSecond->append_node(Calibration.allocate_node(rapidxml::node_element,"A",ch_TransMat[1][0]));
+	TransSecond->append_node(Calibration.allocate_node(rapidxml::node_element,"B",ch_TransMat[1][1]));
+	TransSecond->append_node(Calibration.allocate_node(rapidxml::node_element,"C",ch_TransMat[1][2]));
+	TransSecond->append_node(Calibration.allocate_node(rapidxml::node_element,"D",ch_TransMat[1][3]));
+	//第三行
+	rapidxml::xml_node<>* TransThird = Calibration.allocate_node(rapidxml::node_element,"TransThird");
+	TransMatrix->append_node(TransThird);
+	TransThird->append_node(Calibration.allocate_node(rapidxml::node_element,"A",ch_TransMat[2][0]));
+	TransThird->append_node(Calibration.allocate_node(rapidxml::node_element,"B",ch_TransMat[2][1]));
+	TransThird->append_node(Calibration.allocate_node(rapidxml::node_element,"C",ch_TransMat[2][2]));
+	TransThird->append_node(Calibration.allocate_node(rapidxml::node_element,"D",ch_TransMat[2][3]));
+	//第四行
+	rapidxml::xml_node<>* TransFourth = Calibration.allocate_node(rapidxml::node_element,"TransFourth");
+	TransMatrix->append_node(TransFourth);
+	TransFourth->append_node(Calibration.allocate_node(rapidxml::node_element,"A",ch_TransMat[3][0]));
+	TransFourth->append_node(Calibration.allocate_node(rapidxml::node_element,"B",ch_TransMat[3][1]));
+	TransFourth->append_node(Calibration.allocate_node(rapidxml::node_element,"C",ch_TransMat[3][2]));
+	TransFourth->append_node(Calibration.allocate_node(rapidxml::node_element,"D",ch_TransMat[3][3]));
+
+
+
+	// 旋转标定矩阵
+	rapidxml::xml_node<>* RotMatrix = Calibration.allocate_node(rapidxml::node_element,"RotMatrix");
+	TrackerCalibration->append_node(RotMatrix);
+	rapidxml::xml_attribute<>* RotMatrixAttribute = Calibration.allocate_attribute("DataType","float");
+	RotMatrix->append_attribute(RotMatrixAttribute);
+	// 第一行
+	rapidxml::xml_node<>* RotFirst = Calibration.allocate_node(rapidxml::node_element,"RotFirst");
+	RotMatrix->append_node(RotFirst);
+	RotFirst->append_node(Calibration.allocate_node(rapidxml::node_element,"A",ch_RotMat[0][0]));
+	RotFirst->append_node(Calibration.allocate_node(rapidxml::node_element,"B",ch_RotMat[0][1]));
+	RotFirst->append_node(Calibration.allocate_node(rapidxml::node_element,"C",ch_RotMat[0][2]));
+	// 第二行
+	rapidxml::xml_node<>* RotSecond = Calibration.allocate_node(rapidxml::node_element,"RotSecond");
+	RotMatrix->append_node(RotSecond);
+	RotSecond->append_node(Calibration.allocate_node(rapidxml::node_element,"A",ch_RotMat[1][0]));
+	RotSecond->append_node(Calibration.allocate_node(rapidxml::node_element,"B",ch_RotMat[1][1]));
+	RotSecond->append_node(Calibration.allocate_node(rapidxml::node_element,"C",ch_RotMat[1][2]));
+	// 第三行
+	rapidxml::xml_node<>* RotThird = Calibration.allocate_node(rapidxml::node_element,"RotThird");
+	RotMatrix->append_node(RotThird);
+	RotThird->append_node(Calibration.allocate_node(rapidxml::node_element,"A",ch_RotMat[2][0]));
+	RotThird->append_node(Calibration.allocate_node(rapidxml::node_element,"B",ch_RotMat[2][1]));
+	RotThird->append_node(Calibration.allocate_node(rapidxml::node_element,"C",ch_RotMat[2][2]));
+	
+
+	//写入到.xml文件
+	std::string PrintXml;
+	rapidxml::print(std::back_inserter(PrintXml), Calibration, 0);
+
+
+	QString fileName = QFileDialog::getSaveFileName(this,
+		tr("Save Calibration Data"), "./Data/Untitled.XML",
+		tr("XML files (*.xml)"));
+
+
+	QFile Tra_XmlFile(fileName);
+	if(!Tra_XmlFile.open(QIODevice::ReadWrite | QIODevice::Truncate))
+	{
+		QMessageBox::about(NULL, "About", "Fail to create .XML file");
+	}
+	else
+	{
+		Tra_XmlFile.write((char*)PrintXml.c_str(),strlen(PrintXml.c_str()));
+	}
+	Tra_XmlFile.flush();
+	Tra_XmlFile.close();
+	QMessageBox::about(NULL, "About", "Finish writing calibration data!");
 }
 
 void CyberSystem::lineEdit_textChanged()
@@ -679,9 +982,11 @@ void CyberSystem::DisRoboData()
 	sensor_out_str << std::endl;
 
 	QString qstr;
+	// 没有连接宇航员，不现实传感器数据
 	if (m_bRoboConn == false && m_bConsimuConn == true){
 		qstr = qstr.fromStdString(send_out_str.str());
 	}
+	// 连接了宇航员，显示发送到数据和传感器数据
 	else if (m_bRoboConn == true){
 		qstr = qstr.fromStdString((send_out_str.str() + sensor_out_str.str()));
 	}
@@ -754,8 +1059,42 @@ void CyberSystem::SendCmd()
 	}
 
 	// 无控制
+	// 如果连接了宇航员，发送宇航员传感器数据；如果没有连接，发送0角度
 	else{
-		QMessageBox::critical(NULL, "Error", "Out of Control!!!");
+		if (m_bRoboConn == true)
+		{
+			for (int i = 0; i < 7; ++i)
+			{
+				g_rightArmJointBuf[i] = g_RobotSensorDeg.rightArmJoint[i];
+				g_leftArmJointBuf[i] = g_RobotSensorDeg.leftArmJoint[i];
+			}
+			if (m_bConsimuConn == true)
+			{
+				bool consimu_ret = m_RobonautControl.SendConsimuMsg();
+				bool robo_ret = m_RobonautControl.SendRoboMsg();
+			}
+			else{
+				bool robo_ret = m_RobonautControl.SendRoboMsg();
+			}
+		} 
+		else if (m_bConsimuConn == true && m_bRoboConn == false)
+		{
+			for (int i = 0; i < 7; ++i)
+			{
+				g_rightArmJointBuf[i] = 0;
+				g_leftArmJointBuf[i] = 0;
+			}
+			bool consimu_ret = m_RobonautControl.SendConsimuMsg();
+		}
+		else{
+			m_CmdStr += "No Connection! Check Error!!!";
+			emit InsertCmdStr(m_CmdStr);
+
+			timeKillEvent(RecvTimerId);
+			RecvTimerId = NULL;
+			timeKillEvent(SendTimerId);
+			SendTimerId = NULL;
+		}
 	}
 	DisRoboData();
 }
@@ -808,7 +1147,7 @@ void CyberSystem::RoboConnCtrl()
 {
 	if (m_bRoboConn == false)
 	{
-		m_CmdStr += "Connecting Robonaut......";
+		m_CmdStr += "Creating Robonaut Connection......";
 		emit InsertCmdStr(m_CmdStr);
 
 		bool ret = m_RobonautControl.ConnRobo();
@@ -822,19 +1161,30 @@ void CyberSystem::RoboConnCtrl()
 			ui.m_pJointCtrlBtn->setEnabled(true);
 		}
 		else{
-			QMessageBox::critical(NULL,"Error","Robo Connection Failed");
+			m_CmdStr += "Failed!!!";
+			emit InsertCmdStr(m_CmdStr);
+			return;
 		}
 	}
 
 	else{
 		// TODO(CJH): add bool
 		// Disconnct function is not add
+		m_CmdStr += "DisConnecting Robonaut......";
+		emit InsertCmdStr(m_CmdStr);
+
 		bool ret = m_RobonautControl.DisConnRobo();
 		if (ret == true)
 		{
+			m_CmdStr += "OK!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+
 			m_bRoboConn = false;
 			ui.m_pRoboConnBtn->setText("Conn Robonaut");
-			ui.m_pJointCtrlBtn->setEnabled(false);
+		}
+		else{
+			m_CmdStr += "Failed!!!";
+			emit InsertCmdStr(m_CmdStr);
 		}
 	}
 }
@@ -843,35 +1193,102 @@ void CyberSystem::RoboConnCtrl()
 // 点击Cyber按钮，选择使用Cyber的模式
 void CyberSystem::CyberCtrl()
 {
-	// 点击Cyber按钮
-	if (m_CtrlMode == OUT_CTRL && (m_bRoboConn == true || m_bConsimuConn == true))
+	if (m_bRTraCaliFini == false && m_bLTraCaliFini == false)
 	{
-		if (m_bRoboConn == true && m_bConsimuConn == false)
-		{
-			m_CtrlMode = CYBER_CTRL_ALL;
-		} 
-		else if(m_bRoboConn == true && m_bConsimuConn == false)
-		{
-			m_CtrlMode = CYBER_CTRL_ROBO;
-		}
-		else{
-			m_CtrlMode = CYBER_CTRL_SIMU;
-		}
-
-		ui.m_pCyberStartBtn->setEnabled(true);
-		ui.m_pJointCtrlBtn->setEnabled(false);
-		ui.m_pCyberCtrlBtn->setText("Stop");
-
+		m_CmdStr += "Calibrate Tracker First!!!";
+		emit InsertCmdStr(m_CmdStr);
+		return;
 	}
+	// 点击Cyber按钮
+	if (m_CtrlMode == OUT_CTRL && (m_bRoboConn == true || m_bConsimuConn == true) && (ui.m_pCyberCtrlBtn->text() == "Cyber"))
+	{
+		m_CmdStr += "Initializing DataSend Timer......";
+		emit InsertCmdStr(m_CmdStr);
+		// Initialize Send Timer
+		if (SendTimerId == NULL)
+		{
+			SendTimerId = timeSetEvent(250, 1, (LPTIMECALLBACK)TimerProcSendCmd, 0, TIME_PERIODIC);
+		} 
+		else
+		{
+			m_CmdStr += "Send Timer has Existed!!!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+			return;
+		}
+		
+		if (SendTimerId != NULL)
+		{
+			m_CmdStr += "OK!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+		} 
+		else
+		{
+			m_CmdStr += "Failed!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+			return;
+		}
+
+		m_CmdStr += "Initializing DataRecv Timer......";
+		emit InsertCmdStr(m_CmdStr);
+		// Initialize Receive Timer
+		if (RecvTimerId == NULL)
+		{
+			RecvTimerId = timeSetEvent(250, 1, (LPTIMECALLBACK)TimerProcRecvSensor, 0, TIME_PERIODIC);
+		} 
+		else
+		{
+			m_CmdStr += "Recv Timer has Existed!!!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+			return;
+		}
+		
+		if (RecvTimerId != NULL)
+		{
+			m_CmdStr += "OK!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+
+			ui.m_pCyberStartBtn->setEnabled(true);
+			ui.m_pJointCtrlBtn->setEnabled(false);
+			ui.m_pCyberCtrlBtn->setText("Stop");
+		} 
+		else
+		{
+			m_CmdStr += "Failed!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+			return;
+		}
+	}
+
 	// 点击Stop按钮
 	else
 	{
-		ui.m_pCyberCtrlBtn->setText("Cyber");
-		ui.m_pCyberStartBtn->setEnabled(false);
-		ui.m_pCyberStopBtn->setEnabled(false);
-		ui.m_pCyberCtrlBtn->setEnabled(true);
-
 		m_CtrlMode = OUT_CTRL;
+		Sleep(250);
+
+		m_CmdStr += "Stop Cyber Control......";
+		emit InsertCmdStr(m_CmdStr);
+
+		UINT ret_send = timeKillEvent(SendTimerId);
+		SendTimerId = NULL;
+		UINT ret_recv = timeKillEvent(RecvTimerId);
+		RecvTimerId = NULL;
+
+		if (ret_send == TIMERR_NOERROR && ret_recv == TIMERR_NOERROR)
+		{
+			m_CmdStr += "OK!!!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+
+			ui.m_pCyberCtrlBtn->setText("Cyber");
+			ui.m_pCyberStartBtn->setEnabled(false);
+			ui.m_pCyberPauseBtn->setEnabled(false);
+			ui.m_pCyberCtrlBtn->setEnabled(true);
+			ui.m_pJointCtrlBtn->setEnabled(true);
+		} 
+		else
+		{
+			m_CmdStr += "Failed!!!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+		}
 	}
 }
 
@@ -879,52 +1296,35 @@ void CyberSystem::CyberCtrl()
 // 点击Start按钮，开始控制
 void CyberSystem::CyberCmd()
 {
-	m_CmdStr += "Initializing DataSend Timer......";
+	m_CmdStr += "Start Cyber Control!!!\r\n";
 	emit InsertCmdStr(m_CmdStr);
-	// Initialize Send Timer
-	SendTimerId = timeSetEvent(250, 1, (LPTIMECALLBACK)TimerProcSendCmd, 0, TIME_PERIODIC);
-	if (SendTimerId != NULL)
+
+	if (m_bRoboConn == true && m_bConsimuConn == true)
 	{
-		m_CmdStr += "OK!\r\n";
-		emit InsertCmdStr(m_CmdStr);
+		m_CtrlMode = CYBER_CTRL_ALL;
 	} 
-	else
+	else if(m_bRoboConn == true && m_bConsimuConn == false)
 	{
-		m_CmdStr += "Failed!\r\n";
-		emit InsertCmdStr(m_CmdStr);
-		return;
+		m_CtrlMode = CYBER_CTRL_ROBO;
+	}
+	else{
+		m_CtrlMode = CYBER_CTRL_SIMU;
 	}
 
-	m_CmdStr += "Initializing DataRecv Timer......";
-	emit InsertCmdStr(m_CmdStr);
-	// Initialize Receive Timer
-	RecvTimerId = timeSetEvent(250, 1, (LPTIMECALLBACK)TimerProcRecvSensor, 0, TIME_PERIODIC);
-	if (RecvTimerId != NULL)
-	{
-		m_CmdStr += "OK!\r\n";
-		emit InsertCmdStr(m_CmdStr);
-
-		ui.m_pCyberStopBtn->setEnabled(true);
-		ui.m_pCyberStartBtn->setEnabled(false);
-	} 
-	else
-	{
-		m_CmdStr += "Failed!\r\n";
-		emit InsertCmdStr(m_CmdStr);
-		return;
-	}
+	ui.m_pCyberPauseBtn->setEnabled(true);
+	ui.m_pCyberStartBtn->setEnabled(false);
 }
 
-// 停止使用Cyber控制
+// 暂停使用Cyber控制
 void CyberSystem::CyberStop()
 {
-	m_CmdStr += "Stop Cyber Control!!!\r\n";
+	m_CmdStr += "Pause Cyber Control!!!\r\n";
 	emit InsertCmdStr(m_CmdStr);
-	timeKillEvent(SendTimerId);
-	timeKillEvent(RecvTimerId);
+
+	m_CtrlMode = OUT_CTRL;
 
 	ui.m_pCyberStartBtn->setEnabled(true);
-	ui.m_pCyberStopBtn->setEnabled(false);
+	ui.m_pCyberPauseBtn->setEnabled(false);
 }
 
 
@@ -950,7 +1350,17 @@ void CyberSystem::ClickCtrl()
 		m_CmdStr += "Initializing DataSend Timer......";
 		emit InsertCmdStr(m_CmdStr);
 
-		SendTimerId = timeSetEvent(250, 1, (LPTIMECALLBACK)TimerProcSendCmd, 0, TIME_PERIODIC);
+		if (SendTimerId == NULL)
+		{
+			SendTimerId = timeSetEvent(250, 1, (LPTIMECALLBACK)TimerProcSendCmd, 0, TIME_PERIODIC);
+		} 
+		else
+		{
+			m_CmdStr += "Send Timer has Existed!!!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+			return;
+		}
+
 		if (SendTimerId != NULL)
 		{
 			m_CmdStr += "OK!\r\n";
@@ -967,7 +1377,17 @@ void CyberSystem::ClickCtrl()
 		m_CmdStr += "Initializing DataRecv Timer......";
 		emit InsertCmdStr(m_CmdStr);
 
-		RecvTimerId = timeSetEvent(250, 1, (LPTIMECALLBACK)TimerProcRecvSensor, 0, TIME_PERIODIC);
+		if (RecvTimerId == NULL)
+		{
+			RecvTimerId = timeSetEvent(250, 1, (LPTIMECALLBACK)TimerProcRecvSensor, 0, TIME_PERIODIC);
+		} 
+		else
+		{
+			m_CmdStr += "Recv Timer has Existed!!!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+			return;
+		}
+
 		if (RecvTimerId != NULL)
 		{
 			m_CmdStr += "OK!\r\n";
@@ -989,7 +1409,9 @@ void CyberSystem::ClickCtrl()
 	else{
 		m_CtrlMode = OUT_CTRL;
 		timeKillEvent(SendTimerId);
+		SendTimerId = NULL;
 		timeKillEvent(RecvTimerId);
+		RecvTimerId = NULL;
 
 		m_CmdStr += "Stop Click Control!!!\r\n";
 		emit InsertCmdStr(m_CmdStr);
@@ -1010,7 +1432,7 @@ void CyberSystem::getSliData()
 	// Get Joint Data
 	if (ui.m_pRArmTab->isVisible() || ui.m_pLArmTab->isVisible())
 	{
-		m_CmdStr += "Sending Joints Data!!!\r\n";
+		m_CmdStr = "Sending Joints Data!!!\r\n" + m_CmdStr;
 		emit InsertCmdStr(m_CmdStr);
 
 		float RJoTmp[7],LJoTmp[7];
@@ -1039,7 +1461,7 @@ void CyberSystem::getSliData()
 	// Get Position Data
 	else
 	{
-		m_CmdStr += "Sending Pose Data!!!\r\n";
+		m_CmdStr = "Sending Pose Data!!!\r\n" + m_CmdStr;
 		emit InsertCmdStr(m_CmdStr);
 
 		QString RPosBuf[7],LPosBuf[7];
@@ -1106,17 +1528,27 @@ void CyberSystem::getSliData()
 // Click Update Button, using global Robot Sensor Data to update slider data
 void CyberSystem::SliUpdata()
 {
-	m_CmdStr += "Updating Sensor Data to Slider!!!\r\n";
-	emit InsertCmdStr(m_CmdStr);
-
-	float RJoTmp[7],LJoTmp[7];
-	for (int i = 0; i < 7; ++i)
+	if (m_bRoboConn == true)
 	{
-		RJoTmp[i] = g_RobotSensorDeg.rightArmJoint[i]*100;
-		LJoTmp[i] = g_RobotSensorDeg.leftArmJoint[i]*100;
+		m_CmdStr += "Updating Sensor Data to Slider!!!\r\n";
+		emit InsertCmdStr(m_CmdStr);
+
+		float RJoTmp[7],LJoTmp[7];
+		for (int i = 0; i < 7; ++i)
+		{
+			RJoTmp[i] = g_RobotSensorDeg.rightArmJoint[i]*100;
+			LJoTmp[i] = g_RobotSensorDeg.leftArmJoint[i]*100;
+		}
+
+		SetSliVal(RJoTmp, RJoTmp);
+	}
+	else{
+		m_CmdStr += "Robonaut is not Connected, Can't Update!!!\r\n";
+		emit InsertCmdStr(m_CmdStr);
 	}
 
-	SetSliVal(RJoTmp, RJoTmp);
+
+
 }
 
 // 设置Slider数据
@@ -1151,14 +1583,6 @@ void CyberSystem::SetCliUIVisi(bool flag)
 	ui.m_pRJo5Sli->setEnabled(flag);
 	ui.m_pRJo6Sli->setEnabled(flag);
 
-	ui.m_pRJo1Line->setEnabled(flag);
-	ui.m_pRJo2Line->setEnabled(flag);
-	ui.m_pRJo3Line->setEnabled(flag);
-	ui.m_pRJo4Line->setEnabled(flag);
-	ui.m_pRJo5Line->setEnabled(flag);
-	ui.m_pRJo6Line->setEnabled(flag);
-	ui.m_pRJo7Line->setEnabled(flag);
-
 	ui.m_pLJo0Sli->setEnabled(flag);
 	ui.m_pLJo1Sli->setEnabled(flag);
 	ui.m_pLJo2Sli->setEnabled(flag);
@@ -1168,6 +1592,14 @@ void CyberSystem::SetCliUIVisi(bool flag)
 	ui.m_pLJo6Sli->setEnabled(flag);
 
 	ui.m_pRJo1Line->setEnabled(flag);
+	ui.m_pRJo2Line->setEnabled(flag);
+	ui.m_pRJo3Line->setEnabled(flag);
+	ui.m_pRJo4Line->setEnabled(flag);
+	ui.m_pRJo5Line->setEnabled(flag);
+	ui.m_pRJo6Line->setEnabled(flag);
+	ui.m_pRJo7Line->setEnabled(flag);
+
+	ui.m_pLJo1Line->setEnabled(flag);
 	ui.m_pLJo2Line->setEnabled(flag);
 	ui.m_pLJo3Line->setEnabled(flag);
 	ui.m_pLJo4Line->setEnabled(flag);
@@ -1336,107 +1768,237 @@ void CyberSystem::InitKine()
 	sh = rpp::kine::SingularityHandler<double>(joint_limits);
 }
 
-// calculate inverse kinetics
-Eigen::Matrix<double, 7, 1> CyberSystem::CalKine(const Eigen::Matrix<double, 4, 4> &T, double &last_arm_angle, 
-												 Eigen::Matrix<double, 7, 1> &last_joint_angle)
-{
-	auto self_motions = m_Kine.inverse(T);
 
-	// if there is no reasonable solution
+Eigen::Matrix<double, 7, 1> CyberSystem::CalKine(const Eigen::Matrix<double, 4, 4> &T, double &last_arm_angle, 
+	Eigen::Matrix<double, 7, 1> &last_joint_angle)
+{
+	Eigen::Matrix<double, 7, 1> ref_angle;
+	ref_angle << (-1.0472 + 3.1416)/2, (-1.9199 + 1.5708)/2, (-2.0944 + 2.0944)/2, 
+		(-2.2689 + 0.1745)/2, (-2.0944 + 2.0944)/2, (-1.5708 + 1.5708)/2, (-2.0944 + 2.0944)/2;
+//	ref_angle = last_joint_angle;
+
+	// 判断有无自运动，如果没有，直接返回上一次的值
+	auto self_motions = m_Kine.inverse(T);
 	if (self_motions.empty())
 	{
+		m_CmdStr = "No self_motion!!!\r\n" + m_CmdStr;
+		emit InsertCmdStr(m_CmdStr);
 		return last_joint_angle;
 	}
 
-	// elbow angle contains in the limitation, and 
-	auto it_self_motion = self_motions.begin();
-	for (auto it = it_self_motion + 1; it != self_motions.end(); ++it)
+	// 选择一个肘关节角度在关节限位内的自运动（< 0）
+	auto it_self_motions = self_motions.begin();
+	for (; it_self_motions != self_motions.end(); ++it_self_motions)
 	{
-		if (joint_limits[3].contains(it->elbow_joint()))
+		if (joint_limits[3].contains(it_self_motions->elbow_joint()))
 		{
-			if (abs(it->elbow_joint() - last_joint_angle(3, 0)) < 
-				abs(it_self_motion->elbow_joint() - last_joint_angle(3, 0)))
+			break;
+		}
+	}
+
+	// 取得该自运动可能的臂角范围
+	auto arm_angle_ranges = it_self_motions->arm_angle_range();
+
+	Eigen::Matrix<double, 7, 1> jo;
+	int jo_count = 0;
+	for (auto range = arm_angle_ranges.begin(); range != arm_angle_ranges.end(); ++range)
+	{
+		auto arm_angle = (range->lower() + range->upper())/2.0;
+
+		auto joints = it_self_motions->get_joints(arm_angle, sh);
+		// 遍历所有臂角可能取得的关节角度，选择和上一次最接近的角度
+		for (auto it_joints = joints.begin(); it_joints != joints.end(); ++it_joints)
+		{
+			auto q = *(it_joints);
+
+			// 解的合理性判断
+			auto q_valid = true;
+			for (int i = 0; i < 7; ++i)
 			{
-				it_self_motion = it;
+				q_valid = q_valid && joint_limits[i].contains(q[i]);
 			}
-		}
-	}
-
-	// 
-	auto arm_angle_ranges = it_self_motion->arm_angle_range();
-
-	// TODO(CJH): out of workspace
-	if (arm_angle_ranges.empty())
-	{
-		return m_last_joint_angle;
-	}
-
-	auto it_arm_angle = arm_angle_ranges.begin();
-	auto ave = (it_arm_angle->lower() + it_arm_angle->upper())/2.0;
-
-	// choose the arm angle that is most similar to the last one
-	for (auto range = it_arm_angle + 1; range != arm_angle_ranges.end(); ++range)
-	{
-		auto tmp_ave = (range->lower() + range->upper())/2.0;
-		if (abs(tmp_ave - last_arm_angle) < abs(ave - last_arm_angle))
-		{
-			it_arm_angle = range;
-			ave = tmp_ave;
-		}
-	}
-
-	auto joints = it_self_motion->get_joints(ave, sh);
-
-	// choose a reasonable joint angle
-	auto it_joint = joints.begin();
-	for (bool flag = true; (it_joint != joints.end()) && (flag == true); ++it_joint)
-	{
-		auto q = *(it_joint);
-		auto q_valid = true;
-		for (int i = 0; i < 7; ++i)
-		{
-			q_valid = q_valid && joint_limits[i].contains(q[i]);
-		}
-
-		if (q_valid)
-		{
+			if (!q_valid)
+			{
+				continue;
+			}
 			auto TT = m_Kine.forward(q);
-
-			// first reasonable joint angle
-			if ((TT - T).norm() < 0.05)
+			if ((TT - T).norm() > 0.05)
 			{
-				flag = false;
-				for (auto it = it_joint + 1; it != joints.end(); ++it)
-				{
-					auto tmp_q = *(it);
-
-					auto tmp_q_valid = true;
-					for (int i = 0; i < 7; ++i)
-					{
-						tmp_q_valid = tmp_q_valid && joint_limits[i].contains(tmp_q[i]);
-					}
-
-					if (tmp_q_valid)
-					{
-						auto tmp_TT = m_Kine.forward(tmp_q);
-
-						if((tmp_TT - T).norm() < 0.05)
-						{
-							// 
-							if ((last_joint_angle - tmp_q).norm() < (last_joint_angle - q).norm())
-							{
-								it_joint = it;
-								q = tmp_q;
-							}
-						}
-					}
-				}
-				last_joint_angle = q;
-				return q;
+				continue;
 			}
+			else{
+				// 如果jo_count > 0， 则至少存在一个解
+				jo_count++;
+			}
+
+			// 判断是否第一次进入
+			if (jo_count == 1)
+			{
+				jo = q;
+			} 
+			else
+			{
+				if ((q - ref_angle).norm() < (jo - ref_angle).norm())
+				{
+					jo = q;
+				}
+			}
+
+
 		}
 	}
 
-	// if there is no reasonable joint angle
-	return last_joint_angle;
+	// 存在解
+	if (jo_count > 0)
+	{
+		last_joint_angle = jo;
+		return jo;
+	} 
+	else
+	{
+		m_CmdStr = "Self_motions have no Reasonable Solution!!!\r\n" + m_CmdStr;
+		emit InsertCmdStr(m_CmdStr);
+		return last_joint_angle;
+	}
 }
+
+
+
+//calculate inverse kinetics
+//Eigen::Matrix<double, 7, 1> CyberSystem::CalKine(const Eigen::Matrix<double, 4, 4> &T, double &last_arm_angle, 
+//												 Eigen::Matrix<double, 7, 1> &last_joint_angle)
+//{
+//	auto self_motions = m_Kine.inverse(T);
+//
+//	// if there is no reasonable solution
+//	if (self_motions.empty())
+//	{
+//		m_CmdStr = "NO Solution!!!\r\n" + m_CmdStr ;
+//		emit InsertCmdStr(m_CmdStr);
+//
+//		return last_joint_angle;
+//	}
+//
+//	// elbow angle contains in the limitation, and 
+//	auto it_self_motion = self_motions.begin();
+//	for (auto it = it_self_motion + 1; it != self_motions.end(); ++it)
+//	{
+//		if (joint_limits[3].contains(it->elbow_joint()))
+//		{
+//			if (abs(it->elbow_joint() - last_joint_angle(3, 0)) < 
+//				abs(it_self_motion->elbow_joint() - last_joint_angle(3, 0)))
+//			{
+//				it_self_motion = it;
+//			}
+//		}
+//	}
+//
+//	auto it_self_motion = self_motions.begin();
+//	auto tmp = it_self_motion->arm_angle_range();
+//	auto it_arm_angle = tmp.begin();
+//	auto ave = (it_arm_angle->lower() + it_arm_angle->upper())/2.0;
+//
+//	for (auto it_self_motion_tmp = it_self_motion; it_self_motion_tmp != self_motions.end(); ++it_self_motion_tmp)
+//	{
+//		auto it_arm_angle_tmp = it_self_motion_tmp->arm_angle_range().begin();
+//		auto tmp = it_self_motion_tmp->arm_angle_range().end();
+//		auto tmp_2 = it_self_motion_tmp->arm_angle_range();
+//		++it_arm_angle_tmp;
+//
+//		for (auto it_arm_angle_tmp = it_self_motion_tmp->arm_angle_range().begin(); it_arm_angle_tmp != it_self_motion_tmp->arm_angle_range().end(); ++it_arm_angle_tmp)
+//		{
+//			auto ave_tmp = (it_arm_angle_tmp->lower() + it_arm_angle_tmp->upper())/2.0;
+//			if (abs(ave - last_arm_angle) > abs(ave_tmp - last_arm_angle))
+//			{
+//				it_self_motion = it_self_motion_tmp;
+//				it_arm_angle = it_arm_angle_tmp;
+//				ave = ave_tmp;
+//			}
+//		}
+//	}
+//	last_arm_angle = ave;
+//
+//
+//
+//	// 
+//	auto arm_angle_ranges = it_self_motion->arm_angle_range();
+//
+//	// TODO(CJH): out of workspace
+//	if (arm_angle_ranges.empty())
+//	{
+//		return m_last_joint_angle;
+//	}
+//
+//	auto it_arm_angle = arm_angle_ranges.begin();
+//	auto ave = (it_arm_angle->lower() + it_arm_angle->upper())/2.0;
+//
+//	// choose the arm angle that is most similar to the last one
+//	for (auto range = it_arm_angle + 1; range != arm_angle_ranges.end(); ++range)
+//	{
+//		auto tmp_ave = (range->lower() + range->upper())/2.0;
+//		if (abs(tmp_ave - last_arm_angle) < abs(ave - last_arm_angle))
+//		{
+//			it_arm_angle = range;
+//			ave = tmp_ave;
+//		}
+//	}
+//
+//	auto joints = it_self_motion->get_joints(ave, sh);
+//
+//	// choose a reasonable joint angle
+//	auto it_joint = joints.begin();
+//	for (bool flag = true; (it_joint != joints.end()) && (flag == true); ++it_joint)
+//	{
+//		auto q = *(it_joint);
+//		auto q_valid = true;
+//		for (int i = 0; i < 7; ++i)
+//		{
+//			q_valid = q_valid && joint_limits[i].contains(q[i]);
+//		}
+//
+//		if (q_valid)
+//		{
+//			auto TT = m_Kine.forward(q);
+//
+//			// first reasonable joint angle
+//			if ((TT - T).norm() < 0.05)
+//			{
+//				flag = false;
+//				for (auto it = it_joint + 1; it != joints.end(); ++it)
+//				{
+//					auto tmp_q = *(it);
+//
+//					auto tmp_q_valid = true;
+//					for (int i = 0; i < 7; ++i)
+//					{
+//						tmp_q_valid = tmp_q_valid && joint_limits[i].contains(tmp_q[i]);
+//					}
+//
+//					if (tmp_q_valid)
+//					{
+//						auto tmp_TT = m_Kine.forward(tmp_q);
+//
+//						if((tmp_TT - T).norm() < 1)
+//						{
+//							// 
+//							if ((last_joint_angle - tmp_q).norm() < (last_joint_angle - q).norm())
+//							{
+//								it_joint = it;
+//								q = tmp_q;
+//							}
+//						}
+//					}
+//				}
+//				last_joint_angle = q;
+//				return q;
+//			}
+//		}
+//	}
+//
+//	// if there is no reasonable joint angle
+//	m_CmdStr = "NO Solution!!!\r\n" + m_CmdStr;
+//	emit InsertCmdStr(m_CmdStr);
+//
+//	return last_joint_angle;
+//
+//}

@@ -1,8 +1,6 @@
 #include "CyberStation.h"
 
-#include "rapidxml/rapidxml.hpp"
-#include "rapidxml/rapidxml_print.hpp"
-#include "rapidxml/rapidxml_utils.hpp"
+
 
 #include <math.h>
 
@@ -88,7 +86,7 @@ CyberStation::~CyberStation()
 
 
 //****************************** Connection Management ******************************//
-void CyberStation::RTraConn()
+bool CyberStation::RTraConn(std::string &str)
 {
 	// Connect to the rightTracker
 	m_pRightTrackerConn = vhtIOConn::getDefault("RightForce");
@@ -99,12 +97,15 @@ void CyberStation::RTraConn()
 	}
 	catch(vhtBaseException *e)
 	{
-		DisplayMessage("Error with rightTracker: ", e);
-		return;
+//		DisplayMessage("Error with rightTracker: ", e);
+		str = e->getMessage();
+		return false;
 	}
 
 	// Extract the receiver 0,1 of the rightTracker
 	m_pRightRcvr = m_pRightTracker->getLogicalDevice(0);
+	str = "Success";
+	return true;
 }
 
 void CyberStation::LTraConn()
@@ -177,7 +178,9 @@ void CyberStation::LHandConn()
 	}
 	catch (vhtBaseException* e){
 		DisplayMessage("Error with CyberGlove: ", e);
+		return;
 	}
+	return;
 }
 
 void CyberStation::DisplayMessage(const char *msg, vhtBaseException *e)
@@ -375,11 +378,14 @@ void CyberStation::CalGloCoef()
 	//建立根节点
 	rapidxml::xml_node<>* GloveCalibration = Calibration.allocate_node(rapidxml::node_element,"GloveCalibration");
 	Calibration.append_node(GloveCalibration);
+
 	//建立相关矩阵节点
 	rapidxml::xml_node<>* CorrelationMatrix = Calibration.allocate_node(rapidxml::node_element,"CorrelationMatrix");
 	GloveCalibration->append_node(CorrelationMatrix);
 	rapidxml::xml_attribute<>* CorrelationMatrixAttribute = Calibration.allocate_attribute("DataType","float");
 	CorrelationMatrix->append_attribute(CorrelationMatrixAttribute);
+
+
 	//拇指
 	rapidxml::xml_node<>* CorThumb = Calibration.allocate_node(rapidxml::node_element,"Thumb");
 	CorrelationMatrix->append_node(CorThumb);
@@ -661,22 +667,24 @@ Eigen::Matrix<double, 4, 4> CyberStation::GetRRawTraData()
 
 // Calculate Transformation Matrxi,
 // TODO(CJH): Without Add Left Tracker Calibration
-void CyberStation::CalTraCoef(bool bRTraisChecked, QString PosX, QString PosY, QString PosZ, QString OriX, QString OriY, QString OriZ)
+void CyberStation::CalRTraCoef(const double RPose[], const int &len_RPose)
 {
-	if (bRTraisChecked == true)
+	// Use Euler Angle
+	if (len_RPose == 6)
 	{
-		double RPosX = PosX.toDouble();
-		double RPosY = PosY.toDouble();
-		double RPosZ = PosZ.toDouble();
-		double ROriX = OriX.toDouble();
-		double ROriY = OriY.toDouble();
-		double ROriZ = OriZ.toDouble();
 
-		// position data of a special pose
-		RPosX = 0;
-		RPosY = -33.7;
-		RPosZ = 30.7;
+		// Device Calibration: Step 1
+		// position matrix calculate
+		TransCoeffMat(0, 0) = TransCoeffMat(0, 2) = 0;
+		TransCoeffMat(1, 0) = TransCoeffMat(1, 1) = 0;
+		TransCoeffMat(2, 1) = TransCoeffMat(2, 2) = 0;
+		TransCoeffMat(3, 0) = TransCoeffMat(3, 1) = TransCoeffMat(3, 2) = 0;
+		TransCoeffMat(0, 1) = TransCoeffMat(1, 2) = TransCoeffMat(2, 0) = TransCoeffMat(3, 3) = 1;
+		TransCoeffMat(0, 3) = RPose[0] - RFormMat[1][3];
+		TransCoeffMat(1, 3) = RPose[1] - RFormMat[2][3];
+		TransCoeffMat(2, 3) = RPose[2] - RFormMat[0][3];
 
+		// Device Calibration: Step 2
 		// orient data of a special pose
 		Eigen::Matrix<double, 3, 3> ROriMat;
 		for (int i = 0; i < 3; i++)
@@ -689,17 +697,6 @@ void CyberStation::CalTraCoef(bool bRTraisChecked, QString PosX, QString PosY, Q
 		ROriMat(0, 0) = 1;
 		ROriMat(1, 2) = 1;
 		ROriMat(2, 1) = -1;
-
-		// position matrix calculate
-		TransCoeffMat(0, 0) = TransCoeffMat(0, 2) = 0;
-		TransCoeffMat(1, 0) = TransCoeffMat(1, 1) = 0;
-		TransCoeffMat(2, 1) = TransCoeffMat(2, 2) = 0;
-		TransCoeffMat(3, 0) = TransCoeffMat(3, 1) = TransCoeffMat(3, 2) = 0;
-		TransCoeffMat(0, 1) = TransCoeffMat(1, 2) = TransCoeffMat(2, 0) = TransCoeffMat(3, 3) = 1;
-		TransCoeffMat(0, 3) = RPosX - RFormMat[1][3];
-		TransCoeffMat(1, 3) = RPosY - RFormMat[2][3];
-		TransCoeffMat(2, 3) = RPosZ - RFormMat[0][3];
-
 		// orientation matrix calculate
 		for (int i = 0; i < 3; i++)
 		{
@@ -730,14 +727,123 @@ void CyberStation::CalTraCoef(bool bRTraisChecked, QString PosX, QString PosY, Q
 
 		RotCoeffMat = RotOSMat.inverse()*RotOOnMat*RotOnPMat;
 
+		// Motion Mapping
+		CalRTraMapCoeff();
+
 		// Indicate: Right Tracker Calibration is Finished
 		m_bRTraCaliFin = true;
-	} 
+	}
 
-	// TODO(CJH): left tracker calibration
+	// Use Unit Quaternion
+	else if (len_RPose == 7)
+	{
+
+	}
+
+	else{
+
+	}
+}
+
+
+
+void CyberStation::CalRTraMapCoeff()
+{
+	// Oriten Mapping
+	Eigen::Matrix<double, 3, 3> RRotMapOut;
+	Eigen::Matrix<double, 3, 3> RRotMapIn;
+	RRotMapOut << -0.176, -0.984, 0.01,
+				-0.7, 0.119, -0.7,
+				0.688, -0.13, -0.71;
+	RRotMapIn << 1, 0, 0,
+				0, 0, 1,
+				0, -1, 0;
+
+	m_RotMapCoeff = RRotMapOut*RRotMapIn.inverse();
+
+	//		for (int i = 1; i<3; i++)
+	//		{
+	//			for (int j = 0; j<3; j++)
+	//			{
+	////				RTransMat(i, j) = -RTransMat(i, j);
+	//				RTransMat(i, j) = RTransMat(i, j);
+	//			}
+	//		}
+
+	// Position Mapping
+	double RPosIn[3] = {0, -33.7, 30.7};
+	double RPosOut[3] = {-219.62, -550, 44.192};
+
+	m_TransMapCoeff[0] = RPosOut[0]- RPosIn[0]*10;
+	m_TransMapCoeff[1] = RPosOut[1] - RPosIn[1]*10;
+	m_TransMapCoeff[2] = RPosOut[2] - RPosIn[2]*10;
+}
+
+// Use Transmatrix to Calculate
+void CyberStation::CalRTraCoef(const Eigen::Matrix<double, 4, 4> &R_Mat)
+{
+
+}
+
+
+void CyberStation::CalLTraCoef(const double LPose[], const int &len_LPose)
+{
+
+}
+
+void CyberStation::CalLTraCoef(const Eigen::Matrix<double, 4, 4> &L_Mat)
+{
+
+}
+
+void CyberStation::UpdataCaliCoef(const Eigen::Matrix<double, 4, 4> &RTransMat, const Eigen::Matrix<double, 3, 3> &RRotMat)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			RotOOnMat(i, j) = 0;
+		}
+	}
+	RotOOnMat(0, 1) = 1;
+	RotOOnMat(1, 2) = 1;
+	RotOOnMat(2, 0) = 1;
+
+	Eigen::Matrix<double, 3, 3> ROriMat;
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			ROriMat(i, j) = 0;
+		}
+	}
+	ROriMat(0, 0) = 1;
+	ROriMat(1, 2) = 1;
+	ROriMat(2, 1) = -1;
+
+
+	TransCoeffMat = RTransMat;
+	RotCoeffMat = RRotMat;
+	
+	// Motion Mapping
+	CalRTraMapCoeff();
+
+
+	// Indicate: Right Tracker Calibration is Finished
+	m_bRTraCaliFin = true;
+}
+
+bool CyberStation::GetCaliCoef(Eigen::Matrix<double, 4, 4> &TransMat, Eigen::Matrix<double, 3, 3> &RotMat)
+{
+	if (m_bRTraCaliFin == true)
+	{
+		TransMat = TransCoeffMat;
+		RotMat = RotCoeffMat;
+	} 
 	else
 	{
 	}
+	return m_bRTraCaliFin;
 }
 
 // Get Right Tracker's Real Transformation Matrix, 
@@ -750,18 +856,20 @@ Eigen::Matrix<double, 4, 4> CyberStation::GetRTraRealData()
 		m_pRightTracker->getLogicalDevice(0)->getTransform(&RTraXForm);
 		RTraXForm.getTransform(RFormMat);
 
+		// Get Cyber Data in a Special Coordination
 		// translation data
-		Eigen::Matrix<double, 4, 4> RTransMat;
-		RTransMat(0, 3) = TransCoeffMat(0, 0)*RFormMat[0][3] + TransCoeffMat(0, 1)*RFormMat[1][3]
+		Eigen::Matrix<double, 4, 4> RTransMat;		// 映射后
+		Eigen::Matrix<double, 4, 4> RTransMat_bf;		// 映射前
+		RTransMat_bf(0, 3) = TransCoeffMat(0, 0)*RFormMat[0][3] + TransCoeffMat(0, 1)*RFormMat[1][3]
 		+ TransCoeffMat(0, 2)*RFormMat[2][3] + TransCoeffMat(0, 3);
-		RTransMat(1, 3) = TransCoeffMat(1, 0)*RFormMat[0][3] + TransCoeffMat(1, 1)*RFormMat[1][3]
+		RTransMat_bf(1, 3) = TransCoeffMat(1, 0)*RFormMat[0][3] + TransCoeffMat(1, 1)*RFormMat[1][3]
 		+ TransCoeffMat(1, 2)*RFormMat[2][3] + TransCoeffMat(1, 3);
-		RTransMat(2, 3) = TransCoeffMat(2, 0)*RFormMat[0][3] + TransCoeffMat(2, 1)*RFormMat[1][3]
+		RTransMat_bf(2, 3) = TransCoeffMat(2, 0)*RFormMat[0][3] + TransCoeffMat(2, 1)*RFormMat[1][3]
 		+ TransCoeffMat(2, 2)*RFormMat[2][3] + TransCoeffMat(2, 3);
 
 		// vision data
-		RTransMat(3, 0) = RTransMat(3, 1) = RTransMat(3, 2) = 0;
-		RTransMat(3, 3) = 1;
+		RTransMat_bf(3, 0) = RTransMat_bf(3, 1) = RTransMat_bf(3, 2) = 0;
+		RTransMat_bf(3, 3) = 1;
 
 		// rotation data
 		for (int i = 0; i < 3; i++)
@@ -776,26 +884,14 @@ Eigen::Matrix<double, 4, 4> CyberStation::GetRTraRealData()
 		{
 			for (int j = 0; j<3; j++)
 			{
-				RTransMat(i, j) = RotOnPMat(i, j);
+				RTransMat_bf(i, j) = RotOnPMat(i, j);
 			}
 		}
 
-		// end coordinate is not correct
-		for (int i = 1; i<3; i++)
-		{
-			for (int j = 0; j<3; j++)
-			{
-				RTransMat(i, j) = -RTransMat(i, j);
-			}
-		}
+		// 得到映射后的值
+		RTraMapping(RTransMat_bf, RTransMat);	
 
-
-		// trans calibartion
-		RTransMat(0, 3) = RTransMat(0, 3)*10 - 156;
-		RTransMat(1, 3) = RTransMat(1, 3)*10 - 156;
-		RTransMat(2, 3) = RTransMat(2, 3)*10 + 52;
-
-		// 
+		// 死区
 		for (int i = 0; i<4; i++)
 		{
 			for (int j = 0; j<4; j++)
@@ -809,12 +905,57 @@ Eigen::Matrix<double, 4, 4> CyberStation::GetRTraRealData()
 
 		return RTransMat;
 	}
+
 	// TODO(CJH): If Calibration is not finished,
 	// DO Something!!!
 	else{
 	}
 }
 
+
+void CyberStation::RTraMapping(const Eigen::Matrix<double, 4, 4> &Mat_In, Eigen::Matrix<double, 4, 4> &Mat_Out)
+{
+	// 位置映射
+	for (int i = 0; i < 3; ++i){
+		Mat_Out(i, 3) = Mat_In(i, 3)*10 + m_TransMapCoeff[i];
+	}
+
+// 	// 变角度映射
+// 	Eigen::Matrix<double, 3, 3> RTrans_tmp;
+// 	for (int i = 0; i<3; i++)
+// 	{
+// 		for (int j = 0; j<3; j++)
+// 		{
+// 			RTrans_tmp(i, j) = Mat_In(i, j);
+// 		}
+// 	}
+// 	RTrans_tmp = m_RotMapCoeff*RTrans_tmp;
+// 	for (int i = 0; i<3; i++)
+// 	{
+// 		for (int j = 0; j<3; j++)
+// 		{
+// 			Mat_Out(i, j) = RTrans_tmp(i, j);
+// 		}
+// 	}
+
+	// 固定角度映射
+	Eigen::Matrix<double, 3, 3> RoboRot;
+	RoboRot << -0.176314, -0.984285, 0.00985975,
+		-0.703848, 0.119064, -0.700301,
+		0.688121, -0.130412, -0.71378;
+
+	for (int i = 0; i < 3; ++i)
+	{
+		for (int j = 0; j < 3; ++j)
+		{
+			Mat_Out(i, j) = RoboRot(i, j);
+		}
+	}
+
+	// 视觉矩阵
+	Mat_Out(3, 0) = Mat_Out(3, 1) = Mat_Out(3, 2) = 0;
+	Mat_Out(3, 3) = 1;
+}
 
 // TODO(CJH): delete
 QString CyberStation::LTraDisData(bool bLTraDisReal)
