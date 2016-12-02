@@ -54,6 +54,11 @@ void PASCAL TimerProcSendCmd(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWOR
 UINT RecvTimerId = NULL;
 void PASCAL TimerProcRecvSensor(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWORD dw2);
 
+UINT HSendTimerId = NULL;
+void PASCAL TimerProcHandSend(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWORD dw2);
+
+UINT HRecvTimerId = NULL;
+void PASCAL TimerProcHandRecv(UINT wTimerID, UINT msg, DWORD dwUser, DWORD dw1, DWORD dw2);
 // Define to Use Multimedia Timer
 CyberSystem *g_pCyberSys;
 
@@ -129,8 +134,8 @@ CyberSystem::CyberSystem(QWidget *parent)
 	// whether to display glove data
 	m_bDisGloData = false;
 	// choose which glove data to display
-	m_bGloDisReal = false;
-	m_bGloCaliFin = false;
+	m_bRGloCaliFin = false;
+	m_bLGloCaliFin = false;
 
 	// CyberTracker data display logical control
 	// whether to display tracker data
@@ -138,14 +143,16 @@ CyberSystem::CyberSystem(QWidget *parent)
 	// determine whether side is over
 	m_bRTraCaliFini = false;
 	m_bLTraCaliFini = false;
-	// choose which tracker data to display
-	m_bRTraDisReal = false;
-	m_bLTraDisReal = false;
 	// Connection Logical Control
 	m_bRoboConn = false;
 	m_bConsimuConn = false;
+	m_bHandConn = false;
+	m_bHandInit = false;
+	m_bHandEnable = false;
+	m_bHandStop = false;
 	// Control Mode
 	m_CtrlMode = OUT_CTRL;
+	m_HandCtrlMode = HAND_OUT_CTRL;
 
 	// tab display 
 	ui.m_pRTraTab->setEnabled(true);
@@ -163,6 +170,15 @@ CyberSystem::CyberSystem(QWidget *parent)
 	{
 		m_rightArmPos[i] = 0;
 		m_leftArmPos[i] = 0;
+	}
+
+	for(int i = 0; i < 5; ++i)
+	{
+		for (int j = 0; j < 3; ++j)
+		{
+			m_RGloRealData[i][j] = 0;
+			m_LGloRealData[i][j] = 0;
+		}
 	}
 
 	m_last_arm_angle = 0;
@@ -215,8 +231,7 @@ CyberSystem::CyberSystem(QWidget *parent)
 	ui.m_pLJo6Line->setText("0");
 	ui.m_pLJo7Line->setText("0");
 
-	// Command Browser initialization
-	m_CommandString = '\0';
+
 
 
 	//*********************** Initialize all data ***********************//
@@ -234,15 +249,21 @@ CyberSystem::CyberSystem(QWidget *parent)
 	connect(ui.m_pInitLHBtn, SIGNAL(clicked()), this, SLOT(InitLHand()));
 	connect(ui.m_pInitLTBtn, SIGNAL(clicked()), this, SLOT(InitLTracker()));
 
-	connect(ui.m_pOpenCali, SIGNAL(clicked()), this, SLOT(LoadCaliData()));
-	connect(ui.m_pSaveCali, SIGNAL(clicked()), this, SLOT(SaveCaliData()));
+	connect(ui.m_pOpenTraCali, SIGNAL(clicked()), this, SLOT(LoadTraCaliData()));
+	connect(ui.m_pSaveTraCali, SIGNAL(clicked()), this, SLOT(SaveCaliData()));
+	connect(ui.m_pOpenGloCali, SIGNAL(clicked()), this, SLOT(LoadGloCaliData()));
+	connect(ui.m_pSaveGloCali, SIGNAL(clicked()), this, SLOT(SaveGloCaliData()));
 
 	// signals and slots for glove calibration
 	connect(ui.m_pGlStartBtn, SIGNAL(clicked()), this, SLOT(InitGloveCali()));
-	connect(this, SIGNAL(InsertGloText(const QString &)), ui.m_pTraDataDisBs, SLOT(setText(const QString &))); // display glove data when calibration begin
+	connect(this, SIGNAL(InsertTraText(const QString &)), ui.m_pTraDataDisBs, SLOT(setText(const QString &))); // display glove data when calibration begin
+	connect(this, SIGNAL(InsertGloText(const QString &)), ui.m_pGloDataDisBs, SLOT(setText(const QString &)));
 	connect(this, SIGNAL(InsertRoboText(const QString &)), ui.m_pRoboDataDisBs, SLOT(setText(const QString &)));
 	connect(this, SIGNAL(InsertCmdStr(const QString &)), ui.m_pCommadBs, SLOT(setText(const QString &)));
-	connect(ui.m_pFinshBtn, SIGNAL(clicked()), this, SLOT(FinGloveCali()));
+	connect(ui.m_pCommadBs, SIGNAL(textChanged()), this, SLOT(BrowserMoveEnd()));
+
+
+	connect(ui.m_pGloFinshBtn, SIGNAL(clicked()), this, SLOT(FinGloveCali()));
 	connect(ui.m_pGesBtn_one, SIGNAL(clicked()), this, SLOT(GesOneData()));
 	connect(ui.m_pGesBtn_two, SIGNAL(clicked()), this, SLOT(GesTwoData()));
 	connect(ui.m_pGesBtn_three, SIGNAL(clicked()), this, SLOT(GesThrData()));
@@ -315,18 +336,13 @@ CyberSystem::CyberSystem(QWidget *parent)
 	connect(ui.m_pLJo7Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
 
 
-	// signals and slots for 5 hand control
-	connect(ui.m_pInitHandBtn, SIGNAL(clicked()), this, SLOT(InitHand()));
-
-	connect(ui.m_pPosRdBtn, SIGNAL(clicked()), this, SLOT(PositionMode()));
-	connect(ui.m_pImpRdBtn, SIGNAL(clicked()), this, SLOT(ImpedanceMode()));
-	connect(ui.m_pResRdBtn, SIGNAL(clicked()), this, SLOT(ResetMode()));
-
-	connect(ui.m_pRunHandBtn, SIGNAL(clicked()), this, SLOT(HandCtrl()));
+	// signals and slots for hand control
+	connect(ui.m_pHandConnBtn, SIGNAL(clicked()), this, SLOT(InitHand()));
+	connect(ui.m_pHandEnableBtn, SIGNAL(clicked()), this, SLOT(EnableHand()));
+	connect(ui.m_pHandRunBtn, SIGNAL(clicked()), this, SLOT(StartHand()));
+	connect(ui.m_pEmgBtn, SIGNAL(clicked()), this, SLOT(EmergHand()));
 
 	
-// 	// signals and slots for timer
-// 	connect(m_pGloDispTimer, SIGNAL(timeout()), this, SLOT(DisData()));
 	//*********************** Signals and Slots ***********************//
 
 
@@ -351,43 +367,97 @@ CyberSystem::~CyberSystem()
 //*********************** Initialization options ***********************//
 void CyberSystem::InitSystem()
 {
-	std::string err_str;
+	std::string r_glo_err_str, l_glo_err_str;
+	std::string r_tra_err_str, l_tra_err_str;
 
 	m_CmdStr += "Connecting System......";
 	emit InsertCmdStr(m_CmdStr);
 
-	m_CyberStation.RHandConn();
-	m_CyberStation.LHandConn();
-	
-	
-	m_RTraContr = m_CyberStation.RTraConn(err_str);
-	
-	m_CyberStation.LTraConn();
-	m_RGloContr = true;
-	m_LGloContr = true;
+	m_RGloContr = m_CyberStation.RHandConn(r_glo_err_str);
+	m_LGloContr = m_CyberStation.LHandConn(l_glo_err_str);
+	m_RTraContr = m_CyberStation.RTraConn(r_tra_err_str);
+	m_LTraContr = m_CyberStation.LTraConn(l_tra_err_str);
 
-	m_LTraContr = true;
-
-	ui.m_pGlStartBtn->setEnabled(true);
-	ui.m_pTraStartBtn->setEnabled(true);
-
+	if ((m_RTraContr && m_LTraContr && m_RGloContr && m_LGloContr) == true)
+	{
+		m_CmdStr += "OK!!!\r\n";
+		emit InsertCmdStr(m_CmdStr);
+		ui.m_pGlStartBtn->setEnabled(true);
+		ui.m_pTraStartBtn->setEnabled(true);
+	} 
+	else
+	{
+		m_CmdStr += "Failed!!!\r\n";
+		if (m_RTraContr == false)
+		{
+			m_CmdStr += m_CmdStr.fromStdString(r_tra_err_str);
+			emit InsertCmdStr(m_CmdStr);
+		}
+		if (m_LTraContr == false)
+		{
+			m_CmdStr += m_CmdStr.fromStdString(l_tra_err_str);
+			emit InsertCmdStr(m_CmdStr);
+		}
+		if (m_RGloContr == false)
+		{
+			m_CmdStr += m_CmdStr.fromStdString(r_glo_err_str);
+			emit InsertCmdStr(m_CmdStr);
+		}
+		if (m_LGloContr == false)
+		{
+			m_CmdStr += m_CmdStr.fromStdString(l_glo_err_str);
+			emit InsertCmdStr(m_CmdStr);
+		}
+	}
 }
 
 void CyberSystem::InitRHand()
 {
-	m_CyberStation.RHandConn();
-	m_RGloContr = true;
-	ui.m_pGlStartBtn->setEnabled(true);
+	std::string err_str;
+
+	m_CmdStr += "Connecting Right Hand......";
+	emit InsertCmdStr(m_CmdStr);
+
+	m_RGloContr = m_CyberStation.RHandConn(err_str);
+
+	if (m_RGloContr == true)
+	{
+		m_CmdStr += "OK!!!\r\n";
+		emit InsertCmdStr(m_CmdStr);
+		ui.m_pGlStartBtn->setEnabled(true);
+	} 
+	else
+	{
+		m_CmdStr += "Failed!!!\r\n";
+		m_CmdStr += m_CmdStr.fromStdString(err_str);
+		m_CmdStr += "!!!\r\n";
+		emit InsertCmdStr(m_CmdStr);
+	}
 }
 
 void CyberSystem::InitLHand()
 {
-	m_CyberStation.LHandConn();
-	m_LGloContr = true;
-	ui.m_pGlStartBtn->setEnabled(true);
+	m_CmdStr += "Connecting Left Hand......";
+	emit InsertCmdStr(m_CmdStr);
+
+	std::string err_str;
+	m_LGloContr = m_CyberStation.LHandConn(err_str);
+
+	if (m_LGloContr == true)
+	{
+		m_CmdStr += "OK!!!\r\n";
+		emit InsertCmdStr(m_CmdStr);
+
+		ui.m_pGlStartBtn->setEnabled(true);
+	} 
+	else
+	{
+		m_CmdStr += "Failed!!!\r\n";
+		m_CmdStr += m_CmdStr.fromStdString(err_str);
+		emit InsertCmdStr(m_CmdStr);
+	}
 }
 
-// TODO(CJH): Add judgement
 void CyberSystem::InitRTracker()
 {
 	std::string err_str;
@@ -406,193 +476,559 @@ void CyberSystem::InitRTracker()
 	}
 	else{
 		m_CmdStr += "Failed!\r\n";
+		m_CmdStr += m_CmdStr.fromStdString(err_str);
 		emit InsertCmdStr(m_CmdStr);
 	}
 }
 
 void CyberSystem::InitLTracker()
 {
-	m_CyberStation.LTraConn();
-	m_LTraContr = true;
-	ui.m_pTraStartBtn->setEnabled(true);
+	std::string err_str;
+
+	m_CmdStr += "Connecting Left Tracker......";
+	emit InsertCmdStr(m_CmdStr);
+
+	m_LTraContr = m_CyberStation.LTraConn(err_str);
+
+	if (m_LTraContr == true)
+	{
+		m_CmdStr += "OK!\r\n";
+		emit InsertCmdStr(m_CmdStr);
+
+		ui.m_pTraStartBtn->setEnabled(true);
+	} 
+	else
+	{
+		m_CmdStr += "Failed!\r\n";
+		m_CmdStr += m_CmdStr.fromStdString(err_str);
+		emit InsertCmdStr(m_CmdStr);
+	}
 }
 
 //*********************** Data Display Control ***********************//
-// TODO(CJH): Only Display Tracker Data
-void CyberSystem::DisTraData()
+void CyberSystem::DisCyberData()
 {
 	while(m_DisThread.m_bDisThreadStop == false)
 	{
-		QString RGloStr = NULL;
-		QString LGloStr = NULL;
-		QString RTraStr = NULL;
-		QString LTraStr = NULL;
-		// indicate that CyberGlove device is connected
-		if (m_bDisGloData == true)
-		{
-			// right CyberGlove is connected
-			if (m_RGloContr == true)
-			{
-				m_CyberStation.GetRGloData();
-				m_CyberStation.RealGloData(m_bGloCaliFin);
-				RGloStr = m_CyberStation.GloDisData(m_bGloDisReal);
-			}
-			// left CyberGlove is connected
-			else if(m_LGloContr == true)
-			{
-				m_CyberStation.GetLGloData();
-				m_CyberStation.RealGloData(m_bGloCaliFin);
-				LGloStr = m_CyberStation.GloDisData(m_bGloDisReal);
-			}
-		}
-		
-		// indicated that CyberTracker device has connected
-		if (m_bDisTraData == true)
-		{
-			if (m_RTraContr == true)
-			{
-				// TODO(CJH): Delete
-//				// old interface
-//				m_CyberStation.GetRTraData();			
-//				RTraStr = m_CyberStation.RTraDisData(m_bRTraDisReal);
-
-				if (m_bRTraDisReal == true)
-				{
-					m_RTraRealMat = m_CyberStation.GetRTraRealData();
-
-					// display stream
-					std::ostringstream r_tra_stream;
-					r_tra_stream << "Real TransMat of Right Tracker is: " << std::endl;
-					r_tra_stream << std::fixed << std::left;
-					r_tra_stream.precision(3);
-					for (int i = 0; i < 4; i++)
-					{
-						for (int j = 0; j < 4; j++)
-						{
-							r_tra_stream.width(12);
-							r_tra_stream << m_RTraRealMat(i, j);
-						}
-						r_tra_stream << std::endl;
-					}
-
-					std::string r_tra_str = r_tra_stream.str();
-					RTraStr = RTraStr.fromStdString(r_tra_str);
-// 					RTraStr = QString("rightTracker_RealTransMat:\r\n%1 %2 %3 %4\r\n%5 %6 %7 %8\r\n%9 %10 %11 %12\r\n%13 %14 %15 %16\r\n")
-// 						.arg(m_RTraRealMat(0,0)).arg(m_RTraRealMat(0,1)).arg(m_RTraRealMat(0,2)).arg(m_RTraRealMat(0,3))
-// 						.arg(m_RTraRealMat(1,0)).arg(m_RTraRealMat(1,1)).arg(m_RTraRealMat(1,2)).arg(m_RTraRealMat(1,3))
-// 						.arg(m_RTraRealMat(2,0)).arg(m_RTraRealMat(2,1)).arg(m_RTraRealMat(2,2)).arg(m_RTraRealMat(2,3))
-// 						.arg(m_RTraRealMat(3,0)).arg(m_RTraRealMat(3,1)).arg(m_RTraRealMat(3,2)).arg(m_RTraRealMat(3,3));
-
-					// file stream
-					RRealCount ++;
-					m_fRRealMat << "Count " << RRealCount << std::endl;
-					m_fRRealMat << r_tra_str << std::endl;
-
-				} 
-				else
-				{
-					m_RTraRawMat = m_CyberStation.GetRRawTraData();
-					RTraStr = QString("rightTracker_RawTransMat:\r\n%1 %2 %3 %4\r\n%5 %6 %7 %8\r\n%9 %10 %11 %12\r\n%13 %14 %15 %16\r\n")
-						.arg(m_RTraRawMat(0,0)).arg(m_RTraRawMat(0,1)).arg(m_RTraRawMat(0,2)).arg(m_RTraRawMat(0,3))
-						.arg(m_RTraRawMat(1,0)).arg(m_RTraRawMat(1,1)).arg(m_RTraRawMat(1,2)).arg(m_RTraRawMat(1,3))
-						.arg(m_RTraRawMat(2,0)).arg(m_RTraRawMat(2,1)).arg(m_RTraRawMat(2,2)).arg(m_RTraRawMat(2,3))
-						.arg(m_RTraRawMat(3,0)).arg(m_RTraRawMat(3,1)).arg(m_RTraRawMat(3,2)).arg(m_RTraRawMat(3,3));
-
-
-// 					//TODO(CJH)
-// 					m_file << "raw mat" << std::endl;
-// 					for (int i = 0; i < 4; i++)
-// 					{
-// 						for (int j = 0; j < 4; j++)
-// 						{
-// 							m_file << m_RTraRawMat(i, j) << " ";
-// 						}
-// 						m_file << std::endl;
-// 					}
-// 					m_file << std::endl;
-				}
-			}
-
-			// TODO(CJH): without writing left tracker
-			if (m_LTraContr == true)
-			{
-//				m_CyberStation.GetLTraData();
-				LTraStr = m_CyberStation.LTraDisData(m_bLTraDisReal);
-			}
-		}
-		QString Str = RGloStr + LGloStr + RTraStr + LTraStr;
-		emit InsertGloText(Str);	
+		DisGloData();
+		DisTraData();
+	
 		m_DisThread.msleep(250);
 	}
 	// ensure that you will get into the thread next time
 	m_DisThread.m_bDisThreadStop = false;
 }
 
-void CyberSystem::DisGloData()
+void CyberSystem::DisTraData()
 {
+	QString Str = NULL;
+	QString RTraStr = NULL;
+	QString LTraStr = NULL;
+	// Push Tracker Start Button
+	if (m_bDisTraData == true)
+	{
+		// Connected Right Tracker
+		if (m_RTraContr == true)
+		{
+			// Right Tracker is Calibrated
+			if (m_bRTraCaliFini == true)
+			{
+				m_RTraRealMat = m_CyberStation.GetRTraRealData();
 
+				// display stream
+				std::ostringstream r_tra_stream;
+				r_tra_stream << "Real TransMat of Right Tracker is: " << std::endl;
+				r_tra_stream << std::fixed << std::left;
+				r_tra_stream.precision(3);
+				for (int i = 0; i < 4; i++)
+				{
+					for (int j = 0; j < 4; j++)
+					{
+						r_tra_stream.width(12);
+						r_tra_stream << m_RTraRealMat(i, j);
+					}
+					r_tra_stream << std::endl;
+				}
+
+				std::string r_tra_str = r_tra_stream.str();
+				RTraStr = RTraStr.fromStdString(r_tra_str);
+// 					RTraStr = QString("rightTracker_RealTransMat:\r\n%1 %2 %3 %4\r\n%5 %6 %7 %8\r\n%9 %10 %11 %12\r\n%13 %14 %15 %16\r\n")
+// 						.arg(m_RTraRealMat(0,0)).arg(m_RTraRealMat(0,1)).arg(m_RTraRealMat(0,2)).arg(m_RTraRealMat(0,3))
+// 						.arg(m_RTraRealMat(1,0)).arg(m_RTraRealMat(1,1)).arg(m_RTraRealMat(1,2)).arg(m_RTraRealMat(1,3))
+// 						.arg(m_RTraRealMat(2,0)).arg(m_RTraRealMat(2,1)).arg(m_RTraRealMat(2,2)).arg(m_RTraRealMat(2,3))
+// 						.arg(m_RTraRealMat(3,0)).arg(m_RTraRealMat(3,1)).arg(m_RTraRealMat(3,2)).arg(m_RTraRealMat(3,3));
+
+				// file stream
+				RRealCount ++;
+				m_fRRealMat << "Count " << RRealCount << std::endl;
+				m_fRRealMat << r_tra_str << std::endl;
+			}
+			// Right Tracker is not Calibrated
+			else{
+				//RTraStr = QString("rightTracker_RawTransMat:\r\n%1 %2 %3 %4\r\n%5 %6 %7 %8\r\n%9 %10 %11 %12\r\n%13 %14 %15 %16\r\n")
+				//	.arg(m_RTraRawMat(0,0)).arg(m_RTraRawMat(0,1)).arg(m_RTraRawMat(0,2)).arg(m_RTraRawMat(0,3))
+				//	.arg(m_RTraRawMat(1,0)).arg(m_RTraRawMat(1,1)).arg(m_RTraRawMat(1,2)).arg(m_RTraRawMat(1,3))
+				//	.arg(m_RTraRawMat(2,0)).arg(m_RTraRawMat(2,1)).arg(m_RTraRawMat(2,2)).arg(m_RTraRawMat(2,3))
+				//	.arg(m_RTraRawMat(3,0)).arg(m_RTraRawMat(3,1)).arg(m_RTraRawMat(3,2)).arg(m_RTraRawMat(3,3));
+
+				// Get Raw Transmatrix
+				m_RTraRawMat = m_CyberStation.GetRRawTraData();
+				// Data Display Stream
+				std::ostringstream r_tra_stream;
+				r_tra_stream << "Raw TransMat of Right Tracker is: " << std::endl;
+				r_tra_stream << std::fixed << std::left;
+				r_tra_stream.precision(3);
+				for (int i = 0; i < 4; i++)
+				{
+					for (int j = 0; j < 4; j++)
+					{
+						r_tra_stream.width(12);
+						r_tra_stream << m_RTraRawMat(i, j);
+					}
+					r_tra_stream << std::endl;
+				}
+
+				std::string r_tra_str = r_tra_stream.str();
+				RTraStr = RTraStr.fromStdString(r_tra_str);
+			}
+		}
+
+		// Connected Left Tracker
+		if (m_LTraContr == true)
+		{
+			if (m_bLTraCaliFini == true)
+			{
+			} 
+			else
+			{
+			}
+		}
+
+		Str = RTraStr + LTraStr;
+		emit InsertTraText(Str);
+	}
 }
 
 
+
+void CyberSystem::DisGloData()
+{
+	QString Str = NULL;
+	QString RGloStr = NULL;
+	QString LGloStr = NULL;
+
+	// Push Glove Start Button
+	if (m_bDisGloData == true)
+	{
+		// Connected Right Glove
+		if (m_RGloContr == true)
+		{
+			// Right Glove is Calibrated
+			if (m_bRGloCaliFin == true)
+			{
+				m_CyberStation.GetRRealGloData(m_RGloRealData);
+
+				// display stream
+				std::ostringstream r_glo_stream;
+				r_glo_stream << "Real Joints of Right Glove is: " << std::endl;
+				r_glo_stream << std::fixed << std::left;
+				r_glo_stream.precision(3);
+
+				r_glo_stream.width(8);
+				r_glo_stream << "Thumb";
+				r_glo_stream.width(8);
+				r_glo_stream << "Index";
+				r_glo_stream.width(8);
+				r_glo_stream << "Middle";
+				r_glo_stream.width(8);
+				r_glo_stream << "Ring";
+				r_glo_stream.width(8);
+				r_glo_stream << "Little" << std::endl;
+				for (int i = 0; i < 3; i++)
+				{
+					for (int j = 0; j < 5; j++)
+					{
+						r_glo_stream.width(8);
+						r_glo_stream << m_RGloRealData[j][i];
+					}
+					r_glo_stream << std::endl;
+				}
+
+				std::string r_glo_str = r_glo_stream.str();
+				RGloStr = RGloStr.fromStdString(r_glo_str);
+			}
+			// Right Tracker is not Calibrated
+			else{
+				m_CyberStation.GetRRawGloData(m_RGloRawData);
+
+				// display stream
+				std::ostringstream r_glo_stream;
+				r_glo_stream << "Raw Joints of Right Glove is: " << std::endl;
+				r_glo_stream << std::fixed << std::left;
+				r_glo_stream.precision(3);
+				
+				r_glo_stream.width(8);
+				r_glo_stream << "Thumb";
+				r_glo_stream.width(8);
+				r_glo_stream << "Index";
+				r_glo_stream.width(8);
+				r_glo_stream << "Middle";
+				r_glo_stream.width(8);
+				r_glo_stream << "Ring";
+				r_glo_stream.width(8);
+				r_glo_stream << "Little" << std::endl;
+//				for (int i = 0; i < 9; i++)
+				for (int i = 0; i < 4; i++)
+				{
+					for (int j = 0; j < 5; j++)
+					{
+						r_glo_stream.width(8);
+						r_glo_stream << m_RGloRawData[j][i];
+					}
+					r_glo_stream << std::endl;
+				}
+
+				std::string r_glo_str = r_glo_stream.str();
+				RGloStr = RGloStr.fromStdString(r_glo_str);
+			}
+		}
+
+		// Connected Left Tracker
+		if (m_LGloContr == true)
+		{
+			if (m_bLGloCaliFin == true)
+			{
+			} 
+			else
+			{
+			}
+		}
+		Str = RGloStr + LGloStr;
+		emit InsertGloText(Str);
+	}
+}
+
+// Move Command Browser's Cursor to end
+void CyberSystem::BrowserMoveEnd()
+{
+	ui.m_pCommadBs->moveCursor(QTextCursor::End);
+}
 //*********************** CyberGlove Calibration Options ***********************//
 // start display thread
 void CyberSystem::InitGloveCali()
 {
-	if (QMessageBox::Yes == QMessageBox::question(this, tr("Question"), tr("Start Calibration?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes))  
-	{  
-		//m_pGloDispTimer->start(200); // use timer to display glove raw data
-		// new thread to display raw data
-		m_bDisGloData = true;
-		m_DisThread.start();
+	if (QMessageBox::Yes == QMessageBox::question(this, tr("Question"), tr("Start Glove?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes))  
+	{ 
+		m_CmdStr += "Start Glove Display......OK!\r\n";
+		emit InsertCmdStr(m_CmdStr);
+		if (!(m_DisThread.isRunning()))
+		{
+			m_bDisGloData = true;
+			m_DisThread.start();
+		} 
+		else
+		{
+			m_bDisGloData = true;
+		}
 		ui.m_pGesBtn_one->setEnabled(true);
+		ui.m_pGesBtn_two->setEnabled(true);
+		ui.m_pGesBtn_three->setEnabled(true);
+		ui.m_pGesBtn_four->setEnabled(true);
+		ui.m_pGloFinshBtn->setEnabled(true);
 	}  
 	else{}  
 }
 
 
+void CyberSystem::LoadGloCaliData()
+{
+	QString fileName = QFileDialog::getOpenFileName(this,
+		tr("Open Glove Calibration Data"), ".",
+		tr("XML files (*.xml)"));
 
-// use right glove for calibration
+	if (!fileName.isEmpty())
+	{
+		std::string str_filename = fileName.toStdString();
+		rapidxml::file<> fCalibration(str_filename.c_str());
+
+		rapidxml::xml_document<> Calibration;
+		Calibration.parse<0>(fCalibration.data());
+
+		//获取根节点
+		rapidxml::xml_node<>* GloveCalibration = Calibration.first_node();
+		//获取相关矩阵
+		rapidxml::xml_node<>* CorrelationMatrix = GloveCalibration->first_node("CorrelationMatrix");
+		rapidxml::xml_attribute<>* CorrelationMatrix_DataType = CorrelationMatrix->first_attribute();
+		//拇指
+		rapidxml::xml_node<>* CorThumb = CorrelationMatrix->first_node("Thumb");
+		rapidxml::xml_node<>* CorThumbPIP = CorThumb->first_node("PIP");
+		m_RGloCaliK[0][0] = atof(CorThumbPIP->value());
+		rapidxml::xml_node<>* CorThumbMP = CorThumb->first_node("MP");
+		m_RGloCaliK[0][1] = atof(CorThumbMP->value());
+		rapidxml::xml_node<>* CorThumbABP = CorThumb->first_node("ABP");
+		m_RGloCaliK[0][2] = atof(CorThumbABP->value());
+		//食指
+		rapidxml::xml_node<>* CorIndex = CorrelationMatrix->first_node("Index");
+		rapidxml::xml_node<>* CorIndexPIP = CorIndex->first_node("PIP");
+		m_RGloCaliK[1][0] = atof(CorIndexPIP->value());
+		rapidxml::xml_node<>* CorIndexMP = CorIndex->first_node("MP");
+		m_RGloCaliK[1][1] = atof(CorIndexMP->value());
+		rapidxml::xml_node<>* CorIndexABP = CorIndex->first_node("ABP");
+		m_RGloCaliK[1][2] = atof(CorIndexABP->value());
+		//中指
+		rapidxml::xml_node<>* CorMiddle = CorrelationMatrix->first_node("Middle");
+		rapidxml::xml_node<>* CorMiddlePIP = CorMiddle->first_node("PIP");
+		m_RGloCaliK[2][0] = atof(CorMiddlePIP->value());
+		rapidxml::xml_node<>* CorMiddleMP = CorMiddle->first_node("MP");
+		m_RGloCaliK[2][1] = atof(CorMiddleMP->value());
+		rapidxml::xml_node<>* CorMiddleABP = CorMiddle->first_node("ABP");
+		m_RGloCaliK[2][2] = atof(CorMiddleABP->value());
+		//无名指
+		rapidxml::xml_node<>* CorRing = CorrelationMatrix->first_node("Ring");
+		rapidxml::xml_node<>* CorRingPIP = CorRing->first_node("PIP");
+		m_RGloCaliK[3][0] = atof(CorRingPIP->value());
+		rapidxml::xml_node<>* CorRingMP = CorRing->first_node("MP");
+		m_RGloCaliK[3][1] = atof(CorRingMP->value());
+		rapidxml::xml_node<>* CorRingABP = CorRing->first_node("ABP");
+		m_RGloCaliK[3][2] = atof(CorRingABP->value());
+		//小指
+		rapidxml::xml_node<>* CorLittle = CorrelationMatrix->first_node("Little");
+		rapidxml::xml_node<>* CorLittlePIP = CorLittle->first_node("PIP");
+		m_RGloCaliK[4][0] = atof(CorLittlePIP->value());
+		rapidxml::xml_node<>* CorLittleMP = CorLittle->first_node("MP");
+		m_RGloCaliK[4][1] = atof(CorLittleMP->value());
+		rapidxml::xml_node<>* CorLittleABP = CorLittle->first_node("ABP");
+		m_RGloCaliK[4][2] = atof(CorLittleABP->value());
+
+		//获取偏置矩阵
+		rapidxml::xml_node<>* BiasMatrix = GloveCalibration->first_node("BiasMatrix");
+		rapidxml::xml_attribute<>* BiasMatrix_DataType = BiasMatrix->first_attribute();
+		//拇指
+		rapidxml::xml_node<>* BiasThumb = BiasMatrix->first_node("Thumb");
+		rapidxml::xml_node<>* BiasThumbPIP = BiasThumb->first_node("PIP");
+		m_RGloCaliB[0][0] = atof(BiasThumbPIP->value());
+		rapidxml::xml_node<>* BiasThumbMP = BiasThumb->first_node("MP");
+		m_RGloCaliB[0][1] = atof(BiasThumbMP->value());
+		rapidxml::xml_node<>* BiasThumbABP = BiasThumb->first_node("ABP");
+		m_RGloCaliB[0][2] = atof(BiasThumbABP->value());
+		//食指
+		rapidxml::xml_node<>* BiasIndex = BiasMatrix->first_node("Index");
+		rapidxml::xml_node<>* BiasIndexPIP = BiasIndex->first_node("PIP");
+		m_RGloCaliB[1][0] = atof(BiasIndexPIP->value());
+		rapidxml::xml_node<>* BiasIndexMP = BiasIndex->first_node("MP");
+		m_RGloCaliB[1][1] = atof(BiasIndexMP->value());
+		rapidxml::xml_node<>* BiasIndexABP = BiasIndex->first_node("ABP");
+		m_RGloCaliB[1][2] = atof(BiasIndexABP->value());
+		//中指
+		rapidxml::xml_node<>* BiasMiddle = BiasMatrix->first_node("Middle");
+		rapidxml::xml_node<>* BiasMiddlePIP = BiasMiddle->first_node("PIP");
+		m_RGloCaliB[2][0] = atof(BiasMiddlePIP->value());
+		rapidxml::xml_node<>* BiasMiddleMP = BiasMiddle->first_node("MP");
+		m_RGloCaliB[2][1] = atof(BiasMiddleMP->value());
+		rapidxml::xml_node<>* BiasMiddleABP = BiasMiddle->first_node("ABP");
+		m_RGloCaliB[2][2] = atof(BiasMiddleABP->value());
+		//无名指
+		rapidxml::xml_node<>* BiasRing = BiasMatrix->first_node("Ring");
+		rapidxml::xml_node<>* BiasRingPIP = BiasRing->first_node("PIP");
+		m_RGloCaliB[3][0] = atof(BiasRingPIP->value());
+		rapidxml::xml_node<>* BiasRingMP = BiasRing->first_node("MP");
+		m_RGloCaliB[3][1] = atof(BiasRingMP->value());
+		rapidxml::xml_node<>* BiasRingABP = BiasRing->first_node("ABP");
+		m_RGloCaliB[3][2] = atof(BiasRingABP->value());
+		//小指
+		rapidxml::xml_node<>* BiasLittle = BiasMatrix->first_node("Little");
+		rapidxml::xml_node<>* BiasLittlePIP = BiasLittle->first_node("PIP");
+		m_RGloCaliB[4][0] = atof(BiasLittlePIP->value());
+		rapidxml::xml_node<>* BiasLittleMP = BiasLittle->first_node("MP");
+		m_RGloCaliB[4][1] = atof(BiasLittleMP->value());
+		rapidxml::xml_node<>* BiasLittleABP = BiasLittle->first_node("ABP");
+		m_RGloCaliB[4][2] = atof(BiasLittleABP->value());
+
+		m_CyberStation.UpdateRGloCoeff(m_RGloCaliK, m_RGloCaliB);
+		m_bRGloCaliFin = true;
+		ui.m_pHandConnBtn->setEnabled(true);
+		m_CmdStr = "Load Config Success!!!\r\n" + m_CmdStr;
+		InsertCmdStr(m_CmdStr);
+	}
+	else{
+		m_CmdStr = "Config File is Empty!!!\r\n" + m_CmdStr;
+		InsertCmdStr(m_CmdStr);
+	}
+}
+
+void CyberSystem::SaveGloCaliData()
+{	
+	m_CyberStation.GetRGloCoeff(m_RGloCaliK, m_RGloCaliB);
+
+
+	char ch_Correlation[5][3][8],ch_Bias[5][3][8];
+
+	for (int i=0;i<5;i++){
+		for(int j=0;j<=2;j++){
+			gcvt(m_RGloCaliK[i][j],5,ch_Correlation[i][j]);
+			gcvt(m_RGloCaliB[i][j],5,ch_Bias[i][j]);
+		}
+	}
+
+	//建立.xml文件节点
+	rapidxml::xml_document<> Calibration;
+	//建立声明节点
+	rapidxml::xml_node<>* prolog = Calibration.allocate_node(rapidxml::node_pi,Calibration.allocate_string("xml version='1.0' encoding='utf-8' standalone='yes'"));
+	Calibration.append_node(prolog);
+	//建立根节点
+	rapidxml::xml_node<>* GloveCalibration = Calibration.allocate_node(rapidxml::node_element,"GloveCalibration");
+	Calibration.append_node(GloveCalibration);
+
+	//建立相关矩阵节点
+	rapidxml::xml_node<>* CorrelationMatrix = Calibration.allocate_node(rapidxml::node_element,"CorrelationMatrix");
+	GloveCalibration->append_node(CorrelationMatrix);
+	rapidxml::xml_attribute<>* CorrelationMatrixAttribute = Calibration.allocate_attribute("DataType","float");
+	CorrelationMatrix->append_attribute(CorrelationMatrixAttribute);
+
+
+	//拇指
+	rapidxml::xml_node<>* CorThumb = Calibration.allocate_node(rapidxml::node_element,"Thumb");
+	CorrelationMatrix->append_node(CorThumb);
+	CorThumb->append_node(Calibration.allocate_node(rapidxml::node_element,"PIP",ch_Correlation[0][0]));
+	CorThumb->append_node(Calibration.allocate_node(rapidxml::node_element,"MP",ch_Correlation[0][1]));
+	CorThumb->append_node(Calibration.allocate_node(rapidxml::node_element,"ABP",ch_Correlation[0][2]));
+	//食指
+	rapidxml::xml_node<>* CorIndex = Calibration.allocate_node(rapidxml::node_element,"Index");
+	CorrelationMatrix->append_node(CorIndex);
+	CorIndex->append_node(Calibration.allocate_node(rapidxml::node_element,"PIP",ch_Correlation[1][0]));
+	CorIndex->append_node(Calibration.allocate_node(rapidxml::node_element,"MP",ch_Correlation[1][1]));
+	CorIndex->append_node(Calibration.allocate_node(rapidxml::node_element,"ABP",ch_Correlation[1][2]));
+	//中指
+	rapidxml::xml_node<>* CorMiddle = Calibration.allocate_node(rapidxml::node_element,"Middle");
+	CorrelationMatrix->append_node(CorMiddle);
+	CorMiddle->append_node(Calibration.allocate_node(rapidxml::node_element,"PIP",ch_Correlation[2][0]));
+	CorMiddle->append_node(Calibration.allocate_node(rapidxml::node_element,"MP",ch_Correlation[2][1]));
+	CorMiddle->append_node(Calibration.allocate_node(rapidxml::node_element,"ABP",ch_Correlation[2][2]));
+	//无名指
+	rapidxml::xml_node<>* CorRing = Calibration.allocate_node(rapidxml::node_element,"Ring");
+	CorrelationMatrix->append_node(CorRing);
+	CorRing->append_node(Calibration.allocate_node(rapidxml::node_element,"PIP",ch_Correlation[3][0]));
+	CorRing->append_node(Calibration.allocate_node(rapidxml::node_element,"MP",ch_Correlation[3][1]));
+	CorRing->append_node(Calibration.allocate_node(rapidxml::node_element,"ABP",ch_Correlation[3][2]));
+	//小指
+	rapidxml::xml_node<>* CorLittle = Calibration.allocate_node(rapidxml::node_element,"Little");
+	CorrelationMatrix->append_node(CorLittle);
+	CorLittle->append_node(Calibration.allocate_node(rapidxml::node_element,"PIP",ch_Correlation[4][0]));
+	CorLittle->append_node(Calibration.allocate_node(rapidxml::node_element,"MP",ch_Correlation[4][1]));
+	CorLittle->append_node(Calibration.allocate_node(rapidxml::node_element,"ABP",ch_Correlation[4][2]));
+
+	//建立偏置矩阵节点
+	rapidxml::xml_node<>* BiasMatrix = Calibration.allocate_node(rapidxml::node_element,"BiasMatrix");
+	GloveCalibration->append_node(BiasMatrix);
+	rapidxml::xml_attribute<>* BiasMatrixAttribute = Calibration.allocate_attribute("DataType","float");
+	BiasMatrix->append_attribute(BiasMatrixAttribute);
+	//拇指
+	rapidxml::xml_node<>* BiasThumb = Calibration.allocate_node(rapidxml::node_element,"Thumb");
+	BiasMatrix->append_node(BiasThumb);
+	BiasThumb->append_node(Calibration.allocate_node(rapidxml::node_element,"PIP",ch_Bias[0][0]));
+	BiasThumb->append_node(Calibration.allocate_node(rapidxml::node_element,"MP",ch_Bias[0][1]));
+	BiasThumb->append_node(Calibration.allocate_node(rapidxml::node_element,"ABP",ch_Bias[0][2]));
+	//食指
+	rapidxml::xml_node<>* BiasIndex = Calibration.allocate_node(rapidxml::node_element,"Index");
+	BiasMatrix->append_node(BiasIndex);
+	BiasIndex->append_node(Calibration.allocate_node(rapidxml::node_element,"PIP",ch_Bias[1][0]));
+	BiasIndex->append_node(Calibration.allocate_node(rapidxml::node_element,"MP",ch_Bias[1][1]));
+	BiasIndex->append_node(Calibration.allocate_node(rapidxml::node_element,"ABP",ch_Bias[1][2]));
+	//中指
+	rapidxml::xml_node<>* BiasMiddle = Calibration.allocate_node(rapidxml::node_element,"Middle");
+	BiasMatrix->append_node(BiasMiddle);
+	BiasMiddle->append_node(Calibration.allocate_node(rapidxml::node_element,"PIP",ch_Bias[2][0]));
+	BiasMiddle->append_node(Calibration.allocate_node(rapidxml::node_element,"MP",ch_Bias[2][1]));
+	BiasMiddle->append_node(Calibration.allocate_node(rapidxml::node_element,"ABP",ch_Bias[2][2]));
+	//无名指
+	rapidxml::xml_node<>* BiasRing = Calibration.allocate_node(rapidxml::node_element,"Ring");
+	BiasMatrix->append_node(BiasRing);
+	BiasRing->append_node(Calibration.allocate_node(rapidxml::node_element,"PIP",ch_Bias[3][0]));
+	BiasRing->append_node(Calibration.allocate_node(rapidxml::node_element,"MP",ch_Bias[3][1]));
+	BiasRing->append_node(Calibration.allocate_node(rapidxml::node_element,"ABP",ch_Bias[3][2]));
+	//小指
+	rapidxml::xml_node<>* BiasLittle = Calibration.allocate_node(rapidxml::node_element,"Little");
+	BiasMatrix->append_node(BiasLittle);
+	BiasLittle->append_node(Calibration.allocate_node(rapidxml::node_element,"PIP",ch_Bias[4][0]));
+	BiasLittle->append_node(Calibration.allocate_node(rapidxml::node_element,"MP",ch_Bias[4][1]));
+	BiasLittle->append_node(Calibration.allocate_node(rapidxml::node_element,"ABP",ch_Bias[4][2]));
+
+	//写入到.xml文件
+	std::string PrintXml;
+	rapidxml::print(std::back_inserter(PrintXml), Calibration, 0);
+
+	QString fileName = QFileDialog::getSaveFileName(this,
+		tr("Save Calibration Data"), "./Data/Untitled.XML",
+		tr("XML files (*.xml)"));
+
+	QFile XmlFile(fileName);
+	if(!XmlFile.open(QIODevice::ReadWrite | QIODevice::Truncate))
+	{
+		QMessageBox::about(NULL, "About", "Fail to create .XML file");
+	}
+	else
+	{
+		XmlFile.write((char*)PrintXml.c_str(),strlen(PrintXml.c_str()));
+	}
+	XmlFile.flush();
+	XmlFile.close();
+	QMessageBox::about(NULL, "About", "Finish writing calibration data!");
+}
+
+
+// Push Different Gesture Button to Store Glove Data
 void CyberSystem::GesOneData()
 {
-	m_CyberStation.GetGesOneData();
-	ui.m_pGesBtn_two->setEnabled(true);
+	for (int i = 0; i < 5; ++i)
+	{
+		for (int j = 0; j < 4; ++j)
+		{
+			m_RGloCaliData[0][i][j] = m_RGloRawData[i][j];
+		}
+	}
+	ui.m_pGesBtn_one->setEnabled(false);
 }
-
 void CyberSystem::GesTwoData()
 {
-	m_CyberStation.GetGesTwoData();
-	ui.m_pGesBtn_three->setEnabled(true);
+	for (int i = 0; i < 5; ++i)
+	{
+		for (int j = 0; j < 4; ++j)
+		{
+			m_RGloCaliData[1][i][j] = m_RGloRawData[i][j];
+		}
+	}
+	ui.m_pGesBtn_two->setEnabled(false);
 }
-
 void CyberSystem::GesThrData()
 {
-	m_CyberStation.GetGesThrData();
-	ui.m_pGesBtn_four->setEnabled(true);
+	for (int i = 0; i < 5; ++i)
+	{
+		for (int j = 0; j < 4; ++j)
+		{
+			m_RGloCaliData[2][i][j] = m_RGloRawData[i][j];
+		}
+	}
+	ui.m_pGesBtn_three->setEnabled(false);
 }
-
 void CyberSystem::GesFourData()
 {
-	m_CyberStation.GetGesFourData();
-	m_CyberStation.CalGloCoef();
-	ui.m_pFinshBtn->setEnabled(true);
-//	m_pGloDispTimer->stop();
-	
-	// stop the thread
-	m_DisThread.stop();
-	m_DisThread.wait();	
+	for (int i = 0; i < 5; ++i)
+	{
+		for (int j = 0; j < 4; ++j)
+		{
+			m_RGloCaliData[3][i][j] = m_RGloRawData[i][j];
+		}
+	}
+	ui.m_pGesBtn_four->setEnabled(false);
 }
 
+// Push Finish Button to Calculate Glove Calibration Data
 void CyberSystem::FinGloveCali()
 {
-//	m_pGloDispTimer->start(200);
+	m_CyberStation.CalRGloCoeff(m_RGloCaliData);
 	// control real data display and calibration finish
-	m_bGloDisReal = true;
-	m_bGloCaliFin = true;
-	
-	// thread to display real data
-	m_DisThread.start();
-
-	ui.m_pInitHandBtn->setEnabled(true);
+	m_bRGloCaliFin = true;
+	ui.m_pHandConnBtn->setEnabled(true);
 }
 
 
@@ -601,13 +1037,18 @@ void CyberSystem::FinGloveCali()
 void CyberSystem::InitTraCali()
 {
 	if (QMessageBox::Yes == QMessageBox::question(this, tr("Question"), tr("Start Tracker?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes))  
-	{  
-		// new thread to display raw data
-		m_bDisTraData = true;
-		m_DisThread.start();
-
-		m_CmdStr += "Start Display......OK!\r\n";
+	{
+		m_CmdStr += "Start Tracker Display......OK!\r\n";
 		emit InsertCmdStr(m_CmdStr);
+		if (!(m_DisThread.isRunning()))
+		{
+			// new thread to display raw data
+			m_bDisTraData = true;
+			m_DisThread.start();
+		}
+		else{
+			m_bDisTraData = true;
+		}
 	}  
 	else{}  
 }
@@ -637,6 +1078,10 @@ void CyberSystem::CalTraData()
 
 		m_CyberStation.CalRTraCoef(pose, 6);
 		m_bRTraCaliFini = true;
+
+		QMessageBox::about(NULL, "About", "CyberTracker calibration is finished");
+		ui.m_pSimuConnBtn->setEnabled(true);
+		ui.m_pRoboConnBtn->setEnabled(true);
 	} 
 	else
 	{
@@ -652,27 +1097,9 @@ void CyberSystem::CalTraData()
 		m_CyberStation.CalLTraCoef(pose, sizeof(pose));
 		m_bLTraCaliFini = true;
 	}
-
-	// if two sides are calibrated, display real data and pop-up a dialogue box
-// 	if ((m_bRTraCaliFini && m_bLTraCaliFini) == true)
-// 	{
-// 		QMessageBox::about(NULL, "About", "CyberTracker calibration is finished");
-// 	}
-	if (m_bRTraCaliFini == true)
-	{
-		QMessageBox::about(NULL, "About", "CyberTracker calibration is finished");
-		m_bRTraDisReal = true;
-
-		ui.m_pSimuConnBtn->setEnabled(true);
-		ui.m_pRoboConnBtn->setEnabled(true);
-	}
-
-
-	// initialize kinetics
-
 }
 
-void CyberSystem::LoadCaliData()
+void CyberSystem::LoadTraCaliData()
 {
 	Eigen::Matrix<double, 4, 4> TransMat;
 	Eigen::Matrix<double, 3, 3> RotMat;
@@ -769,14 +1196,13 @@ void CyberSystem::LoadCaliData()
 		RotMat(2, 2) = atof(RotThirdC->value());
 
 
-		m_CyberStation.UpdataCaliCoef(TransMat, RotMat);
-		m_bRTraDisReal = true;
+		m_CyberStation.UpdateTraCali(TransMat, RotMat);
 		m_bRTraCaliFini = true;
-		m_CmdStr += "Load Config Success!!!";
+		m_CmdStr = "Load Config Success!!!\r\n" + m_CmdStr;
 		InsertCmdStr(m_CmdStr);
 	}
 	else{
-		m_CmdStr += "Config File is Empty!!!";
+		m_CmdStr = "Config File is Empty!!!\r\n" + m_CmdStr;
 		InsertCmdStr(m_CmdStr);
 	}
 }
@@ -911,6 +1337,11 @@ void CyberSystem::SaveCaliData()
 	QMessageBox::about(NULL, "About", "Finish writing calibration data!");
 }
 
+
+
+
+
+
 void CyberSystem::lineEdit_textChanged()
 {
 //	bool bRTraTab = ui.m_pRTraTab->isEnabled();
@@ -950,14 +1381,14 @@ void CyberSystem::DisRoboData()
 	send_out_str << "Right Arm Joints: " << std::endl;
 	for (int i = 0; i < 7; ++i)
 	{
-		send_out_str.width(10);
+		send_out_str.width(8);
 		send_out_str << g_RobotCmdDeg.rightArmJoint[i];
 	}
 	send_out_str << std::endl;
 	send_out_str << "Left Arm Joints: " << std::endl;
 	for ( int i = 0; i < 7; ++i)
 	{
-		send_out_str.width(10);
+		send_out_str.width(8);
 		send_out_str << g_RobotCmdDeg.leftArmJoint[i];
 	}
 	send_out_str << std::endl;
@@ -969,28 +1400,31 @@ void CyberSystem::DisRoboData()
 	sensor_out_str << "Right Arm Joints: " << std::endl;
 	for (int i = 0; i < 7; ++i)
 	{
-		sensor_out_str.width(10);
+		sensor_out_str.width(8);
 		sensor_out_str << g_RobotSensorDeg.rightArmJoint[i];
 	}
 	sensor_out_str << std::endl;
 	sensor_out_str << "Left Arm Joints: " << std::endl;
 	for ( int i = 0; i < 7; ++i)
 	{
-		sensor_out_str.width(10);
+		sensor_out_str.width(8);
 		sensor_out_str << g_RobotSensorDeg.leftArmJoint[i];
 	}
 	sensor_out_str << std::endl;
 
-	QString qstr;
 	// 没有连接宇航员，不现实传感器数据
 	if (m_bRoboConn == false && m_bConsimuConn == true){
-		qstr = qstr.fromStdString(send_out_str.str());
+		m_RoboStr = m_RoboStr.fromStdString(send_out_str.str());
 	}
 	// 连接了宇航员，显示发送到数据和传感器数据
 	else if (m_bRoboConn == true){
-		qstr = qstr.fromStdString((send_out_str.str() + sensor_out_str.str()));
+		m_RoboStr = m_RoboStr.fromStdString((send_out_str.str() + sensor_out_str.str()));
 	}
-	emit InsertRoboText(qstr);
+
+	m_DisDataMutex.lock();
+	m_RoboTotalStr = m_RoboStr + m_HandStr;
+	emit InsertRoboText(m_RoboTotalStr);
+	m_DisDataMutex.unlock();
 }
 
 
@@ -1134,6 +1568,8 @@ void CyberSystem::ConsimuConnCtrl()
 		bool ret = m_RobonautControl.DisConnConsimu();
 		if (ret == true)
 		{
+			m_CmdStr += "OK!\r\n";
+			emit InsertCmdStr(m_CmdStr);
 			m_bConsimuConn = false;
 			ui.m_pSimuConnBtn->setText("Conn Consimu");
 			ui.m_pJointCtrlBtn->setEnabled(false);
@@ -1183,7 +1619,7 @@ void CyberSystem::RoboConnCtrl()
 			ui.m_pRoboConnBtn->setText("Conn Robonaut");
 		}
 		else{
-			m_CmdStr += "Failed!!!";
+			m_CmdStr += "Failed!!!\r\n";
 			emit InsertCmdStr(m_CmdStr);
 		}
 	}
@@ -1195,7 +1631,7 @@ void CyberSystem::CyberCtrl()
 {
 	if (m_bRTraCaliFini == false && m_bLTraCaliFini == false)
 	{
-		m_CmdStr += "Calibrate Tracker First!!!";
+		m_CmdStr += "Calibrate Tracker First!!!\r\n";
 		emit InsertCmdStr(m_CmdStr);
 		return;
 	}
@@ -1432,7 +1868,9 @@ void CyberSystem::getSliData()
 	// Get Joint Data
 	if (ui.m_pRArmTab->isVisible() || ui.m_pLArmTab->isVisible())
 	{
-		m_CmdStr = "Sending Joints Data!!!\r\n" + m_CmdStr;
+		ui.m_pCommadBs->backward();
+
+		m_CmdStr += "Sending Joints Data!!!\r\n";
 		emit InsertCmdStr(m_CmdStr);
 
 		float RJoTmp[7],LJoTmp[7];
@@ -1461,69 +1899,101 @@ void CyberSystem::getSliData()
 	// Get Position Data
 	else
 	{
-		m_CmdStr = "Sending Pose Data!!!\r\n" + m_CmdStr;
+		m_CmdStr += "Sending Pose Data!!!\r\n";
 		emit InsertCmdStr(m_CmdStr);
 
-		QString RPosBuf[7],LPosBuf[7];
-		RPosBuf[0] = ui.m_pRPosXCmd->text();
-		RPosBuf[1] = ui.m_pRPosYCmd->text();
-		RPosBuf[2] = ui.m_pRPosZCmd->text();
-		RPosBuf[3] = ui.m_pROri1Cmd->text();
-		RPosBuf[4] = ui.m_pROri2Cmd->text();
-		RPosBuf[5] = ui.m_pROri3Cmd->text();
-		RPosBuf[6] = ui.m_pROri4Cmd->text();
-		LPosBuf[0] = ui.m_pLPosXCmd->text();
-		LPosBuf[1] = ui.m_pLPosYCmd->text();
-		LPosBuf[2] = ui.m_pLPosZCmd->text();
-		LPosBuf[3] = ui.m_pLOri1Cmd->text();
-		LPosBuf[4] = ui.m_pLOri2Cmd->text();
-		LPosBuf[5] = ui.m_pLOri3Cmd->text();
-		LPosBuf[6] = ui.m_pLOri4Cmd->text();
-
-		for (int i = 0; i<7; i++)
+		if (ui.m_pRPoseCmd->text() != "")
 		{
-			m_rightArmPos[i] = RPosBuf[i].toDouble();
-			m_leftArmPos[i] = LPosBuf[i].toDouble();
+			std::string rpos_str = ui.m_pRPoseCmd->text().toStdString();
+			std::istringstream r_istr(rpos_str);
+
+			int r_count = 0;
+			for (int i = 0; i < 7 && (!r_istr.eof()); ++i)
+			{
+				r_istr >> m_rightArmPos[i];
+				++r_count;
+			}
+			if (r_count != 7)
+			{
+				m_CmdStr += "There is No Enough Inputs for Right Tracker!!!\r\n";
+				emit InsertCmdStr(m_CmdStr);
+				return;
+			}
+
+			// calculate inverse kinetics
+			Eigen::Matrix<double, 4, 4> T;
+
+			QuaterToTrans(m_rightArmPos, T);
+			Eigen::Matrix<double, 7, 1> q = CalKine(T, m_last_arm_angle, m_last_joint_angle);
+
+			// final data
+			for (int i = 0; i<7; i++)
+			{		
+				g_rightArmJointBuf[i] = DEG2ANG(q(i));
+			}
+		}
+		// TODO(CJH): if input left arm data
+		if (ui.m_pLPoseCmd->text() != "")
+		{
+
+			std::string lpos_str = ui.m_pLPoseCmd->text().toStdString();
+			std::istringstream l_istr(lpos_str);
+			int l_count = 0;
+			for (int i = 0; i < 7 && (!l_istr.eof()); ++i)
+			{
+				l_istr >> m_leftArmPos[i];
+				++l_count;
+			}
+			if (l_count != 7)
+			{
+				m_CmdStr += "There is No Enough Inputs for Left Tracker!!!\r\n";
+				emit InsertCmdStr(m_CmdStr);
+				return;
+			}
+			// calculate inverse kinetics
+			Eigen::Matrix<double, 4, 4> T;
+
+			QuaterToTrans(m_rightArmPos, T);
+			Eigen::Matrix<double, 7, 1> q = CalKine(T, m_last_arm_angle, m_last_joint_angle);
+
+			// final data
+			for (int i = 0; i<7; i++)
+			{		
+				g_leftArmJointBuf[i] = DEG2ANG(q(i));
+			}
 		}
 
-		// unit quaternion
-		/*********************
-		n = m_rightArmPos[3];
-		ex = m_rightArmPos[4];
-		ey = m_rightArmPos[5];
-		ez = m_rightArmPos[6];
-		*********************/
-		// calculate inverse kinetics
-		Eigen::Matrix<double, 4, 4> T;
-		// rotate matrix
-		T(0,0) = 2*(pow(m_rightArmPos[3], 2) + pow(m_rightArmPos[4], 2)) - 1;
-		T(0,1) = 2*(m_rightArmPos[4]*m_rightArmPos[5] - m_rightArmPos[3]*m_rightArmPos[6]);
-		T(0,2) = 2*(m_rightArmPos[4]*m_rightArmPos[6] + m_rightArmPos[3]*m_rightArmPos[5]);
-		T(1,0) = 2*(m_rightArmPos[4]*m_rightArmPos[5] + m_rightArmPos[3]*m_rightArmPos[6]);
-		T(1,1) = 2*(pow(m_rightArmPos[3], 2) + pow(m_rightArmPos[5], 2)) - 1;
-		T(1,2) = 2*(m_rightArmPos[5]*m_rightArmPos[6] - m_rightArmPos[3]*m_rightArmPos[4]);
-		T(2,0) = 2*(m_rightArmPos[4]*m_rightArmPos[6] - m_rightArmPos[3]*m_rightArmPos[5]);
-		T(2,1) = 2*(m_rightArmPos[5]*m_rightArmPos[6] + m_rightArmPos[3]*m_rightArmPos[4]);
-		T(2,2) = 2*(pow(m_rightArmPos[3], 2) + pow(m_rightArmPos[6], 2)) - 1;
-		// transpos matrix
-		T(0,3) = m_rightArmPos[0];
-		T(1,3) = m_rightArmPos[1];
-		T(2,3) = m_rightArmPos[2];
-		// vision matrix
-		T(3,0) = 0;
-		T(3,1) = 0;
-		T(3,2) = 0;
-		T(3,3) = 1;
 
-		Eigen::Matrix<double, 7, 1> q = CalKine(T, m_last_arm_angle, m_last_joint_angle);
 
-		// final data
-		for (int i = 0; i<7; i++)
-		{		
-			g_rightArmJointBuf[i] = DEG2ANG(q(i));
-		}
 	}
 }
+
+// Calculate Unit Quaternion
+// n = arr_in[3]	ex = arr_in[4]
+// ey = arr_in[5]	ez = arr_in[6]
+void CyberSystem::QuaterToTrans(const double arr_in[7], Eigen::Matrix<double, 4, 4> &mat_out)
+{
+	// romat_outamat_oute mamat_outrix
+	mat_out(0,0) = 2*(pow(arr_in[3], 2) + pow(arr_in[4], 2)) - 1;
+	mat_out(0,1) = 2*(arr_in[4]*arr_in[5] - arr_in[3]*arr_in[6]);
+	mat_out(0,2) = 2*(arr_in[4]*arr_in[6] + arr_in[3]*arr_in[5]);
+	mat_out(1,0) = 2*(arr_in[4]*arr_in[5] + arr_in[3]*arr_in[6]);
+	mat_out(1,1) = 2*(pow(arr_in[3], 2) + pow(arr_in[5], 2)) - 1;
+	mat_out(1,2) = 2*(arr_in[5]*arr_in[6] - arr_in[3]*arr_in[4]);
+	mat_out(2,0) = 2*(arr_in[4]*arr_in[6] - arr_in[3]*arr_in[5]);
+	mat_out(2,1) = 2*(arr_in[5]*arr_in[6] + arr_in[3]*arr_in[4]);
+	mat_out(2,2) = 2*(pow(arr_in[3], 2) + pow(arr_in[6], 2)) - 1;
+	// mat_outranspos mamat_outrix
+	mat_out(0,3) = arr_in[0];
+	mat_out(1,3) = arr_in[1];
+	mat_out(2,3) = arr_in[2];
+	// vision mamat_outrix
+	mat_out(3,0) = 0;
+	mat_out(3,1) = 0;
+	mat_out(3,2) = 0;
+	mat_out(3,3) = 1;
+}
+
 
 // Click Update Button, using global Robot Sensor Data to update slider data
 void CyberSystem::SliUpdata()
@@ -1704,50 +2174,242 @@ void CyberSystem::LinetoSli()
 }
 
 
-//*********************** Control Command Display ***********************//
+//*********************** Hand Control ***********************//
 
 void CyberSystem::InitHand()
 {
-	m_RobonautControl.HandInit();
-	ui.m_pPosRdBtn->setEnabled(true);
-	ui.m_pImpRdBtn->setEnabled(true);
-	ui.m_pResRdBtn->setEnabled(true);
-	ui.m_pRunHandBtn->setEnabled(true);
-}
 
-void CyberSystem::PositionMode() 
-{
-	m_RobonautControl.setPosMode();
-}
-
-void CyberSystem::ImpedanceMode() 
-{
-	m_RobonautControl.setImpMode();
-}
-
-void CyberSystem::ResetMode() 
-{
-	m_RobonautControl.setResMode();
-}
-
-void CyberSystem::HandCtrl()
-{
-	if (ui.m_pRunHandBtn->text() == "Run")
+	bool ret = m_RobonautControl.ConnHand();
+	m_HandDataCount = 0;
+	if (ret == true)
 	{
-		m_RobonautControl.m_bGloveControl = TRUE;
-		m_RobonautControl.HandControl();
-		ui.m_pRunHandBtn->setText("Stop");
+		if (HSendTimerId == NULL)
+		{
+			HSendTimerId = timeSetEvent(250, 1, (LPTIMECALLBACK)TimerProcHandSend, 0, TIME_PERIODIC);
+		} 
+		else
+		{
+			m_CmdStr += "Send Timer has Existed!!!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+			return;
+		}
+		if (HRecvTimerId == NULL)
+		{
+			HRecvTimerId = timeSetEvent(250, 1, (LPTIMECALLBACK)TimerProcHandRecv, 0, TIME_PERIODIC);
+		} 
+		else
+		{
+			m_CmdStr += "Receive Timer has Existed!!!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+			return;
+		}
+		m_bHandConn = true;
+		m_bHandInit = true;
 
-		return;
+		m_RobonautControl.setHandInit(m_bHandInit);
+
+		ui.m_pHandEnableBtn->setEnabled(true);
+	}
+}
+
+void CyberSystem::EnableHand()
+{
+	if (m_bHandEnable == false && ui.m_pHandEnableBtn->text() == "Enable")
+	{
+		m_bHandEnable = true;
+		m_RobonautControl.setHandEnable(m_bHandEnable);
+		ui.m_pHandRunBtn->setEnabled(true);
+		ui.m_pEmgBtn->setEnabled(true);
+	} 
+	else
+	{
+		m_bHandEnable = false;
+		m_RobonautControl.setHandEnable(m_bHandEnable);
+		m_HandCtrlMode = HAND_OUT_CTRL;
+		ui.m_pHandRunBtn->setText("Run");
+		ui.m_pHandRunBtn->setEnabled(false);
+		ui.m_pEmgBtn->setEnabled(false);
 	}
 
-	if (ui.m_pRunHandBtn->text() == "Stop")
-	{
-		m_RobonautControl.m_bGloveControl = FALSE;
-		ui.m_pRunHandBtn->setText("Run");
+}
 
-		return;
+void CyberSystem::EmergHand()
+{
+	if (m_bHandStop == false)
+	{
+		m_bHandStop = true;
+		m_RobonautControl.setHandEmergency(m_bHandStop);
+		
+		ui.m_pEmgBtn->setText("Go");
+	} 
+	else
+	{
+		m_bHandStop = false;
+		m_RobonautControl.setHandEmergency(m_bHandStop);
+		
+		ui.m_pEmgBtn->setText("Emergency");
 	}
+}
+
+void CyberSystem::StartHand()
+{
+	if (m_HandCtrlMode == HAND_OUT_CTRL && ui.m_pHandRunBtn->text() == "Run")
+	{
+		m_HandCtrlMode = HAND_CYBER_CTRL;
+		ui.m_pHandRunBtn->setText("Stop");
+	} 
+	else
+	{
+		m_HandCtrlMode = HAND_OUT_CTRL;
+		ui.m_pHandRunBtn->setText("Run");
+	}
+}
+
+void CyberSystem::SendHandCmd()
+{
+	ADDCOUNT(m_HandDataCount, 99999);
+	if (ui.m_pNormalRd->isChecked()){
+		m_RobonautControl.setHandMode(RobonautControl::Impedance);
+	}
+	else if (ui.m_pSoftRd->isCheckable()){
+		m_RobonautControl.setHandMode(RobonautControl::Soft);
+	}
+	else{
+		m_RobonautControl.setHandMode(RobonautControl::ZeroForce);
+	}
+
+	if (m_HandCtrlMode == OUT_CTRL)
+	{	
+		CHandData RHandData, LHandData;
+		for(int i = 0; i < 5; ++i)
+		{
+			for (int j = 0; j < 3; ++j)
+			{
+				RHandData.joint[i][j] = 0;
+				LHandData.joint[i][j] = 0;
+			}
+		}
+		bool ret = m_RobonautControl.SendHandMsg(RHandData, LHandData, m_HandDataCount);
+		if (ret = false)
+		{
+			m_CmdStr += "Hand Data Send Error!!!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+		}
+	} 
+	else
+	{
+		CHandData RHandData, LHandData;
+		for(int i = 0; i < 5; ++i)
+		{
+			for (int j = 0; j < 3; ++j)
+			{
+				RHandData.joint[i][j] = m_RGloRealData[i][j];
+				LHandData.joint[i][j] = m_LGloRealData[i][j];
+			}
+		}
+		bool ret = m_RobonautControl.SendHandMsg(RHandData, LHandData, m_HandDataCount);
+
+		if (ret = false)
+		{
+			m_CmdStr += "Hand Data Send Error!!!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+		}
+	}
+}
+
+void CyberSystem::DisHandData()
+{
+	std::ostringstream r_hand_stream;
+	r_hand_stream << "********* Hand Receive Data ********" << std::endl;
+	r_hand_stream << std::fixed << std::left;
+	r_hand_stream.precision(3);
+
+	r_hand_stream.width(8);
+	r_hand_stream << "Thumb";
+	r_hand_stream.width(8);
+	r_hand_stream << "Index";
+	r_hand_stream.width(8);
+	r_hand_stream << "Middle";
+	r_hand_stream.width(8);
+	r_hand_stream << "Ring";
+	r_hand_stream.width(8);
+	r_hand_stream << "Little" << std::endl;
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 5; j++)
+		{
+			r_hand_stream.width(8);
+			r_hand_stream << m_RHandRecvJoint[j][i];
+		}
+		r_hand_stream << std::endl;
+	}
+	r_hand_stream << "Torque: " << std::endl;
+	for (int i = 0; i < 5; ++i)
+	{
+		r_hand_stream.width(8);
+		r_hand_stream << m_RHandRecvTorque[i][0];
+	}
+	r_hand_stream << std::endl;
+
+	std::string r_hand_str = r_hand_stream.str();
+	m_HandStr = m_HandStr.fromStdString(r_hand_str);
+
+	m_DisDataMutex.lock();
+	m_RoboTotalStr = m_RoboStr + m_HandStr;
+	emit InsertRoboText(m_RoboTotalStr);
+	m_DisDataMutex.unlock();
+}
+
+void CyberSystem::RecvHandSensor()
+{
+	bool ret = m_RobonautControl.RecvHandMsg(m_RHandData, m_LHandData);
+	if (ret = true)
+	{
+		for (int i = 0; i < 5; ++i)
+		{
+			for (int j = 0; j < 3; ++j)
+			{
+				m_RHandRecvJoint[i][j] = m_RHandData.joint[i][j];
+				m_RHandRecvTorque[i][j] = m_RHandData.torque[i][j];
+				m_LHandRecvJoint[i][j] = m_LHandData.joint[i][j];
+				m_LHandRecvTorque[i][j] = m_LHandData.torque[i][j];
+			}
+		}
+
+		double Force[5];
+		Force[0] = (m_RHandData.torque[0][0]+m_RHandData.torque[0][1])*1.0;
+		Force[1] = (m_RHandData.torque[1][0]+m_RHandData.torque[1][1])*0.3;
+		Force[2] = (m_RHandData.torque[2][0]+m_RHandData.torque[2][1])*0.3;
+		Force[3] = (m_RHandData.torque[3][0]+m_RHandData.torque[3][1])*0.3;
+		Force[4] = (m_RHandData.torque[4][0]+m_RHandData.torque[4][1])*0.5;
+
+		for(int i=0; i<5; i++)
+		{
+			if(Force[i] >= 1.0)
+				Force[i] = 1.0;
+		
+			if(Force[i] <= 0.0)
+				Force[i] = 0.0;
+		}
+
+		m_CyberStation.setGraspForce(Force);
+
+		DisHandData();
+	} 
+	else
+	{
+		m_CmdStr += "Hand Receive Error!!!\r\n";
+		emit InsertCmdStr(m_CmdStr);
+	}
+}
+
+void PASCAL TimerProcHandSend(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWORD dw2)
+{
+	g_pCyberSys->SendHandCmd();
+}
+void PASCAL TimerProcHandRecv(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWORD dw2)
+{
+	g_pCyberSys->RecvHandSensor();
 }
 
 //*********************** Kinetics Calculate ***********************//
@@ -1781,7 +2443,7 @@ Eigen::Matrix<double, 7, 1> CyberSystem::CalKine(const Eigen::Matrix<double, 4, 
 	auto self_motions = m_Kine.inverse(T);
 	if (self_motions.empty())
 	{
-		m_CmdStr = "No self_motion!!!\r\n" + m_CmdStr;
+		m_CmdStr += "No self_motion!!!\r\n";
 		emit InsertCmdStr(m_CmdStr);
 		return last_joint_angle;
 	}
@@ -1856,7 +2518,7 @@ Eigen::Matrix<double, 7, 1> CyberSystem::CalKine(const Eigen::Matrix<double, 4, 
 	} 
 	else
 	{
-		m_CmdStr = "Self_motions have no Reasonable Solution!!!\r\n" + m_CmdStr;
+		m_CmdStr += "Self_motions have no Reasonable Solution!!!\r\n";
 		emit InsertCmdStr(m_CmdStr);
 		return last_joint_angle;
 	}

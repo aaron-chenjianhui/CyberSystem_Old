@@ -38,11 +38,10 @@ class Ui_CyberSystemClass
 {
 public:
     QWidget *centralWidget;
-    QGridLayout *gridLayout;
-    QHBoxLayout *horizontalLayout_26;
-    QVBoxLayout *verticalLayout_12;
+    QGridLayout *gridLayout_13;
     QHBoxLayout *horizontalLayout_25;
-    QSpacerItem *horizontalSpacer_3;
+    QVBoxLayout *verticalLayout_17;
+    QHBoxLayout *horizontalLayout_24;
     QGroupBox *m_pConnBox;
     QGridLayout *gridLayout_10;
     QGridLayout *m_pConnLayout;
@@ -54,9 +53,18 @@ public:
     QPushButton *m_pInitLHBtn;
     QPushButton *m_pInitLTBtn;
     QSpacerItem *horizontalSpacer_4;
-    QVBoxLayout *verticalLayout_11;
-    QPushButton *m_pSaveCali;
-    QPushButton *m_pOpenCali;
+    QHBoxLayout *horizontalLayout_23;
+    QVBoxLayout *verticalLayout_16;
+    QSpacerItem *verticalSpacer_5;
+    QVBoxLayout *verticalLayout_12;
+    QPushButton *pushButton;
+    QPushButton *pushButton_2;
+    QSpacerItem *verticalSpacer_6;
+    QVBoxLayout *verticalLayout_4;
+    QPushButton *m_pSaveTraCali;
+    QPushButton *m_pSaveGloCali;
+    QPushButton *m_pOpenTraCali;
+    QPushButton *m_pOpenGloCali;
     QHBoxLayout *horizontalLayout_13;
     QGroupBox *m_pGloveBox;
     QGridLayout *gridLayout_9;
@@ -73,8 +81,9 @@ public:
     QRadioButton *m_pLHCaliRdBtn;
     QPushButton *m_pGesBtn_one;
     QPushButton *m_pGesBtn_two;
-    QPushButton *m_pGesBtn_four;
     QPushButton *m_pGesBtn_three;
+    QPushButton *m_pGesBtn_four;
+    QPushButton *m_pGloFinshBtn;
     QTextBrowser *m_pGloDataDisBs;
     QHBoxLayout *horizontalLayout_14;
     QGroupBox *m_pTrackerBox;
@@ -126,23 +135,21 @@ public:
     QLabel *m_pLOriZLbl;
     QLineEdit *m_pLOriZLiEd;
     QTextBrowser *m_pTraDataDisBs;
-    QVBoxLayout *verticalLayout_10;
-    QTextBrowser *m_pRoboDataDisBs;
     QVBoxLayout *verticalLayout_9;
-    QHBoxLayout *horizontalLayout_24;
-    QSpacerItem *horizontalSpacer_5;
-    QHBoxLayout *horizontalLayout_23;
+    QTextBrowser *m_pRoboDataDisBs;
+    QHBoxLayout *horizontalLayout_22;
+    QVBoxLayout *verticalLayout_8;
+    QHBoxLayout *horizontalLayout_6;
     QPushButton *m_pSimuConnBtn;
     QPushButton *m_pRoboConnBtn;
-    QSpacerItem *horizontalSpacer_6;
-    QHBoxLayout *horizontalLayout_22;
+    QGridLayout *gridLayout;
     QPushButton *m_pJointCtrlBtn;
     QPushButton *m_pSdDataBtn;
     QPushButton *m_pUpdataBtn;
-    QHBoxLayout *horizontalLayout_6;
     QPushButton *m_pCyberCtrlBtn;
     QPushButton *m_pCyberStartBtn;
     QPushButton *m_pCyberPauseBtn;
+    QPushButton *pushButton_3;
     QTabWidget *m_pJoSetWidget;
     QWidget *m_pRArmTab;
     QGridLayout *gridLayout_14;
@@ -208,64 +215,34 @@ public:
     QLineEdit *m_pLJo7Line;
     QWidget *m_pRArmPosTab;
     QGridLayout *gridLayout_3;
-    QVBoxLayout *verticalLayout_4;
-    QHBoxLayout *horizontalLayout_49;
-    QLabel *m_pLPosXLbl_2;
-    QLineEdit *m_pRPosXCmd;
-    QHBoxLayout *horizontalLayout_50;
-    QLabel *m_pLPosYLbl_2;
-    QLineEdit *m_pRPosYCmd;
-    QHBoxLayout *horizontalLayout_51;
-    QLabel *m_pLPosZLbl_2;
-    QLineEdit *m_pRPosZCmd;
-    QHBoxLayout *horizontalLayout_52;
-    QLabel *m_pLOriXLbl_2;
-    QLineEdit *m_pROri1Cmd;
-    QHBoxLayout *horizontalLayout_53;
-    QLabel *m_pLOriYLbl_2;
-    QLineEdit *m_pROri2Cmd;
-    QHBoxLayout *horizontalLayout_54;
-    QLabel *m_pLOriZLbl_2;
-    QLineEdit *m_pROri3Cmd;
-    QHBoxLayout *horizontalLayout_61;
-    QLabel *m_pLPosXLbl_4;
-    QLineEdit *m_pROri4Cmd;
+    QVBoxLayout *verticalLayout_13;
+    QSpacerItem *verticalSpacer;
+    QVBoxLayout *verticalLayout_10;
+    QLabel *label;
+    QLineEdit *m_pRPoseCmd;
+    QSpacerItem *verticalSpacer_2;
     QWidget *m_pLArmPosTab;
     QGridLayout *gridLayout_11;
-    QVBoxLayout *verticalLayout_8;
-    QHBoxLayout *horizontalLayout_55;
-    QLabel *m_pLPosXLbl_3;
-    QLineEdit *m_pLPosXCmd;
-    QHBoxLayout *horizontalLayout_56;
-    QLabel *m_pLPosYLbl_3;
-    QLineEdit *m_pLPosYCmd;
-    QHBoxLayout *horizontalLayout_57;
-    QLabel *m_pLPosZLbl_3;
-    QLineEdit *m_pLPosZCmd;
-    QHBoxLayout *horizontalLayout_58;
-    QLabel *m_pLOriXLbl_3;
-    QLineEdit *m_pLOri1Cmd;
-    QHBoxLayout *horizontalLayout_59;
-    QLabel *m_pLOriYLbl_3;
-    QLineEdit *m_pLOri2Cmd;
-    QHBoxLayout *horizontalLayout_60;
-    QLabel *m_pLOriZLbl_3;
-    QLineEdit *m_pLOri3Cmd;
-    QHBoxLayout *horizontalLayout_62;
-    QLabel *m_pLOriZLbl_4;
-    QLineEdit *m_pLOri4Cmd;
+    QVBoxLayout *verticalLayout_15;
+    QSpacerItem *verticalSpacer_3;
+    QVBoxLayout *verticalLayout_14;
+    QLabel *label_2;
+    QLineEdit *m_pLPoseCmd;
+    QSpacerItem *verticalSpacer_4;
     QGroupBox *groupBox;
     QGridLayout *gridLayout_7;
-    QVBoxLayout *verticalLayout_2;
     QHBoxLayout *horizontalLayout_10;
-    QRadioButton *m_pPosRdBtn;
-    QRadioButton *m_pImpRdBtn;
-    QRadioButton *m_pResRdBtn;
+    QVBoxLayout *verticalLayout_11;
+    QRadioButton *m_pNormalRd;
+    QRadioButton *m_pSoftRd;
+    QRadioButton *m_pZeroRd;
+    QVBoxLayout *verticalLayout_2;
+    QPushButton *m_pHandConnBtn;
     QHBoxLayout *horizontalLayout_9;
-    QPushButton *m_pInitHandBtn;
-    QPushButton *m_pRunHandBtn;
+    QPushButton *m_pHandEnableBtn;
+    QPushButton *m_pHandRunBtn;
+    QPushButton *m_pEmgBtn;
     QTextBrowser *m_pCommadBs;
-    QPushButton *m_pFinshBtn;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -274,7 +251,7 @@ public:
     {
         if (CyberSystemClass->objectName().isEmpty())
             CyberSystemClass->setObjectName(QStringLiteral("CyberSystemClass"));
-        CyberSystemClass->resize(1415, 841);
+        CyberSystemClass->resize(1446, 787);
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -286,23 +263,19 @@ public:
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         centralWidget->setMinimumSize(QSize(1154, 575));
         centralWidget->setMaximumSize(QSize(1920, 1080));
-        gridLayout = new QGridLayout(centralWidget);
-        gridLayout->setSpacing(6);
-        gridLayout->setContentsMargins(11, 11, 11, 11);
-        gridLayout->setObjectName(QStringLiteral("gridLayout"));
-        horizontalLayout_26 = new QHBoxLayout();
-        horizontalLayout_26->setSpacing(6);
-        horizontalLayout_26->setObjectName(QStringLiteral("horizontalLayout_26"));
-        verticalLayout_12 = new QVBoxLayout();
-        verticalLayout_12->setSpacing(6);
-        verticalLayout_12->setObjectName(QStringLiteral("verticalLayout_12"));
+        gridLayout_13 = new QGridLayout(centralWidget);
+        gridLayout_13->setSpacing(6);
+        gridLayout_13->setContentsMargins(11, 11, 11, 11);
+        gridLayout_13->setObjectName(QStringLiteral("gridLayout_13"));
         horizontalLayout_25 = new QHBoxLayout();
         horizontalLayout_25->setSpacing(6);
         horizontalLayout_25->setObjectName(QStringLiteral("horizontalLayout_25"));
-        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_25->addItem(horizontalSpacer_3);
-
+        verticalLayout_17 = new QVBoxLayout();
+        verticalLayout_17->setSpacing(6);
+        verticalLayout_17->setObjectName(QStringLiteral("verticalLayout_17"));
+        horizontalLayout_24 = new QHBoxLayout();
+        horizontalLayout_24->setSpacing(6);
+        horizontalLayout_24->setObjectName(QStringLiteral("horizontalLayout_24"));
         m_pConnBox = new QGroupBox(centralWidget);
         m_pConnBox->setObjectName(QStringLiteral("m_pConnBox"));
         m_pConnBox->setMinimumSize(QSize(320, 140));
@@ -366,30 +339,76 @@ public:
         gridLayout_10->addLayout(m_pConnLayout, 0, 0, 1, 1);
 
 
-        horizontalLayout_25->addWidget(m_pConnBox);
+        horizontalLayout_24->addWidget(m_pConnBox);
 
         horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        horizontalLayout_25->addItem(horizontalSpacer_4);
+        horizontalLayout_24->addItem(horizontalSpacer_4);
 
-        verticalLayout_11 = new QVBoxLayout();
-        verticalLayout_11->setSpacing(6);
-        verticalLayout_11->setObjectName(QStringLiteral("verticalLayout_11"));
-        m_pSaveCali = new QPushButton(centralWidget);
-        m_pSaveCali->setObjectName(QStringLiteral("m_pSaveCali"));
+        horizontalLayout_23 = new QHBoxLayout();
+        horizontalLayout_23->setSpacing(6);
+        horizontalLayout_23->setObjectName(QStringLiteral("horizontalLayout_23"));
+        verticalLayout_16 = new QVBoxLayout();
+        verticalLayout_16->setSpacing(6);
+        verticalLayout_16->setObjectName(QStringLiteral("verticalLayout_16"));
+        verticalSpacer_5 = new QSpacerItem(20, 18, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-        verticalLayout_11->addWidget(m_pSaveCali);
+        verticalLayout_16->addItem(verticalSpacer_5);
 
-        m_pOpenCali = new QPushButton(centralWidget);
-        m_pOpenCali->setObjectName(QStringLiteral("m_pOpenCali"));
+        verticalLayout_12 = new QVBoxLayout();
+        verticalLayout_12->setSpacing(6);
+        verticalLayout_12->setObjectName(QStringLiteral("verticalLayout_12"));
+        pushButton = new QPushButton(centralWidget);
+        pushButton->setObjectName(QStringLiteral("pushButton"));
 
-        verticalLayout_11->addWidget(m_pOpenCali);
+        verticalLayout_12->addWidget(pushButton);
+
+        pushButton_2 = new QPushButton(centralWidget);
+        pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
+
+        verticalLayout_12->addWidget(pushButton_2);
 
 
-        horizontalLayout_25->addLayout(verticalLayout_11);
+        verticalLayout_16->addLayout(verticalLayout_12);
+
+        verticalSpacer_6 = new QSpacerItem(20, 18, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_16->addItem(verticalSpacer_6);
 
 
-        verticalLayout_12->addLayout(horizontalLayout_25);
+        horizontalLayout_23->addLayout(verticalLayout_16);
+
+        verticalLayout_4 = new QVBoxLayout();
+        verticalLayout_4->setSpacing(6);
+        verticalLayout_4->setObjectName(QStringLiteral("verticalLayout_4"));
+        m_pSaveTraCali = new QPushButton(centralWidget);
+        m_pSaveTraCali->setObjectName(QStringLiteral("m_pSaveTraCali"));
+
+        verticalLayout_4->addWidget(m_pSaveTraCali);
+
+        m_pSaveGloCali = new QPushButton(centralWidget);
+        m_pSaveGloCali->setObjectName(QStringLiteral("m_pSaveGloCali"));
+
+        verticalLayout_4->addWidget(m_pSaveGloCali);
+
+        m_pOpenTraCali = new QPushButton(centralWidget);
+        m_pOpenTraCali->setObjectName(QStringLiteral("m_pOpenTraCali"));
+
+        verticalLayout_4->addWidget(m_pOpenTraCali);
+
+        m_pOpenGloCali = new QPushButton(centralWidget);
+        m_pOpenGloCali->setObjectName(QStringLiteral("m_pOpenGloCali"));
+
+        verticalLayout_4->addWidget(m_pOpenGloCali);
+
+
+        horizontalLayout_23->addLayout(verticalLayout_4);
+
+
+        horizontalLayout_24->addLayout(horizontalLayout_23);
+
+
+        verticalLayout_17->addLayout(horizontalLayout_24);
 
         horizontalLayout_13 = new QHBoxLayout();
         horizontalLayout_13->setSpacing(6);
@@ -405,7 +424,6 @@ public:
         horizontalLayout_12 = new QHBoxLayout();
         horizontalLayout_12->setSpacing(6);
         horizontalLayout_12->setObjectName(QStringLiteral("horizontalLayout_12"));
-        horizontalLayout_12->setSizeConstraint(QLayout::SetFixedSize);
         gridLayout_2 = new QGridLayout();
         gridLayout_2->setSpacing(6);
         gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
@@ -490,6 +508,13 @@ public:
 
         verticalLayout_5->addWidget(m_pGesBtn_two);
 
+        m_pGesBtn_three = new QPushButton(m_pGloveBox);
+        m_pGesBtn_three->setObjectName(QStringLiteral("m_pGesBtn_three"));
+        m_pGesBtn_three->setEnabled(false);
+        m_pGesBtn_three->setMaximumSize(QSize(100, 16777215));
+
+        verticalLayout_5->addWidget(m_pGesBtn_three);
+
         m_pGesBtn_four = new QPushButton(m_pGloveBox);
         m_pGesBtn_four->setObjectName(QStringLiteral("m_pGesBtn_four"));
         m_pGesBtn_four->setEnabled(false);
@@ -497,12 +522,12 @@ public:
 
         verticalLayout_5->addWidget(m_pGesBtn_four);
 
-        m_pGesBtn_three = new QPushButton(m_pGloveBox);
-        m_pGesBtn_three->setObjectName(QStringLiteral("m_pGesBtn_three"));
-        m_pGesBtn_three->setEnabled(false);
-        m_pGesBtn_three->setMaximumSize(QSize(100, 16777215));
+        m_pGloFinshBtn = new QPushButton(m_pGloveBox);
+        m_pGloFinshBtn->setObjectName(QStringLiteral("m_pGloFinshBtn"));
+        m_pGloFinshBtn->setEnabled(false);
+        m_pGloFinshBtn->setMaximumSize(QSize(100, 16777215));
 
-        verticalLayout_5->addWidget(m_pGesBtn_three);
+        verticalLayout_5->addWidget(m_pGloFinshBtn);
 
 
         horizontalLayout_12->addLayout(verticalLayout_5);
@@ -521,7 +546,7 @@ public:
         horizontalLayout_13->addWidget(m_pGloDataDisBs);
 
 
-        verticalLayout_12->addLayout(horizontalLayout_13);
+        verticalLayout_17->addLayout(horizontalLayout_13);
 
         horizontalLayout_14 = new QHBoxLayout();
         horizontalLayout_14->setSpacing(6);
@@ -798,14 +823,14 @@ public:
         horizontalLayout_14->addWidget(m_pTraDataDisBs);
 
 
-        verticalLayout_12->addLayout(horizontalLayout_14);
+        verticalLayout_17->addLayout(horizontalLayout_14);
 
 
-        horizontalLayout_26->addLayout(verticalLayout_12);
+        horizontalLayout_25->addLayout(verticalLayout_17);
 
-        verticalLayout_10 = new QVBoxLayout();
-        verticalLayout_10->setSpacing(6);
-        verticalLayout_10->setObjectName(QStringLiteral("verticalLayout_10"));
+        verticalLayout_9 = new QVBoxLayout();
+        verticalLayout_9->setSpacing(6);
+        verticalLayout_9->setObjectName(QStringLiteral("verticalLayout_9"));
         m_pRoboDataDisBs = new QTextBrowser(centralWidget);
         m_pRoboDataDisBs->setObjectName(QStringLiteral("m_pRoboDataDisBs"));
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -813,32 +838,28 @@ public:
         sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(m_pRoboDataDisBs->sizePolicy().hasHeightForWidth());
         m_pRoboDataDisBs->setSizePolicy(sizePolicy1);
-        m_pRoboDataDisBs->setMinimumSize(QSize(300, 230));
-        m_pRoboDataDisBs->setMaximumSize(QSize(1000, 230));
+        m_pRoboDataDisBs->setMinimumSize(QSize(300, 250));
+        m_pRoboDataDisBs->setMaximumSize(QSize(1000, 250));
         m_pRoboDataDisBs->setLayoutDirection(Qt::LeftToRight);
 
-        verticalLayout_10->addWidget(m_pRoboDataDisBs);
+        verticalLayout_9->addWidget(m_pRoboDataDisBs);
 
-        verticalLayout_9 = new QVBoxLayout();
-        verticalLayout_9->setSpacing(6);
-        verticalLayout_9->setObjectName(QStringLiteral("verticalLayout_9"));
-        horizontalLayout_24 = new QHBoxLayout();
-        horizontalLayout_24->setSpacing(6);
-        horizontalLayout_24->setObjectName(QStringLiteral("horizontalLayout_24"));
-        horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_24->addItem(horizontalSpacer_5);
-
-        horizontalLayout_23 = new QHBoxLayout();
-        horizontalLayout_23->setSpacing(6);
-        horizontalLayout_23->setObjectName(QStringLiteral("horizontalLayout_23"));
+        horizontalLayout_22 = new QHBoxLayout();
+        horizontalLayout_22->setSpacing(6);
+        horizontalLayout_22->setObjectName(QStringLiteral("horizontalLayout_22"));
+        verticalLayout_8 = new QVBoxLayout();
+        verticalLayout_8->setSpacing(6);
+        verticalLayout_8->setObjectName(QStringLiteral("verticalLayout_8"));
+        horizontalLayout_6 = new QHBoxLayout();
+        horizontalLayout_6->setSpacing(6);
+        horizontalLayout_6->setObjectName(QStringLiteral("horizontalLayout_6"));
         m_pSimuConnBtn = new QPushButton(centralWidget);
         m_pSimuConnBtn->setObjectName(QStringLiteral("m_pSimuConnBtn"));
         m_pSimuConnBtn->setEnabled(true);
         m_pSimuConnBtn->setMinimumSize(QSize(140, 0));
         m_pSimuConnBtn->setMaximumSize(QSize(140, 16777215));
 
-        horizontalLayout_23->addWidget(m_pSimuConnBtn);
+        horizontalLayout_6->addWidget(m_pSimuConnBtn);
 
         m_pRoboConnBtn = new QPushButton(centralWidget);
         m_pRoboConnBtn->setObjectName(QStringLiteral("m_pRoboConnBtn"));
@@ -851,77 +872,81 @@ public:
         m_pRoboConnBtn->setMinimumSize(QSize(140, 0));
         m_pRoboConnBtn->setMaximumSize(QSize(140, 16777215));
 
-        horizontalLayout_23->addWidget(m_pRoboConnBtn);
+        horizontalLayout_6->addWidget(m_pRoboConnBtn);
 
 
-        horizontalLayout_24->addLayout(horizontalLayout_23);
+        verticalLayout_8->addLayout(horizontalLayout_6);
 
-        horizontalSpacer_6 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_24->addItem(horizontalSpacer_6);
-
-
-        verticalLayout_9->addLayout(horizontalLayout_24);
-
-        horizontalLayout_22 = new QHBoxLayout();
-        horizontalLayout_22->setSpacing(6);
-        horizontalLayout_22->setObjectName(QStringLiteral("horizontalLayout_22"));
+        gridLayout = new QGridLayout();
+        gridLayout->setSpacing(6);
+        gridLayout->setObjectName(QStringLiteral("gridLayout"));
         m_pJointCtrlBtn = new QPushButton(centralWidget);
         m_pJointCtrlBtn->setObjectName(QStringLiteral("m_pJointCtrlBtn"));
         m_pJointCtrlBtn->setEnabled(true);
-        m_pJointCtrlBtn->setMinimumSize(QSize(120, 0));
-        m_pJointCtrlBtn->setMaximumSize(QSize(133, 16777215));
+        m_pJointCtrlBtn->setMinimumSize(QSize(115, 0));
+        m_pJointCtrlBtn->setMaximumSize(QSize(115, 16777215));
 
-        horizontalLayout_22->addWidget(m_pJointCtrlBtn);
+        gridLayout->addWidget(m_pJointCtrlBtn, 0, 0, 1, 1);
 
         m_pSdDataBtn = new QPushButton(centralWidget);
         m_pSdDataBtn->setObjectName(QStringLiteral("m_pSdDataBtn"));
         m_pSdDataBtn->setEnabled(false);
-        m_pSdDataBtn->setMinimumSize(QSize(120, 28));
-        m_pSdDataBtn->setMaximumSize(QSize(133, 28));
+        m_pSdDataBtn->setMinimumSize(QSize(115, 28));
+        m_pSdDataBtn->setMaximumSize(QSize(115, 28));
 
-        horizontalLayout_22->addWidget(m_pSdDataBtn);
+        gridLayout->addWidget(m_pSdDataBtn, 0, 1, 1, 1);
 
         m_pUpdataBtn = new QPushButton(centralWidget);
         m_pUpdataBtn->setObjectName(QStringLiteral("m_pUpdataBtn"));
         m_pUpdataBtn->setEnabled(false);
+        m_pUpdataBtn->setMinimumSize(QSize(115, 0));
+        m_pUpdataBtn->setMaximumSize(QSize(115, 16777215));
 
-        horizontalLayout_22->addWidget(m_pUpdataBtn);
+        gridLayout->addWidget(m_pUpdataBtn, 0, 2, 1, 1);
 
-
-        verticalLayout_9->addLayout(horizontalLayout_22);
-
-        horizontalLayout_6 = new QHBoxLayout();
-        horizontalLayout_6->setSpacing(6);
-        horizontalLayout_6->setObjectName(QStringLiteral("horizontalLayout_6"));
         m_pCyberCtrlBtn = new QPushButton(centralWidget);
         m_pCyberCtrlBtn->setObjectName(QStringLiteral("m_pCyberCtrlBtn"));
+        m_pCyberCtrlBtn->setMinimumSize(QSize(115, 0));
+        m_pCyberCtrlBtn->setMaximumSize(QSize(115, 16777215));
 
-        horizontalLayout_6->addWidget(m_pCyberCtrlBtn);
+        gridLayout->addWidget(m_pCyberCtrlBtn, 1, 0, 1, 1);
 
         m_pCyberStartBtn = new QPushButton(centralWidget);
         m_pCyberStartBtn->setObjectName(QStringLiteral("m_pCyberStartBtn"));
         m_pCyberStartBtn->setEnabled(false);
+        m_pCyberStartBtn->setMinimumSize(QSize(115, 0));
+        m_pCyberStartBtn->setMaximumSize(QSize(115, 16777215));
 
-        horizontalLayout_6->addWidget(m_pCyberStartBtn);
+        gridLayout->addWidget(m_pCyberStartBtn, 1, 1, 1, 1);
 
         m_pCyberPauseBtn = new QPushButton(centralWidget);
         m_pCyberPauseBtn->setObjectName(QStringLiteral("m_pCyberPauseBtn"));
         m_pCyberPauseBtn->setEnabled(false);
+        m_pCyberPauseBtn->setMinimumSize(QSize(115, 0));
+        m_pCyberPauseBtn->setMaximumSize(QSize(115, 16777215));
 
-        horizontalLayout_6->addWidget(m_pCyberPauseBtn);
+        gridLayout->addWidget(m_pCyberPauseBtn, 1, 2, 1, 1);
 
 
-        verticalLayout_9->addLayout(horizontalLayout_6);
+        verticalLayout_8->addLayout(gridLayout);
 
 
-        verticalLayout_10->addLayout(verticalLayout_9);
+        horizontalLayout_22->addLayout(verticalLayout_8);
+
+        pushButton_3 = new QPushButton(centralWidget);
+        pushButton_3->setObjectName(QStringLiteral("pushButton_3"));
+        pushButton_3->setMinimumSize(QSize(0, 80));
+
+        horizontalLayout_22->addWidget(pushButton_3);
+
+
+        verticalLayout_9->addLayout(horizontalLayout_22);
 
         m_pJoSetWidget = new QTabWidget(centralWidget);
         m_pJoSetWidget->setObjectName(QStringLiteral("m_pJoSetWidget"));
         m_pJoSetWidget->setEnabled(true);
         m_pJoSetWidget->setMinimumSize(QSize(400, 0));
-        m_pJoSetWidget->setMaximumSize(QSize(400, 1000));
+        m_pJoSetWidget->setMaximumSize(QSize(600, 1000));
         m_pJoSetWidget->setSizeIncrement(QSize(308, 256));
         m_pRArmTab = new QWidget();
         m_pRArmTab->setObjectName(QStringLiteral("m_pRArmTab"));
@@ -1334,130 +1359,35 @@ public:
         gridLayout_3->setSpacing(6);
         gridLayout_3->setContentsMargins(11, 11, 11, 11);
         gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
-        verticalLayout_4 = new QVBoxLayout();
-        verticalLayout_4->setSpacing(6);
-        verticalLayout_4->setObjectName(QStringLiteral("verticalLayout_4"));
-        horizontalLayout_49 = new QHBoxLayout();
-        horizontalLayout_49->setSpacing(6);
-        horizontalLayout_49->setObjectName(QStringLiteral("horizontalLayout_49"));
-        m_pLPosXLbl_2 = new QLabel(m_pRArmPosTab);
-        m_pLPosXLbl_2->setObjectName(QStringLiteral("m_pLPosXLbl_2"));
+        verticalLayout_13 = new QVBoxLayout();
+        verticalLayout_13->setSpacing(6);
+        verticalLayout_13->setObjectName(QStringLiteral("verticalLayout_13"));
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-        horizontalLayout_49->addWidget(m_pLPosXLbl_2);
+        verticalLayout_13->addItem(verticalSpacer);
 
-        m_pRPosXCmd = new QLineEdit(m_pRArmPosTab);
-        m_pRPosXCmd->setObjectName(QStringLiteral("m_pRPosXCmd"));
-        m_pRPosXCmd->setMinimumSize(QSize(120, 0));
+        verticalLayout_10 = new QVBoxLayout();
+        verticalLayout_10->setSpacing(6);
+        verticalLayout_10->setObjectName(QStringLiteral("verticalLayout_10"));
+        label = new QLabel(m_pRArmPosTab);
+        label->setObjectName(QStringLiteral("label"));
 
-        horizontalLayout_49->addWidget(m_pRPosXCmd);
+        verticalLayout_10->addWidget(label);
 
+        m_pRPoseCmd = new QLineEdit(m_pRArmPosTab);
+        m_pRPoseCmd->setObjectName(QStringLiteral("m_pRPoseCmd"));
 
-        verticalLayout_4->addLayout(horizontalLayout_49);
-
-        horizontalLayout_50 = new QHBoxLayout();
-        horizontalLayout_50->setSpacing(6);
-        horizontalLayout_50->setObjectName(QStringLiteral("horizontalLayout_50"));
-        m_pLPosYLbl_2 = new QLabel(m_pRArmPosTab);
-        m_pLPosYLbl_2->setObjectName(QStringLiteral("m_pLPosYLbl_2"));
-
-        horizontalLayout_50->addWidget(m_pLPosYLbl_2);
-
-        m_pRPosYCmd = new QLineEdit(m_pRArmPosTab);
-        m_pRPosYCmd->setObjectName(QStringLiteral("m_pRPosYCmd"));
-        m_pRPosYCmd->setMinimumSize(QSize(120, 0));
-
-        horizontalLayout_50->addWidget(m_pRPosYCmd);
+        verticalLayout_10->addWidget(m_pRPoseCmd);
 
 
-        verticalLayout_4->addLayout(horizontalLayout_50);
+        verticalLayout_13->addLayout(verticalLayout_10);
 
-        horizontalLayout_51 = new QHBoxLayout();
-        horizontalLayout_51->setSpacing(6);
-        horizontalLayout_51->setObjectName(QStringLiteral("horizontalLayout_51"));
-        m_pLPosZLbl_2 = new QLabel(m_pRArmPosTab);
-        m_pLPosZLbl_2->setObjectName(QStringLiteral("m_pLPosZLbl_2"));
+        verticalSpacer_2 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-        horizontalLayout_51->addWidget(m_pLPosZLbl_2);
-
-        m_pRPosZCmd = new QLineEdit(m_pRArmPosTab);
-        m_pRPosZCmd->setObjectName(QStringLiteral("m_pRPosZCmd"));
-        m_pRPosZCmd->setMinimumSize(QSize(120, 0));
-
-        horizontalLayout_51->addWidget(m_pRPosZCmd);
+        verticalLayout_13->addItem(verticalSpacer_2);
 
 
-        verticalLayout_4->addLayout(horizontalLayout_51);
-
-        horizontalLayout_52 = new QHBoxLayout();
-        horizontalLayout_52->setSpacing(6);
-        horizontalLayout_52->setObjectName(QStringLiteral("horizontalLayout_52"));
-        m_pLOriXLbl_2 = new QLabel(m_pRArmPosTab);
-        m_pLOriXLbl_2->setObjectName(QStringLiteral("m_pLOriXLbl_2"));
-
-        horizontalLayout_52->addWidget(m_pLOriXLbl_2);
-
-        m_pROri1Cmd = new QLineEdit(m_pRArmPosTab);
-        m_pROri1Cmd->setObjectName(QStringLiteral("m_pROri1Cmd"));
-        m_pROri1Cmd->setMinimumSize(QSize(120, 0));
-
-        horizontalLayout_52->addWidget(m_pROri1Cmd);
-
-
-        verticalLayout_4->addLayout(horizontalLayout_52);
-
-        horizontalLayout_53 = new QHBoxLayout();
-        horizontalLayout_53->setSpacing(6);
-        horizontalLayout_53->setObjectName(QStringLiteral("horizontalLayout_53"));
-        m_pLOriYLbl_2 = new QLabel(m_pRArmPosTab);
-        m_pLOriYLbl_2->setObjectName(QStringLiteral("m_pLOriYLbl_2"));
-
-        horizontalLayout_53->addWidget(m_pLOriYLbl_2);
-
-        m_pROri2Cmd = new QLineEdit(m_pRArmPosTab);
-        m_pROri2Cmd->setObjectName(QStringLiteral("m_pROri2Cmd"));
-        m_pROri2Cmd->setMinimumSize(QSize(120, 0));
-
-        horizontalLayout_53->addWidget(m_pROri2Cmd);
-
-
-        verticalLayout_4->addLayout(horizontalLayout_53);
-
-        horizontalLayout_54 = new QHBoxLayout();
-        horizontalLayout_54->setSpacing(6);
-        horizontalLayout_54->setObjectName(QStringLiteral("horizontalLayout_54"));
-        m_pLOriZLbl_2 = new QLabel(m_pRArmPosTab);
-        m_pLOriZLbl_2->setObjectName(QStringLiteral("m_pLOriZLbl_2"));
-
-        horizontalLayout_54->addWidget(m_pLOriZLbl_2);
-
-        m_pROri3Cmd = new QLineEdit(m_pRArmPosTab);
-        m_pROri3Cmd->setObjectName(QStringLiteral("m_pROri3Cmd"));
-        m_pROri3Cmd->setMinimumSize(QSize(120, 0));
-
-        horizontalLayout_54->addWidget(m_pROri3Cmd);
-
-
-        verticalLayout_4->addLayout(horizontalLayout_54);
-
-        horizontalLayout_61 = new QHBoxLayout();
-        horizontalLayout_61->setSpacing(6);
-        horizontalLayout_61->setObjectName(QStringLiteral("horizontalLayout_61"));
-        m_pLPosXLbl_4 = new QLabel(m_pRArmPosTab);
-        m_pLPosXLbl_4->setObjectName(QStringLiteral("m_pLPosXLbl_4"));
-
-        horizontalLayout_61->addWidget(m_pLPosXLbl_4);
-
-        m_pROri4Cmd = new QLineEdit(m_pRArmPosTab);
-        m_pROri4Cmd->setObjectName(QStringLiteral("m_pROri4Cmd"));
-        m_pROri4Cmd->setMinimumSize(QSize(120, 0));
-
-        horizontalLayout_61->addWidget(m_pROri4Cmd);
-
-
-        verticalLayout_4->addLayout(horizontalLayout_61);
-
-
-        gridLayout_3->addLayout(verticalLayout_4, 0, 0, 1, 1);
+        gridLayout_3->addLayout(verticalLayout_13, 0, 0, 1, 1);
 
         m_pJoSetWidget->addTab(m_pRArmPosTab, QString());
         m_pLArmPosTab = new QWidget();
@@ -1466,218 +1396,137 @@ public:
         gridLayout_11->setSpacing(6);
         gridLayout_11->setContentsMargins(11, 11, 11, 11);
         gridLayout_11->setObjectName(QStringLiteral("gridLayout_11"));
-        verticalLayout_8 = new QVBoxLayout();
-        verticalLayout_8->setSpacing(6);
-        verticalLayout_8->setObjectName(QStringLiteral("verticalLayout_8"));
-        horizontalLayout_55 = new QHBoxLayout();
-        horizontalLayout_55->setSpacing(6);
-        horizontalLayout_55->setObjectName(QStringLiteral("horizontalLayout_55"));
-        m_pLPosXLbl_3 = new QLabel(m_pLArmPosTab);
-        m_pLPosXLbl_3->setObjectName(QStringLiteral("m_pLPosXLbl_3"));
+        verticalLayout_15 = new QVBoxLayout();
+        verticalLayout_15->setSpacing(6);
+        verticalLayout_15->setObjectName(QStringLiteral("verticalLayout_15"));
+        verticalSpacer_3 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-        horizontalLayout_55->addWidget(m_pLPosXLbl_3);
+        verticalLayout_15->addItem(verticalSpacer_3);
 
-        m_pLPosXCmd = new QLineEdit(m_pLArmPosTab);
-        m_pLPosXCmd->setObjectName(QStringLiteral("m_pLPosXCmd"));
-        m_pLPosXCmd->setMinimumSize(QSize(120, 0));
+        verticalLayout_14 = new QVBoxLayout();
+        verticalLayout_14->setSpacing(6);
+        verticalLayout_14->setObjectName(QStringLiteral("verticalLayout_14"));
+        label_2 = new QLabel(m_pLArmPosTab);
+        label_2->setObjectName(QStringLiteral("label_2"));
 
-        horizontalLayout_55->addWidget(m_pLPosXCmd);
+        verticalLayout_14->addWidget(label_2);
 
+        m_pLPoseCmd = new QLineEdit(m_pLArmPosTab);
+        m_pLPoseCmd->setObjectName(QStringLiteral("m_pLPoseCmd"));
 
-        verticalLayout_8->addLayout(horizontalLayout_55);
-
-        horizontalLayout_56 = new QHBoxLayout();
-        horizontalLayout_56->setSpacing(6);
-        horizontalLayout_56->setObjectName(QStringLiteral("horizontalLayout_56"));
-        m_pLPosYLbl_3 = new QLabel(m_pLArmPosTab);
-        m_pLPosYLbl_3->setObjectName(QStringLiteral("m_pLPosYLbl_3"));
-
-        horizontalLayout_56->addWidget(m_pLPosYLbl_3);
-
-        m_pLPosYCmd = new QLineEdit(m_pLArmPosTab);
-        m_pLPosYCmd->setObjectName(QStringLiteral("m_pLPosYCmd"));
-        m_pLPosYCmd->setMinimumSize(QSize(120, 0));
-
-        horizontalLayout_56->addWidget(m_pLPosYCmd);
+        verticalLayout_14->addWidget(m_pLPoseCmd);
 
 
-        verticalLayout_8->addLayout(horizontalLayout_56);
+        verticalLayout_15->addLayout(verticalLayout_14);
 
-        horizontalLayout_57 = new QHBoxLayout();
-        horizontalLayout_57->setSpacing(6);
-        horizontalLayout_57->setObjectName(QStringLiteral("horizontalLayout_57"));
-        m_pLPosZLbl_3 = new QLabel(m_pLArmPosTab);
-        m_pLPosZLbl_3->setObjectName(QStringLiteral("m_pLPosZLbl_3"));
+        verticalSpacer_4 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-        horizontalLayout_57->addWidget(m_pLPosZLbl_3);
-
-        m_pLPosZCmd = new QLineEdit(m_pLArmPosTab);
-        m_pLPosZCmd->setObjectName(QStringLiteral("m_pLPosZCmd"));
-        m_pLPosZCmd->setMinimumSize(QSize(120, 0));
-
-        horizontalLayout_57->addWidget(m_pLPosZCmd);
+        verticalLayout_15->addItem(verticalSpacer_4);
 
 
-        verticalLayout_8->addLayout(horizontalLayout_57);
-
-        horizontalLayout_58 = new QHBoxLayout();
-        horizontalLayout_58->setSpacing(6);
-        horizontalLayout_58->setObjectName(QStringLiteral("horizontalLayout_58"));
-        m_pLOriXLbl_3 = new QLabel(m_pLArmPosTab);
-        m_pLOriXLbl_3->setObjectName(QStringLiteral("m_pLOriXLbl_3"));
-
-        horizontalLayout_58->addWidget(m_pLOriXLbl_3);
-
-        m_pLOri1Cmd = new QLineEdit(m_pLArmPosTab);
-        m_pLOri1Cmd->setObjectName(QStringLiteral("m_pLOri1Cmd"));
-        m_pLOri1Cmd->setMinimumSize(QSize(120, 0));
-
-        horizontalLayout_58->addWidget(m_pLOri1Cmd);
-
-
-        verticalLayout_8->addLayout(horizontalLayout_58);
-
-        horizontalLayout_59 = new QHBoxLayout();
-        horizontalLayout_59->setSpacing(6);
-        horizontalLayout_59->setObjectName(QStringLiteral("horizontalLayout_59"));
-        m_pLOriYLbl_3 = new QLabel(m_pLArmPosTab);
-        m_pLOriYLbl_3->setObjectName(QStringLiteral("m_pLOriYLbl_3"));
-
-        horizontalLayout_59->addWidget(m_pLOriYLbl_3);
-
-        m_pLOri2Cmd = new QLineEdit(m_pLArmPosTab);
-        m_pLOri2Cmd->setObjectName(QStringLiteral("m_pLOri2Cmd"));
-        m_pLOri2Cmd->setMinimumSize(QSize(120, 0));
-
-        horizontalLayout_59->addWidget(m_pLOri2Cmd);
-
-
-        verticalLayout_8->addLayout(horizontalLayout_59);
-
-        horizontalLayout_60 = new QHBoxLayout();
-        horizontalLayout_60->setSpacing(6);
-        horizontalLayout_60->setObjectName(QStringLiteral("horizontalLayout_60"));
-        m_pLOriZLbl_3 = new QLabel(m_pLArmPosTab);
-        m_pLOriZLbl_3->setObjectName(QStringLiteral("m_pLOriZLbl_3"));
-
-        horizontalLayout_60->addWidget(m_pLOriZLbl_3);
-
-        m_pLOri3Cmd = new QLineEdit(m_pLArmPosTab);
-        m_pLOri3Cmd->setObjectName(QStringLiteral("m_pLOri3Cmd"));
-        m_pLOri3Cmd->setMinimumSize(QSize(120, 0));
-
-        horizontalLayout_60->addWidget(m_pLOri3Cmd);
-
-
-        verticalLayout_8->addLayout(horizontalLayout_60);
-
-        horizontalLayout_62 = new QHBoxLayout();
-        horizontalLayout_62->setSpacing(6);
-        horizontalLayout_62->setObjectName(QStringLiteral("horizontalLayout_62"));
-        m_pLOriZLbl_4 = new QLabel(m_pLArmPosTab);
-        m_pLOriZLbl_4->setObjectName(QStringLiteral("m_pLOriZLbl_4"));
-
-        horizontalLayout_62->addWidget(m_pLOriZLbl_4);
-
-        m_pLOri4Cmd = new QLineEdit(m_pLArmPosTab);
-        m_pLOri4Cmd->setObjectName(QStringLiteral("m_pLOri4Cmd"));
-        m_pLOri4Cmd->setMinimumSize(QSize(120, 0));
-
-        horizontalLayout_62->addWidget(m_pLOri4Cmd);
-
-
-        verticalLayout_8->addLayout(horizontalLayout_62);
-
-
-        gridLayout_11->addLayout(verticalLayout_8, 0, 0, 1, 1);
+        gridLayout_11->addLayout(verticalLayout_15, 0, 0, 1, 1);
 
         m_pJoSetWidget->addTab(m_pLArmPosTab, QString());
 
-        verticalLayout_10->addWidget(m_pJoSetWidget);
+        verticalLayout_9->addWidget(m_pJoSetWidget);
 
         groupBox = new QGroupBox(centralWidget);
         groupBox->setObjectName(QStringLiteral("groupBox"));
-        groupBox->setMinimumSize(QSize(0, 100));
+        groupBox->setMinimumSize(QSize(0, 110));
         groupBox->setMaximumSize(QSize(16777215, 100));
         gridLayout_7 = new QGridLayout(groupBox);
         gridLayout_7->setSpacing(6);
         gridLayout_7->setContentsMargins(11, 11, 11, 11);
         gridLayout_7->setObjectName(QStringLiteral("gridLayout_7"));
-        verticalLayout_2 = new QVBoxLayout();
-        verticalLayout_2->setSpacing(6);
-        verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
         horizontalLayout_10 = new QHBoxLayout();
         horizontalLayout_10->setSpacing(6);
         horizontalLayout_10->setObjectName(QStringLiteral("horizontalLayout_10"));
-        m_pPosRdBtn = new QRadioButton(groupBox);
-        m_pPosRdBtn->setObjectName(QStringLiteral("m_pPosRdBtn"));
-        m_pPosRdBtn->setEnabled(false);
+        verticalLayout_11 = new QVBoxLayout();
+        verticalLayout_11->setSpacing(6);
+        verticalLayout_11->setObjectName(QStringLiteral("verticalLayout_11"));
+        m_pNormalRd = new QRadioButton(groupBox);
+        m_pNormalRd->setObjectName(QStringLiteral("m_pNormalRd"));
+        m_pNormalRd->setEnabled(true);
+        m_pNormalRd->setChecked(true);
 
-        horizontalLayout_10->addWidget(m_pPosRdBtn);
+        verticalLayout_11->addWidget(m_pNormalRd);
 
-        m_pImpRdBtn = new QRadioButton(groupBox);
-        m_pImpRdBtn->setObjectName(QStringLiteral("m_pImpRdBtn"));
-        m_pImpRdBtn->setEnabled(false);
+        m_pSoftRd = new QRadioButton(groupBox);
+        m_pSoftRd->setObjectName(QStringLiteral("m_pSoftRd"));
+        m_pSoftRd->setEnabled(true);
 
-        horizontalLayout_10->addWidget(m_pImpRdBtn);
+        verticalLayout_11->addWidget(m_pSoftRd);
 
-        m_pResRdBtn = new QRadioButton(groupBox);
-        m_pResRdBtn->setObjectName(QStringLiteral("m_pResRdBtn"));
-        m_pResRdBtn->setEnabled(false);
+        m_pZeroRd = new QRadioButton(groupBox);
+        m_pZeroRd->setObjectName(QStringLiteral("m_pZeroRd"));
+        m_pZeroRd->setEnabled(true);
+        m_pZeroRd->setChecked(false);
 
-        horizontalLayout_10->addWidget(m_pResRdBtn);
+        verticalLayout_11->addWidget(m_pZeroRd);
 
 
-        verticalLayout_2->addLayout(horizontalLayout_10);
+        horizontalLayout_10->addLayout(verticalLayout_11);
+
+        verticalLayout_2 = new QVBoxLayout();
+        verticalLayout_2->setSpacing(6);
+        verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
+        m_pHandConnBtn = new QPushButton(groupBox);
+        m_pHandConnBtn->setObjectName(QStringLiteral("m_pHandConnBtn"));
+        m_pHandConnBtn->setEnabled(true);
+
+        verticalLayout_2->addWidget(m_pHandConnBtn);
 
         horizontalLayout_9 = new QHBoxLayout();
         horizontalLayout_9->setSpacing(6);
         horizontalLayout_9->setObjectName(QStringLiteral("horizontalLayout_9"));
-        m_pInitHandBtn = new QPushButton(groupBox);
-        m_pInitHandBtn->setObjectName(QStringLiteral("m_pInitHandBtn"));
-        m_pInitHandBtn->setEnabled(false);
+        m_pHandEnableBtn = new QPushButton(groupBox);
+        m_pHandEnableBtn->setObjectName(QStringLiteral("m_pHandEnableBtn"));
+        m_pHandEnableBtn->setEnabled(false);
 
-        horizontalLayout_9->addWidget(m_pInitHandBtn);
+        horizontalLayout_9->addWidget(m_pHandEnableBtn);
 
-        m_pRunHandBtn = new QPushButton(groupBox);
-        m_pRunHandBtn->setObjectName(QStringLiteral("m_pRunHandBtn"));
-        m_pRunHandBtn->setEnabled(false);
+        m_pHandRunBtn = new QPushButton(groupBox);
+        m_pHandRunBtn->setObjectName(QStringLiteral("m_pHandRunBtn"));
+        m_pHandRunBtn->setEnabled(false);
 
-        horizontalLayout_9->addWidget(m_pRunHandBtn);
+        horizontalLayout_9->addWidget(m_pHandRunBtn);
 
 
         verticalLayout_2->addLayout(horizontalLayout_9);
 
 
-        gridLayout_7->addLayout(verticalLayout_2, 0, 0, 1, 1);
+        horizontalLayout_10->addLayout(verticalLayout_2);
+
+        m_pEmgBtn = new QPushButton(groupBox);
+        m_pEmgBtn->setObjectName(QStringLiteral("m_pEmgBtn"));
+        m_pEmgBtn->setEnabled(false);
+        m_pEmgBtn->setMinimumSize(QSize(0, 70));
+
+        horizontalLayout_10->addWidget(m_pEmgBtn);
 
 
-        verticalLayout_10->addWidget(groupBox);
+        gridLayout_7->addLayout(horizontalLayout_10, 1, 0, 1, 1);
 
 
-        horizontalLayout_26->addLayout(verticalLayout_10);
+        verticalLayout_9->addWidget(groupBox);
+
+
+        horizontalLayout_25->addLayout(verticalLayout_9);
 
         m_pCommadBs = new QTextBrowser(centralWidget);
         m_pCommadBs->setObjectName(QStringLiteral("m_pCommadBs"));
         m_pCommadBs->setMinimumSize(QSize(320, 0));
         m_pCommadBs->setMaximumSize(QSize(320, 16777215));
 
-        horizontalLayout_26->addWidget(m_pCommadBs);
+        horizontalLayout_25->addWidget(m_pCommadBs);
 
 
-        gridLayout->addLayout(horizontalLayout_26, 0, 0, 1, 1);
-
-        m_pFinshBtn = new QPushButton(centralWidget);
-        m_pFinshBtn->setObjectName(QStringLiteral("m_pFinshBtn"));
-        m_pFinshBtn->setEnabled(false);
-        m_pFinshBtn->setMaximumSize(QSize(100, 16777215));
-
-        gridLayout->addWidget(m_pFinshBtn, 1, 0, 1, 1);
+        gridLayout_13->addLayout(horizontalLayout_25, 0, 0, 1, 1);
 
         CyberSystemClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(CyberSystemClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1415, 23));
+        menuBar->setGeometry(QRect(0, 0, 1446, 23));
         CyberSystemClass->setMenuBar(menuBar);
         mainToolBar = new QToolBar(CyberSystemClass);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -1704,8 +1553,12 @@ public:
         m_pInitRTBtn->setText(QApplication::translate("CyberSystemClass", "Conn Right Tracker", 0));
         m_pInitLHBtn->setText(QApplication::translate("CyberSystemClass", "Conne Left Hand", 0));
         m_pInitLTBtn->setText(QApplication::translate("CyberSystemClass", "Conn Left Tracker", 0));
-        m_pSaveCali->setText(QApplication::translate("CyberSystemClass", "Save Config", 0));
-        m_pOpenCali->setText(QApplication::translate("CyberSystemClass", "Load Config...", 0));
+        pushButton->setText(QApplication::translate("CyberSystemClass", "Save TraData", 0));
+        pushButton_2->setText(QApplication::translate("CyberSystemClass", "Save GloData", 0));
+        m_pSaveTraCali->setText(QApplication::translate("CyberSystemClass", "Save TraConfig", 0));
+        m_pSaveGloCali->setText(QApplication::translate("CyberSystemClass", "Save GloConfig", 0));
+        m_pOpenTraCali->setText(QApplication::translate("CyberSystemClass", "Load TraConfig", 0));
+        m_pOpenGloCali->setText(QApplication::translate("CyberSystemClass", "Load GloConfig", 0));
         m_pGloveBox->setTitle(QApplication::translate("CyberSystemClass", "Glove Calibration", 0));
         m_pGes_one->setText(QString());
         m_pGes_two->setText(QString());
@@ -1716,8 +1569,9 @@ public:
         m_pLHCaliRdBtn->setText(QApplication::translate("CyberSystemClass", "L", 0));
         m_pGesBtn_one->setText(QApplication::translate("CyberSystemClass", "Gesture 1", 0));
         m_pGesBtn_two->setText(QApplication::translate("CyberSystemClass", "Gesture 2", 0));
-        m_pGesBtn_four->setText(QApplication::translate("CyberSystemClass", "Gesture 4", 0));
         m_pGesBtn_three->setText(QApplication::translate("CyberSystemClass", "Gesture 3", 0));
+        m_pGesBtn_four->setText(QApplication::translate("CyberSystemClass", "Gesture 4", 0));
+        m_pGloFinshBtn->setText(QApplication::translate("CyberSystemClass", "Finish", 0));
         m_pTrackerBox->setTitle(QApplication::translate("CyberSystemClass", "CyberTracker Calibration", 0));
         m_pTraStartBtn->setText(QApplication::translate("CyberSystemClass", "Start", 0));
         m_pTraCalBtn->setText(QApplication::translate("CyberSystemClass", "Calculate", 0));
@@ -1743,6 +1597,7 @@ public:
         m_pCyberCtrlBtn->setText(QApplication::translate("CyberSystemClass", "Cyber", 0));
         m_pCyberStartBtn->setText(QApplication::translate("CyberSystemClass", "Cyber Start", 0));
         m_pCyberPauseBtn->setText(QApplication::translate("CyberSystemClass", "Cyber Pause", 0));
+        pushButton_3->setText(QApplication::translate("CyberSystemClass", "Emergency", 0));
         m_pRJo0Lbl->setText(QApplication::translate("CyberSystemClass", "Joint 1", 0));
         m_pRJo1Line->setText(QString());
         m_pRJo1Lbl->setText(QApplication::translate("CyberSystemClass", "Joint 2", 0));
@@ -1773,29 +1628,20 @@ public:
         m_pLJo6Lbl->setText(QApplication::translate("CyberSystemClass", "Joint 7", 0));
         m_pLJo7Line->setText(QString());
         m_pJoSetWidget->setTabText(m_pJoSetWidget->indexOf(m_pLArmTab), QApplication::translate("CyberSystemClass", "L_Ang", 0));
-        m_pLPosXLbl_2->setText(QApplication::translate("CyberSystemClass", "R_pos_X", 0));
-        m_pLPosYLbl_2->setText(QApplication::translate("CyberSystemClass", "R_pos_Y", 0));
-        m_pLPosZLbl_2->setText(QApplication::translate("CyberSystemClass", "R_pos_Z", 0));
-        m_pLOriXLbl_2->setText(QApplication::translate("CyberSystemClass", "R_ori_n", 0));
-        m_pLOriYLbl_2->setText(QApplication::translate("CyberSystemClass", "R_ori_e1", 0));
-        m_pLOriZLbl_2->setText(QApplication::translate("CyberSystemClass", "R_ori_e2", 0));
-        m_pLPosXLbl_4->setText(QApplication::translate("CyberSystemClass", "R_pos_e3", 0));
+        label->setText(QApplication::translate("CyberSystemClass", "Input Right Tracker Pose.Please use Unit Quaternion!!!", 0));
+        m_pRPoseCmd->setText(QString());
         m_pJoSetWidget->setTabText(m_pJoSetWidget->indexOf(m_pRArmPosTab), QApplication::translate("CyberSystemClass", "R_Pos", 0));
-        m_pLPosXLbl_3->setText(QApplication::translate("CyberSystemClass", "L_pos_X", 0));
-        m_pLPosYLbl_3->setText(QApplication::translate("CyberSystemClass", "L_pos_Y", 0));
-        m_pLPosZLbl_3->setText(QApplication::translate("CyberSystemClass", "L_pos_Z", 0));
-        m_pLOriXLbl_3->setText(QApplication::translate("CyberSystemClass", "L_ori_n", 0));
-        m_pLOriYLbl_3->setText(QApplication::translate("CyberSystemClass", "L_ori_e1", 0));
-        m_pLOriZLbl_3->setText(QApplication::translate("CyberSystemClass", "L_ori_e2", 0));
-        m_pLOriZLbl_4->setText(QApplication::translate("CyberSystemClass", "L_ori_e3", 0));
+        label_2->setText(QApplication::translate("CyberSystemClass", "Input Left Tracker Pose.Please use Unit Quaternion!!!", 0));
+        m_pLPoseCmd->setText(QString());
         m_pJoSetWidget->setTabText(m_pJoSetWidget->indexOf(m_pLArmPosTab), QApplication::translate("CyberSystemClass", "L_Pos", 0));
         groupBox->setTitle(QApplication::translate("CyberSystemClass", "Hand Control", 0));
-        m_pPosRdBtn->setText(QApplication::translate("CyberSystemClass", "Position", 0));
-        m_pImpRdBtn->setText(QApplication::translate("CyberSystemClass", "Impedance", 0));
-        m_pResRdBtn->setText(QApplication::translate("CyberSystemClass", "Reset", 0));
-        m_pInitHandBtn->setText(QApplication::translate("CyberSystemClass", "Init Hand", 0));
-        m_pRunHandBtn->setText(QApplication::translate("CyberSystemClass", "Run", 0));
-        m_pFinshBtn->setText(QApplication::translate("CyberSystemClass", "Finish", 0));
+        m_pNormalRd->setText(QApplication::translate("CyberSystemClass", "Normal", 0));
+        m_pSoftRd->setText(QApplication::translate("CyberSystemClass", "Soft", 0));
+        m_pZeroRd->setText(QApplication::translate("CyberSystemClass", "Zero", 0));
+        m_pHandConnBtn->setText(QApplication::translate("CyberSystemClass", "Conn Hand", 0));
+        m_pHandEnableBtn->setText(QApplication::translate("CyberSystemClass", "Enable", 0));
+        m_pHandRunBtn->setText(QApplication::translate("CyberSystemClass", "Run", 0));
+        m_pEmgBtn->setText(QApplication::translate("CyberSystemClass", "Emergency", 0));
     } // retranslateUi
 
 };

@@ -23,8 +23,7 @@ extern float g_leftArmJointBuf[7];		// global data from slider for joint control
 
 
 // TODO(CJH): Add to cybersystem.cpp
-UINT HTimerId=-1;
-void PASCAL TimerProcHandCtrl(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWORD dw2);
+
 
 RobonautControl *g_pRobonautCtrl;
 
@@ -43,7 +42,6 @@ RobonautControl::RobonautControl()
 	m_bConsimuSockConn = false;
 	m_nPCount = 0;
 
-	m_hSocketSendCmd = NULL;
 	m_nRCount = 0;
 
 	for (int i = 0; i<ORDER_BUF_LEN; i++)
@@ -53,27 +51,10 @@ RobonautControl::RobonautControl()
 		cSendRobotCommandBuffer[i] = '\0';
 	}
 
-	m_bSaveData = FALSE;
-	m_bSaveDataFinish = FALSE;
-
-	fileToTxt = fopen("Record\\Data.txt","w+");
-
-	// initialize 5 hand control data
-	for (int i=0;i<3;i++)
-	{
-		afPos1[i] = 0;
-		afPos2[i] = 0;
-		afPos3[i] = 0;
-		afPos4[i] = 0;
-		afPos5[i] = 0;
-	}
-
-	m_bGloveControl = false;
-
-	for (int i=0;i<5;i++)
-	{
-		Force[i] = 0;
-	}
+	m_Impedance_Index = 0;
+	m_HandInit = 0;
+	m_HandEnable = 0;
+	m_HandStop = 0;
 }
 
 RobonautControl::~RobonautControl()
@@ -297,7 +278,7 @@ bool RobonautControl::SendRoboMsg()
 	ADDCOUNT(g_RobotCmdDeg.count, 1000);
 
 	// 转换数据为可发送的buffer		
-	DataConvert(g_nRunFlag, g_RobotCmdDeg, cSendRobotCommandBuffer);
+	RoboDataCnv(g_nRunFlag, g_RobotCmdDeg, cSendRobotCommandBuffer);
 	
 	bool ret_flag = m_ClientSocketRobo.Send(cSendRobotCommandBuffer, sizeof(cSendRobotCommandBuffer)); 
 
@@ -325,21 +306,10 @@ bool RobonautControl::SendRoboMsg()
 		g_RobotSensorDeg.RightJointFT[3],g_RobotSensorDeg.RightJointFT[4],g_RobotSensorDeg.RightJointFT[5],
 		g_RobotSensorDeg.RightJointFT[6]
 	);
-
-	// 保存数据
-	if(m_bSaveData)
-	{
-		fwrite(cstemp,1,cstemp.GetLength(),fileToTxt);
-		// 	fwrite(cstemparmangle,1,cstemparmangle.GetLength(),fileToTxt);
-	}
-	if (m_bSaveDataFinish)
-	{
-		fclose(fileToTxt);
-	}
 }
 
 // TODO(CJH): change function input name
-void RobonautControl::DataConvert(const int &g_nRunFlag, const CRobonautData &g_RobotCmdDeg, char cSendRobotCommandBuffer[])
+void RobonautControl::RoboDataCnv(const int &g_nRunFlag, const CRobonautData &g_RobotCmdDeg, char cSendRobotCommandBuffer[])
 {
 	cSendRobotCommandBuffer[0] = LOBYTE(LOWORD(g_RobotCmdDeg.count));         //??????
 	cSendRobotCommandBuffer[1] = HIBYTE(LOWORD(g_RobotCmdDeg.count));         //??????
@@ -484,117 +454,160 @@ void RobonautControl::BuffParse()
 		//SetDlgItemText(IDC_SENDCMDROB,str);
 }
 
-//*********************** 5 Hand Control ***********************//
-void RobonautControl::HandInit()
+//*********************** Hand Control ***********************//
+bool RobonautControl::ConnHand()
 {
-	int res;
+	char *Hand_ip = HAND_SERVER_IP;
+	UINT HandCommand_Port = HAND_COMMAND_PORT; 
+	UINT HandSensor_Port = HAND_SENSE_PORT;
 
-	//===> Initialize the Hand
-	res=m_HandApi.SAHandInit();
+	int send_ret = m_SendClientHand.ConnectServer((LPSTR)(LPCTSTR)Hand_ip,HandCommand_Port);
+	int recv_ret = m_ReceiveClientHand.ConnectServer(Hand_ip,HandSensor_Port);
 
-	//===> If the Return Value is negative then it is Error Code
-	//===> Verify the error codes in the programmers guide
-	if (res<=0)
-	{
-		//===> Do appropriate Error Handling Action
-		QMessageBox::about(NULL, "Error", "Init Failed.\n!!");
-	}
-
-	m_HandApi.SetFingerEnable(PORT_1,THUMB,TRUE);
-	m_HandApi.SetFingerEnable(PORT_1,FIRST_FINGER,TRUE);
-	m_HandApi.SetFingerEnable(PORT_1,MIDDLE_FINGER,TRUE);
-	m_HandApi.SetFingerEnable(PORT_1,RING_FINGER,TRUE);
-	m_HandApi.SetFingerEnable(PORT_1,LITTLE_FINGER,TRUE);
+	return (!send_ret && !recv_ret);
 }
 
-
-void RobonautControl::HandControl()
+bool RobonautControl::DisConnHand()
 {
-	HTimerId = timeSetEvent(250,1,(LPTIMECALLBACK)TimerProcHandCtrl,0,TIME_PERIODIC);
-	if (HTimerId==NULL)
-	{
-		//	MessageBox("TimerId error");
-	}
+	return false;
 }
 
-void PASCAL TimerProcHandCtrl(UINT wTimerID, UINT msg,DWORD dwUser,DWORD dwl,DWORD dw2)
+bool RobonautControl::SendHandMsg(const CHandData &RHandSensor, const CHandData &LHandSensor, int HCount)
 {
-	//	CTaskPlanDlg* pDlg = (CTaskPlanDlg*)dwUser;
-	g_pRobonautCtrl->SendHandData();
+	float Vel = 80.0;
 
+	int RobotRunFlag = 0x9888c1;
+
+	sprintf(m_SendHandCommandBuffer, "PackageID:  %d\r\nPackageHead: %x %d\r\nfloat %f, %f, %f, %f, %f, %f\r\nfloat %f, %f, %f, %f, %f, %f\r\nfloat %f, %f, %f, %f, %f, %f\r\nfloat %f, %f, %f, %f, %f, %f\r\nfloat %f, %f, %f, %f, %f, %f\r\nint   %x, %d, %x, %d, %x, 0, 0, 0, 0\r\nfloat %f, %f, %f, %f, %f, %f\r\nfloat %f, %f, %f, %f, %f, %f\r\nfloat %f, %f, %f, %f, %f, %f\r\nfloat %f, %f, %f, %f, %f, %f\r\nfloat %f, %f, %f, %f, %f, %f\r\nint   %x, %d, %x, %d, %x, %d, %d, %d, %d\r\nPackageEnd: %x\r\n",
+		HCount,
+		PackageHead,0,
+		RHandSensor.joint[0][0], RHandSensor.joint[0][1], RHandSensor.joint[0][2], Vel, Vel, Vel,
+		RHandSensor.joint[1][0], RHandSensor.joint[1][1], RHandSensor.joint[1][2], Vel, Vel, Vel,
+		RHandSensor.joint[2][0], RHandSensor.joint[2][1], RHandSensor.joint[2][2], Vel, Vel, Vel,
+		RHandSensor.joint[3][0], RHandSensor.joint[3][1], RHandSensor.joint[3][2], Vel, Vel, Vel,
+		RHandSensor.joint[4][0], RHandSensor.joint[4][1], RHandSensor.joint[4][2], Vel, Vel, Vel,
+		CONTROLLER_IMPEDANCE,5,THUMB_BRAKE,90,RobotRunFlag,
+		LHandSensor.joint[0][0], LHandSensor.joint[0][1], LHandSensor.joint[0][2], Vel, Vel, Vel,
+		LHandSensor.joint[1][0], LHandSensor.joint[1][1], LHandSensor.joint[1][2], Vel, Vel, Vel,
+		LHandSensor.joint[2][0], LHandSensor.joint[2][1], LHandSensor.joint[2][2], Vel, Vel, Vel,
+		LHandSensor.joint[3][0], LHandSensor.joint[3][1], LHandSensor.joint[3][2], Vel, Vel, Vel,
+		LHandSensor.joint[4][0], LHandSensor.joint[4][1], LHandSensor.joint[4][2], Vel, Vel, Vel,
+		CONTROLLER_IMPEDANCE,5,THUMB_BRAKE,90,RobotRunFlag,m_HandInit,m_HandEnable,m_HandStop,m_Impedance_Index,
+		PackageEnd);
+
+	int ret = m_SendClientHand.SendData2(m_SendHandCommandBuffer);
+
+	m_HandInit = 0;
+	m_HandEnable = 0;
+	m_HandStop = 0;
+
+	return !ret;
 }
 
-void RobonautControl::SendHandData()
+bool RobonautControl::RecvHandMsg(CHandData &RHandSensor, CHandData &LHandSensor)
 {
-	for(int i=0; i<2; i++)
-	{
-		afPos1[i] = m_rGloveRealData[0][1-i];
-		afPos2[i] = m_rGloveRealData[1][1-i];
-		afPos3[i] = m_rGloveRealData[2][1-i];
-		afPos4[i] = m_rGloveRealData[3][1-i];
-		afPos5[i] = m_rGloveRealData[4][1-i];
+	char buffer[2048]={0};
+
+	int RealRobotRunFlag=0;
+        
+	int ret = m_ReceiveClientHand.ReceiveData2(buffer);
+	int RightFlag,LeftFlag;
+				
+	if(ret==0)
+	{					
+		sscanf(buffer,"Package-ID: %d\r\nF1:[Angle] %f, %f, %f\r\n  [Torque] %f, %f, %f\r\nF2:[Angle] %f, %f, %f\r\n  [Torque] %f, %f, %f\r\nF3:[Angle] %f, %f, %f\r\n  [Torque] %f, %f, %f\r\nF4:[Angle] %f, %f, %f\r\n  [Torque] %f, %f, %f\r\nF5:[Angle] %f, %f, %f\r\n  [Torque] %f, %f, %f\r\nF1:[Angle] %f, %f, %f\r\n  [Torque] %f, %f, %f\r\nF2:[Angle] %f, %f, %f\r\n  [Torque] %f, %f, %f\r\nF3:[Angle] %f, %f, %f\r\n  [Torque] %f, %f, %f\r\nF4:[Angle] %f, %f, %f\r\n  [Torque] %f, %f, %f\r\nF5:[Angle] %f, %f, %f\r\n  [Torque] %f, %f, %f\r\n   [State] %x, %d, %d\r\n",
+
+			&(RHandSensor.count),
+
+			&(RHandSensor.joint[0][0]),&(RHandSensor.joint[0][1]),&(RHandSensor.joint[0][2]),
+			&(RHandSensor.torque[0][0]),&(RHandSensor.torque[0][1]),&(RHandSensor.torque[0][2]),
+			&(RHandSensor.joint[1][0]),&(RHandSensor.joint[1][1]),&(RHandSensor.joint[1][2]),
+			&(RHandSensor.torque[1][0]),&(RHandSensor.torque[1][1]),&(RHandSensor.torque[1][2]),
+			&(RHandSensor.joint[2][0]),&(RHandSensor.joint[2][1]),&(RHandSensor.joint[2][2]),
+			&(RHandSensor.torque[2][0]),&(RHandSensor.torque[2][1]),&(RHandSensor.torque[2][2]),
+			&(RHandSensor.joint[3][0]),&(RHandSensor.joint[3][1]),&(RHandSensor.joint[3][2]),
+			&(RHandSensor.torque[3][0]),&(RHandSensor.torque[3][1]),&(RHandSensor.torque[3][2]),
+			&(RHandSensor.joint[4][0]),&(RHandSensor.joint[4][1]),&(RHandSensor.joint[4][2]),
+			&(RHandSensor.torque[4][0]),&(RHandSensor.torque[4][1]),&(RHandSensor.torque[4][2]),
+
+			&(LHandSensor.joint[0][0]),&(LHandSensor.joint[0][1]),&(LHandSensor.joint[0][2]),
+			&(LHandSensor.torque[0][0]),&(LHandSensor.torque[0][1]),&(LHandSensor.torque[0][2]),
+			&(LHandSensor.joint[1][0]),&(LHandSensor.joint[1][1]),&(LHandSensor.joint[1][2]),
+			&(LHandSensor.torque[1][0]),&(LHandSensor.torque[1][1]),&(LHandSensor.torque[1][2]),
+			&(LHandSensor.joint[2][0]),&(LHandSensor.joint[2][1]),&(LHandSensor.joint[2][2]),
+			&(LHandSensor.torque[2][0]),&(LHandSensor.torque[2][1]),&(LHandSensor.torque[2][2]),
+			&(LHandSensor.joint[3][0]),&(LHandSensor.joint[3][1]),&(LHandSensor.joint[3][2]),
+			&(LHandSensor.torque[3][0]),&(LHandSensor.torque[3][1]),&(LHandSensor.torque[3][2]),
+			&(LHandSensor.joint[4][0]),&(LHandSensor.joint[4][1]),&(LHandSensor.joint[4][2]),
+			&(LHandSensor.torque[4][0]),&(LHandSensor.torque[4][1]),&(LHandSensor.torque[4][2]),
+
+			&RealRobotRunFlag,&RightFlag,&LeftFlag);
+
+		return true;
 	}
-	afPos1[2] = m_rGloveRealData[0][2];
-	afPos2[2] = m_rGloveRealData[1][2];
-	afPos3[2] = m_rGloveRealData[2][2];
-	afPos4[2] = m_rGloveRealData[3][2];
-	afPos5[2] = m_rGloveRealData[4][2];
 
-	if(m_bGloveControl)
-	{
-		//	m_HandApi.MoveHand(PORT_1, &HandDesirePos);		
-
-		//	float afPos[3]={20.0f,20.0f,5.0f};
-		float afVel[3]={80.0f,80.0f,80.0f};
-
-		m_HandApi.MoveFinger(PORT_1,THUMB,afPos1,afVel,0.05);
-		m_HandApi.MoveFinger(PORT_1,FIRST_FINGER,afPos2,afVel,0.05);
-		m_HandApi.MoveFinger(PORT_1,MIDDLE_FINGER,afPos3,afVel,0.05);
-		m_HandApi.MoveFinger(PORT_1,RING_FINGER,afPos4,afVel,0.05);
-		m_HandApi.MoveFinger(PORT_1,LITTLE_FINGER,afPos5,afVel,0.05);
-
-		float torque1[3],torque2[3],torque3[3],torque4[3],torque5[3];
-
-		m_HandApi.GetJointTorque(PORT_1,THUMB,torque1);
-		m_HandApi.GetJointTorque(PORT_1,FIRST_FINGER,torque2);
-		m_HandApi.GetJointTorque(PORT_1,MIDDLE_FINGER,torque3);
-		m_HandApi.GetJointTorque(PORT_1,RING_FINGER,torque4);
-		m_HandApi.GetJointTorque(PORT_1,LITTLE_FINGER,torque5);
-
-		Force[0] = (torque1[0]+torque1[1])*1.5;
-		Force[1] = (torque2[0]+torque2[1])*0.6;
-
-		Force[2] = (torque3[0]+torque3[1])*0.6;
-		Force[3] = (torque4[0]+torque4[1])*0.6;
-		Force[4] = (torque5[0]+torque5[1])*1;
-
-		for(int i=0; i<5; i++)
-		{
-			if(Force[i] >= 2.5)
-				Force[i] = 2.5;
-		}
-
-		//			grasp->setForce(Force);
-
-// 		CString str;
-// 		str.Format("F1 %.2f F2 %.2f F3 %.2f F4 %.2f F5 %.2f",
-// 			Force[0],Force[1],Force[2],Force[3],Force[4]);
-// 
-// 		SetDlgItemText(IDC_EDIT2,str);
+	else{
+		return false;
 	}
 }
 
-void RobonautControl::setPosMode()
+void RobonautControl::setHandInit(bool ctrl_flag)
 {
-	m_HandApi.SetController(PORT_1,CONTROLLER_POSITION);
+	if (ctrl_flag == true)
+	{
+		m_HandInit = 1;
+	} 
+	else
+	{
+		m_HandInit = 0;
+	}
 }
 
-void RobonautControl::setImpMode()
+void RobonautControl::setHandEnable(bool ctrl_flag)
 {
-	m_HandApi.SetController(PORT_1,CONTROLLER_IMPEDANCE);
+	if (ctrl_flag == true)
+	{
+		m_HandEnable = 1;
+	} 
+	else
+	{
+		m_HandEnable = 0;
+	}
 }
 
-void RobonautControl::setResMode()
+void RobonautControl::setHandEmergency(bool ctrl_flag)
 {
-	m_HandApi.SetController(PORT_1,CONTROLLER_RESET);
+	if (ctrl_flag == true)
+	{
+		m_HandStop = 1;
+	} 
+	else
+	{
+		m_HandStop = 2;
+	}
+}
+
+void RobonautControl::setHandMode(HandMode handmode)
+{
+	switch(handmode)
+	{
+	case Position:
+		m_HandMode = CONTROLLER_POSITION;
+		break;
+	case Impedance:
+		m_HandMode = CONTROLLER_IMPEDANCE;
+		m_Impedance_Index = 0;
+		break;
+	case Soft:
+		m_HandMode = CONTROLLER_IMPEDANCE;
+		m_Impedance_Index = 1;
+		break;
+	case  ZeroForce:
+		m_HandMode = CONTROLLER_IMPEDANCE;
+		m_Impedance_Index = 2;
+		break;
+	case  Reset:
+		m_HandMode = CONTROLLER_RESET;
+		break;
+	}
 }

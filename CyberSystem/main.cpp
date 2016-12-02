@@ -15,6 +15,9 @@ int main(int argc, char *argv[])
 	{
 		QThread::currentThread()->msleep(10);
 	}
+
+	QThread::currentThread()->msleep(100);
+
 	CyberSystem w;
 	w.show();
 	const int res = a.exec();

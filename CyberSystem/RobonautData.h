@@ -51,7 +51,6 @@ public:
 	float LeftCasteFT[6];//左臂笛卡尔力矩
 
 	int CtlMode; //控制方式1是位置，2是阻抗
-	
 };
 
 #endif // !defined(AFX_ROBONAUTDATA_H__73D7F6AB_B63B_4C80_A9DC_E7DA699D79C4__INCLUDED_)

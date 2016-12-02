@@ -1,7 +1,7 @@
 #ifndef SIMUROBOCONTROL_H
 #define SIMUROBOCONTROL_H
-// in order to use min(a, b) and max(a, b)
-#define NOMINMAX
+
+#define NOMINMAX		// In Order to Use max(a, b) and min(a, b)
 
 #include "SocketBlockClient.h"
 #include "CSocket.hpp"
@@ -9,7 +9,6 @@
 #include <QMessageBox>
 #include <QString>
 #include <inlib.h>
-//#include "QFile"
 #include <stdio.h>
 
 #include <Windows.h>
@@ -59,20 +58,15 @@ class RobonautControl
 public:
 	RobonautControl();
 	~RobonautControl();
-
+	enum HandMode{Position, Impedance, Soft, ZeroForce, Reset};
 
 	//*********************** Consimu Options ***********************//
 public:
 	bool ConnConsimu(); // Initialize the connection
 	bool DisConnConsimu(); // Disconnect
-	void SimuControl(); // Start the con-simulation
 	bool SendConsimuMsg(); //	Return true: Send Success
 private:	
 	CSocketBlockClient m_ClientSocketPredictive; // 仿真通信
-	SOCKET m_hSocketSendCmd; //发送套接字
-	SOCKADDR_IN addrSendCmdHost;  //发送套接字地址
-	SOCKADDR_IN addrSendCmdRemote;
-	WSABUF wsaSendBuf;
 
 
 	//*********************** Robonaut Options ***********************//
@@ -81,7 +75,7 @@ public:
 	bool DisConnRobo(); // Disconnect
 	bool SendRoboMsg(); // timer of RoboCtrl
 	bool RecvRoboMsg();
-	void DataConvert(const int &src_flag, const CRobonautData &src_data, char dst_buf[]);
+	void RoboDataCnv(const int &src_flag, const CRobonautData &src_data, char dst_buf[]);
 	void BuffParse();
 private:	
 	sockconn::CUdpClient m_ClientSocketRobo; // 机器人宇航员发送数据
@@ -91,16 +85,27 @@ private:
 	//*********************** Hand Options ***********************//
 public:
 	// 5 Hand Control
-	void HandInit();
-	void HandControl();
-	void SendHandData();
-	void setPosMode();
-	void setImpMode();
-	void setResMode();
+	bool ConnHand();
+	bool DisConnHand();
+	bool SendHandMsg(const CHandData &RHandCmd, const CHandData &LHandCmd, int HCount);
+	bool RecvHandMsg(CHandData &RHandSensor, CHandData &LHandSensor);
+	void setHandInit(bool);
+	void setHandEnable(bool);
+	void setHandEmergency(bool);
+	void setHandMode(HandMode);
+
 private:
-	// 5 hand control
-	CSAHandCtrlApi m_HandApi;
-	SAH_DESIRED	HandDesirePos;
+	CSocketBlockClient m_SendClientHand;		// Send Hand Data
+	CSocketBlockClient m_ReceiveClientHand;		// Receive Hand Data
+	char m_SendHandCommandBuffer[1024];		// Hand Command Send Buffer
+
+	int m_HandInit;		// 0: Out/1: Initialized
+	int m_HandEnable;		// 0: Out/1: Initialized
+	int m_HandStop;		// 1为急停，2为取消急停
+	int m_Impedance_Index;		// 0: Out/1: Initialized
+	int m_HandMode;
+
+
 
 public:
 	int m_nPCount; // consimulation communication counter
@@ -112,25 +117,6 @@ public:
 
 	char cSendRobotCommandBuffer[ORDER_BUF_LEN];
 	int m_nRCount; // robonaut control communication counter
-
-	// data save control
-	FILE *fileToTxt; 
-	BOOL m_bSaveData;
-	BOOL m_bSaveDataFinish;
-
-	// 5 hand control
-	BOOL m_bGloveControl;
-
-	double Force[5];
-
-	float afPos1[3];
-	float afPos2[3];
-	float afPos3[3];
-	float afPos4[3];
-	float afPos5[3];
-
-
-	
 };
 
 
