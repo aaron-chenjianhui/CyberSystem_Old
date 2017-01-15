@@ -21,6 +21,9 @@ public:
 
 	int ReceiveData(char* buff);
 	int ReceiveData2(char* buff);
+
+	int RecvViData(double data_out[]);
+
 	int SendData(char* buff);	
 	int SendData2(char* buff);	
 	int ConnectServer(char* IP,UINT nPort);		

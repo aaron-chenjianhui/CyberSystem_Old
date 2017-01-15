@@ -135,6 +135,7 @@
     </CustomBuild>
     <ClInclude Include="inlib.h" />
     <ClInclude Include="kine7.hpp" />
+    <ClInclude Include="KineCal.h" />
     <ClInclude Include="kine_util.hpp" />
     <ClInclude Include="quadratic.hpp" />
     <ClInclude Include="RobonautControl.h" />
@@ -168,6 +169,9 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath);%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\qrc_%(Filename).cpp;%(Outputs)</Outputs>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="KineCal.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

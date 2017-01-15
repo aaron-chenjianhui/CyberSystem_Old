@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<GloveCalibration>
+	<CorrelationMatrix DataType="float">
+		<Thumb>
+			<PIP>1.3725</PIP>
+			<MP>1.6279</MP>
+			<ABP>0.</ABP>
+		</Thumb>
+		<Index>
+			<PIP>0.54688</PIP>
+			<MP>0.83333</MP>
+			<ABP>-0.125</ABP>
+		</Index>
+		<Middle>
+			<PIP>0.5303</PIP>
+			<MP>0.57851</MP>
+			<ABP>0.</ABP>
+		</Middle>
+		<Ring>
+			<PIP>0.52239</PIP>
+			<MP>0.8046</MP>
+			<ABP>0.2</ABP>
+		</Ring>
+		<Little>
+			<PIP>0.55556</PIP>
+			<MP>1.</MP>
+			<ABP>0.13514</ABP>
+		</Little>
+	</CorrelationMatrix>
+	<BiasMatrix DataType="float">
+		<Thumb>
+			<PIP>-148.73</PIP>
+			<MP>-151.28</MP>
+			<ABP>0.</ABP>
+		</Thumb>
+		<Index>
+			<PIP>-25.078</PIP>
+			<MP>-71.667</MP>
+			<ABP>18.375</ABP>
+		</Index>
+		<Middle>
+			<PIP>-20.455</PIP>
+			<MP>-40.124</MP>
+			<ABP>0.</ABP>
+		</Middle>
+		<Ring>
+			<PIP>-22.164</PIP>
+			<MP>-66.609</MP>
+			<ABP>-24.</ABP>
+		</Ring>
+		<Little>
+			<PIP>-27.778</PIP>
+			<MP>-91.</MP>
+			<ABP>-18.919</ABP>
+		</Little>
+	</BiasMatrix>
+</GloveCalibration>
+

@@ -11,6 +11,8 @@
 
 #define FIRST_REV_BYTES 300
 
+#define VISION_DATA_LEN 56
+
 
 //UDP
 
@@ -51,6 +53,10 @@
 #define PackageEnd 0x9876b2			// 灵巧手数据包尾
 #define THUMB_BRAKE	0				// 
 #define THUMB_RELEASE 0x8972CC01
+
+// 连接相机
+#define VISION_SENSE_IP "127.0.0.1"
+#define VISION_SENSE_PORT 6000
 
 
 

@@ -4,11 +4,12 @@
 #define SETMIN(X, MIN_DATA) if(X < MIN_DATA) X = MIN_DATA;
 #define SETMAX(X, MAX_DATA) if(X > MAX_DATA) X = MAX_DATA;
 #define SETCUT(X, CUT) if(abs(X) < CUT) X = 0;
+#define SETRANGE(X,MIN_DATA,MAX_DATA) if(X < MIN_DATA) X = MIN_DATA; if(X > MAX_DATA) X = MAX_DATA;
 
 #include "inlib.h"
-#include "RobonautControl.h"
 
-#include "eigen3/Eigen/Eigen"
+#include <vector>
+#include <map>
 
 #include <vhtIOConn.h>
 #include <vhtTracker.h>
@@ -20,14 +21,10 @@
 #include <vhtTransform3D.h>
 #include <vhtTrackerData.h>
 
-#include <QString>
-#include <QMessageBox>
-#include <QFile>
-#include <QThread>
 
-#include "rapidxml/rapidxml.hpp"
-#include "rapidxml/rapidxml_print.hpp"
-#include "rapidxml/rapidxml_utils.hpp"
+
+#include "eigen3/Eigen/Eigen"
+
 
 
 
@@ -92,8 +89,6 @@ public:
 	// Get right tracker data
 	mat4x4 GetRRawTraData();
 	mat4x4 GetRTraRealData();
-	// Calculate Transformation Matrix
-	mat4x4 EulerToTrans(const double Trans[]);
 
 	// TODO(CJH): change these function
 	// calculate coefficient for cyber tracker calibration

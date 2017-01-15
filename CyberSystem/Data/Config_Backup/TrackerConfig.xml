@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<TrackerCalibration>
+	<TransMatrix DataType="float">
+		<TransFirst>
+			<A>0</A>
+			<B>1</B>
+			<C>0</C>
+			<D>-15.34050</D>
+		</TransFirst>
+		<TransSecond>
+			<A>0</A>
+			<B>0</B>
+			<C>1</C>
+			<D>16.9562</D>
+		</TransSecond>
+		<TransThird>
+			<A>1</A>
+			<B>0</B>
+			<C>0</C>
+			<D>43.3441</D>
+		</TransThird>
+		<TransFourth>
+			<A>0</A>
+			<B>0</B>
+			<C>0</C>
+			<D>1</D>
+		</TransFourth>
+	</TransMatrix>
+	<RotMatrix DataType="float">
+		<RotFirst>
+			<A>0.8923330.451224-0.011730.068022-0.108720.9917420.446222-0.88576-0.12771x£.</A>
+			<B>0.451224-0.011730.068022-0.108720.9917420.446222-0.88576-0.12771x£.</B>
+			<C>-0.011730.068022-0.108720.9917420.446222-0.88576-0.12771x£.</C>
+		</RotFirst>
+		<RotSecond>
+			<A>0.068022-0.108720.9917420.446222-0.88576-0.12771x£.</A>
+			<B>-0.108720.9917420.446222-0.88576-0.12771x£.</B>
+			<C>0.9917420.446222-0.88576-0.12771x£.</C>
+		</RotSecond>
+		<RotThird>
+			<A>0.446222-0.88576-0.12771x£.</A>
+			<B>-0.88576-0.12771x£.</B>
+			<C>-0.12771x£.</C>
+		</RotThird>
+	</RotMatrix>
+</TrackerCalibration>
+

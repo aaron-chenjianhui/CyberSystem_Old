@@ -383,7 +383,6 @@ void CyberStation::GetRRealGloData(double RGlo[5][3])
 //		m_rGloveRealData[2][2] = 0;
 		m_rGloveRealData[3][2] = m_RGloCaliK[3][2]*m_rGloveRawData[3][3] + m_RGloCaliB[3][2];
 		m_rGloveRealData[2][2] = 0.8*m_rGloveRealData[3][2] + 0.5*m_rGloveRealData[1][2];
-
 		m_rGloveRealData[4][2] = m_RGloCaliK[4][2]*m_rGloveRawData[4][3] + m_RGloCaliB[4][2] + m_rGloveRealData[3][2];
 
 		//m_rGloveRealData[0][2] = 0;
@@ -719,6 +718,12 @@ mat4x4 CyberStation::GetRTraRealData()
 	// TODO(CJH): If Calibration is not finished,
 	// DO Something!!!
 	else{
+		mat4x4 mat;
+		mat << 1, 0, 0, 0,
+			0, 1, 0, 0, 
+			0, 0, 1, 0, 
+			0, 0, 0, 1;
+		return mat;
 	}
 }
 
@@ -802,41 +807,4 @@ void CyberStation::CalTrackerCoef(tracali_type r_data, tracali_type l_data)
 	double* l_rawori_second = l_it->raw_ori;
 }
 
-
-// Recieve six pose data, calculate translation matrix
-mat4x4 CyberStation::EulerToTrans(const double Trans[])
-{
-	mat4x4 TransMat;
-
-	// Positon calculate
-	TransMat(0,3) = Trans[0];
-	TransMat(1,3) = Trans[1];
-	TransMat(2,3) = Trans[2];
-
-	// Orientation calculate, using ZYX euler angle
-	float s1 = SINANG(Trans[4]);
-	float c1 = COSANG(Trans[4]);
-	float s2 = SINANG(Trans[4]);
-	float c2 = COSANG(Trans[4]);
-	float s3 = SINANG(Trans[3]);
-	float c3 = COSANG(Trans[3]);
-
-	TransMat(0,0) = c1*c2;
-	TransMat(0,1) = c1*s2*s3 - s1*c3;
-	TransMat(0,2) = c1*s2*c3 + s1*s3;
-	TransMat(1,0) = s1*c2;
-	TransMat(1,1) = s1*s2*s3 + c1*c3;
-	TransMat(1,2) = s1*s2*c3 - c1*s3;
-	TransMat(2,0) = -s2;
-	TransMat(2,1) = c2*s3;
-	TransMat(2,2) = c2*c3;
-
-	// vision transformation
-	TransMat(3,0) = 0;
-	TransMat(3,1) = 0;
-	TransMat(3,2) = 0;
-	TransMat(3,3) = 1;
-
-	return TransMat;
-}
 //****************************** CyberTracker Calibration is over ******************************//

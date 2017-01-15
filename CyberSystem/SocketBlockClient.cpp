@@ -200,7 +200,6 @@ int CSocketBlockClient::ReceiveData(char *buff)
 	char* p=buff;
 //	int nByteThisTime;
 	int nByteRev = 0;
-
 	int ret=recv(m_hSocket,tmp,FIRST_REV_BYTES,0);
 	
 	
@@ -264,6 +263,37 @@ int CSocketBlockClient::ReceiveData(char *buff)
 	return 0;
 }
 
+int CSocketBlockClient::RecvViData(double vision_data[])
+{
+	if(!m_bInit)
+	{
+		QMessageBox::about(NULL, "About", "winsock 初始化错误!");
+		//::MessageBox(NULL,"winsock 初始化错误!","错误提示",NULL);
+		return 0;
+	}
+
+	// TODO(CJH): 
+	char ViRecvBuf[VISION_DATA_LEN+1]={0};
+	int ret = recv(m_hSocket, ViRecvBuf, VISION_DATA_LEN, 0);
+
+	if(ret==SOCKET_ERROR)
+	{
+		int result=GetLastError();
+		if(result==WSAECONNRESET)
+		{
+			return WSAECONNRESET;
+		}
+	}
+
+	double *Vibuffer = (double *)ViRecvBuf;
+
+	for (int i = 0; i < 7; ++i)
+	{
+		vision_data[i] = *(Vibuffer + i);
+	}
+
+}
+
 int CSocketBlockClient::ReceiveData2(char *buff)
 {
 	if(!m_bInit)
@@ -280,6 +310,8 @@ int CSocketBlockClient::ReceiveData2(char *buff)
 	int nByteRev = 0;
 
 	int ret=recv(m_hSocket,tmp,300,0);
+
+
 	nByteThisTime = ret;
 	nByteRev += nByteThisTime;
 
