@@ -125,21 +125,6 @@ CyberSystem::CyberSystem(QWidget *parent)
 	ui.m_pLOriYLiEd->setValidator(new QRegExpValidator(TraRegExp, this));
 	ui.m_pLOriZLiEd->setValidator(new QRegExpValidator(TraRegExp, this));
 
-	ui.m_pRJo1Line->setValidator(new QRegExpValidator(CliRegExp, this));
-	ui.m_pRJo2Line->setValidator(new QRegExpValidator(CliRegExp, this));
-	ui.m_pRJo3Line->setValidator(new QRegExpValidator(CliRegExp, this));
-	ui.m_pRJo4Line->setValidator(new QRegExpValidator(CliRegExp, this));
-	ui.m_pRJo5Line->setValidator(new QRegExpValidator(CliRegExp, this));
-	ui.m_pRJo6Line->setValidator(new QRegExpValidator(CliRegExp, this));
-	ui.m_pRJo7Line->setValidator(new QRegExpValidator(CliRegExp, this));
-	ui.m_pLJo1Line->setValidator(new QRegExpValidator(CliRegExp, this));
-	ui.m_pLJo2Line->setValidator(new QRegExpValidator(CliRegExp, this));
-	ui.m_pLJo3Line->setValidator(new QRegExpValidator(CliRegExp, this));
-	ui.m_pLJo4Line->setValidator(new QRegExpValidator(CliRegExp, this));
-	ui.m_pLJo5Line->setValidator(new QRegExpValidator(CliRegExp, this));
-	ui.m_pLJo6Line->setValidator(new QRegExpValidator(CliRegExp, this));
-	ui.m_pLJo7Line->setValidator(new QRegExpValidator(CliRegExp, this));
-
 	//*********************** Initialize all data ***********************//
 	// initialize cyber workstation connection status
 	m_RGloConn = false;
@@ -168,6 +153,8 @@ CyberSystem::CyberSystem(QWidget *parent)
 	// Control Mode
 	m_CtrlMode = OUT_CTRL;
 	m_HandCtrlMode = HAND_OUT_CTRL;
+	// Grasp Mode Initialzie
+	m_bHandGrasp = false;
 
 	// tab display 
 	ui.m_pRTraTab->setEnabled(true);
@@ -195,6 +182,17 @@ CyberSystem::CyberSystem(QWidget *parent)
 			m_LGloRealData[i][j] = 0;
 		}
 	}
+
+	for (int i = 0; i < 5; ++i)
+	{
+		for (int j = 0; j < 3; ++j)
+		{
+			m_RHandSendData[i][j] = 0.0;
+			m_LHandSendData[i][j] = 0.0;
+		}
+	}
+
+
 
 	m_last_arm_angle = 0;
 	m_last_joint_angle << ANG2DEG( INIT_JOINT1 ), ANG2DEG( INIT_JOINT2 ), ANG2DEG( INIT_JOINT3 ), 
@@ -228,6 +226,7 @@ CyberSystem::CyberSystem(QWidget *parent)
 	RefEulerPose[3] = 0;		// X Position
 	RefEulerPose[4] = 0;		// Y Position
 	RefEulerPose[5] = 300;		// Z Position
+	RefFinAppr = 250;
 	// Cut-Off Pose
 	EulerPoseCut[0] = ANG2DEG(5);		// Z Euler
 	EulerPoseCut[1] = ANG2DEG(5);		// Y Euler
@@ -235,6 +234,7 @@ CyberSystem::CyberSystem(QWidget *parent)
 	EulerPoseCut[3] = 10;		// X Position
 	EulerPoseCut[4] = 10;		// Y Position
 	EulerPoseCut[5] = 10;		// Z Position
+	ApprCut = 10;
 
 
 	m_bConnCam = false;
@@ -243,6 +243,7 @@ CyberSystem::CyberSystem(QWidget *parent)
 		m_ViRecv[i] = 0.0;
 	}
 	m_bTrackFinish = false;
+	m_bApprFlag = false;
 
 	// Robonaut joint move management
 	ui.m_pRJo0Sli->setRange(ROBO_J0_MIN_SLI,ROBO_J0_MAX_SLI);
@@ -261,24 +262,21 @@ CyberSystem::CyberSystem(QWidget *parent)
 	ui.m_pLJo5Sli->setRange(ROBO_J5_MIN_SLI,ROBO_J5_MAX_SLI);
 	ui.m_pLJo6Sli->setRange(ROBO_J6_MIN_SLI,ROBO_J6_MAX_SLI);
 
-	ui.m_pRJo1Line->setText("0");
-	ui.m_pRJo2Line->setText("0");
-	ui.m_pRJo3Line->setText("0");
-	ui.m_pRJo4Line->setText("0");
-	ui.m_pRJo5Line->setText("0");
-	ui.m_pRJo6Line->setText("0");
-	ui.m_pRJo7Line->setText("0");
+	ui.m_pRJo1Spin->setRange(ROBO_J0_MIN, ROBO_J0_MAX);
+	ui.m_pRJo2Spin->setRange(ROBO_J1_MIN, ROBO_J1_MAX);
+	ui.m_pRJo3Spin->setRange(ROBO_J2_MIN, ROBO_J2_MAX);
+	ui.m_pRJo4Spin->setRange(ROBO_J3_MIN, ROBO_J3_MAX);
+	ui.m_pRJo5Spin->setRange(ROBO_J4_MIN, ROBO_J4_MAX);
+	ui.m_pRJo6Spin->setRange(ROBO_J5_MIN, ROBO_J5_MAX);
+	ui.m_pRJo7Spin->setRange(ROBO_J6_MIN, ROBO_J6_MAX);
 
-	ui.m_pLJo1Line->setText("0");
-	ui.m_pLJo2Line->setText("0");
-	ui.m_pLJo3Line->setText("0");
-	ui.m_pLJo4Line->setText("0");
-	ui.m_pLJo5Line->setText("0");
-	ui.m_pLJo6Line->setText("0");
-	ui.m_pLJo7Line->setText("0");
-
-
-
+	ui.m_pLJo1Spin->setRange(ROBO_J0_MIN, ROBO_J0_MAX);
+	ui.m_pLJo2Spin->setRange(ROBO_J1_MIN, ROBO_J1_MAX);
+	ui.m_pLJo3Spin->setRange(ROBO_J2_MIN, ROBO_J2_MAX);
+	ui.m_pLJo4Spin->setRange(ROBO_J3_MIN, ROBO_J3_MAX);
+	ui.m_pLJo5Spin->setRange(ROBO_J4_MIN, ROBO_J4_MAX);
+	ui.m_pLJo6Spin->setRange(ROBO_J5_MIN, ROBO_J5_MAX);
+	ui.m_pLJo7Spin->setRange(ROBO_J6_MIN, ROBO_J6_MAX);
 
 	//*********************** Initialize all data ***********************//
 
@@ -354,6 +352,7 @@ CyberSystem::CyberSystem(QWidget *parent)
 	connect(ui.m_pViCtrlBtn, SIGNAL(clicked()), this, SLOT(VisionCtrl()));
 	connect(ui.m_pViStartBtn, SIGNAL(clicked()), this, SLOT(VisionStart()));
 	connect(ui.m_pViPauseBtn, SIGNAL(clicked()), this, SLOT(VisionStop()));
+	connect(ui.m_pViApprBtn, SIGNAL(clicked()), this, SLOT(VisionAppr()));
 
 	// signals and slots for vision serve
 	connect(ui.m_pConnViBtn, SIGNAL(clicked()), this, SLOT(ConnVision()));
@@ -363,46 +362,56 @@ CyberSystem::CyberSystem(QWidget *parent)
 	connect(ui.m_pUpdataBtn, SIGNAL(clicked()), this, SLOT(SliUpdata()));
 
 	// signals and slots for slider and spin box
-	connect(ui.m_pRJo0Sli, SIGNAL(valueChanged(int)), this, SLOT(SlitoLine()));
-	connect(ui.m_pRJo1Sli, SIGNAL(valueChanged(int)), this, SLOT(SlitoLine()));
-	connect(ui.m_pRJo2Sli, SIGNAL(valueChanged(int)), this, SLOT(SlitoLine()));
-	connect(ui.m_pRJo3Sli, SIGNAL(valueChanged(int)), this, SLOT(SlitoLine()));
-	connect(ui.m_pRJo4Sli, SIGNAL(valueChanged(int)), this, SLOT(SlitoLine()));
-	connect(ui.m_pRJo5Sli, SIGNAL(valueChanged(int)), this, SLOT(SlitoLine()));
-	connect(ui.m_pRJo6Sli, SIGNAL(valueChanged(int)), this, SLOT(SlitoLine()));
+	connect(ui.m_pRJo0Sli, SIGNAL(valueChanged(int)), this, SLOT(SliderToSpin()));
+	connect(ui.m_pRJo1Sli, SIGNAL(valueChanged(int)), this, SLOT(SliderToSpin()));
+	connect(ui.m_pRJo2Sli, SIGNAL(valueChanged(int)), this, SLOT(SliderToSpin()));
+	connect(ui.m_pRJo3Sli, SIGNAL(valueChanged(int)), this, SLOT(SliderToSpin()));
+	connect(ui.m_pRJo4Sli, SIGNAL(valueChanged(int)), this, SLOT(SliderToSpin()));
+	connect(ui.m_pRJo5Sli, SIGNAL(valueChanged(int)), this, SLOT(SliderToSpin()));
+	connect(ui.m_pRJo6Sli, SIGNAL(valueChanged(int)), this, SLOT(SliderToSpin()));
 
-	connect(ui.m_pLJo0Sli, SIGNAL(valueChanged(int)), this, SLOT(SlitoLine()));
-	connect(ui.m_pLJo1Sli, SIGNAL(valueChanged(int)), this, SLOT(SlitoLine()));
-	connect(ui.m_pLJo2Sli, SIGNAL(valueChanged(int)), this, SLOT(SlitoLine()));
-	connect(ui.m_pLJo3Sli, SIGNAL(valueChanged(int)), this, SLOT(SlitoLine()));
-	connect(ui.m_pLJo4Sli, SIGNAL(valueChanged(int)), this, SLOT(SlitoLine()));
-	connect(ui.m_pLJo5Sli, SIGNAL(valueChanged(int)), this, SLOT(SlitoLine()));
-	connect(ui.m_pLJo6Sli, SIGNAL(valueChanged(int)), this, SLOT(SlitoLine()));
+	connect(ui.m_pLJo0Sli, SIGNAL(valueChanged(int)), this, SLOT(SliderToSpin()));
+	connect(ui.m_pLJo1Sli, SIGNAL(valueChanged(int)), this, SLOT(SliderToSpin()));
+	connect(ui.m_pLJo2Sli, SIGNAL(valueChanged(int)), this, SLOT(SliderToSpin()));
+	connect(ui.m_pLJo3Sli, SIGNAL(valueChanged(int)), this, SLOT(SliderToSpin()));
+	connect(ui.m_pLJo4Sli, SIGNAL(valueChanged(int)), this, SLOT(SliderToSpin()));
+	connect(ui.m_pLJo5Sli, SIGNAL(valueChanged(int)), this, SLOT(SliderToSpin()));
+	connect(ui.m_pLJo6Sli, SIGNAL(valueChanged(int)), this, SLOT(SliderToSpin()));
 
-	connect(ui.m_pRJo1Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
-	connect(ui.m_pRJo2Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
-	connect(ui.m_pRJo3Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
-	connect(ui.m_pRJo4Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
-	connect(ui.m_pRJo5Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
-	connect(ui.m_pRJo6Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
-	connect(ui.m_pRJo7Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
+	connect(ui.m_pRJo1Spin, SIGNAL(valueChanged(double)), this, SLOT(SpinToSlider()));
+	connect(ui.m_pRJo2Spin, SIGNAL(valueChanged(double)), this, SLOT(SpinToSlider()));
+	connect(ui.m_pRJo3Spin, SIGNAL(valueChanged(double)), this, SLOT(SpinToSlider()));
+	connect(ui.m_pRJo4Spin, SIGNAL(valueChanged(double)), this, SLOT(SpinToSlider()));
+	connect(ui.m_pRJo5Spin, SIGNAL(valueChanged(double)), this, SLOT(SpinToSlider()));
+	connect(ui.m_pRJo6Spin, SIGNAL(valueChanged(double)), this, SLOT(SpinToSlider()));
+	connect(ui.m_pRJo7Spin, SIGNAL(valueChanged(double)), this, SLOT(SpinToSlider()));
 
-	connect(ui.m_pLJo1Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
-	connect(ui.m_pLJo2Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
-	connect(ui.m_pLJo3Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
-	connect(ui.m_pLJo4Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
-	connect(ui.m_pLJo5Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
-	connect(ui.m_pLJo6Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
-	connect(ui.m_pLJo7Line, SIGNAL(textChanged(const QString &)), this, SLOT(LinetoSli()));
+	connect(ui.m_pLJo1Spin, SIGNAL(valueChanged(double)), this, SLOT(SpinToSlider()));
+	connect(ui.m_pLJo2Spin, SIGNAL(valueChanged(double)), this, SLOT(SpinToSlider()));
+	connect(ui.m_pLJo3Spin, SIGNAL(valueChanged(double)), this, SLOT(SpinToSlider()));
+	connect(ui.m_pLJo4Spin, SIGNAL(valueChanged(double)), this, SLOT(SpinToSlider()));
+	connect(ui.m_pLJo5Spin, SIGNAL(valueChanged(double)), this, SLOT(SpinToSlider()));
+	connect(ui.m_pLJo6Spin, SIGNAL(valueChanged(double)), this, SLOT(SpinToSlider()));
+	connect(ui.m_pLJo7Spin, SIGNAL(valueChanged(double)), this, SLOT(SpinToSlider()));
 
 
 	// signals and slots for hand control
 	connect(ui.m_pHandConnBtn, SIGNAL(clicked()), this, SLOT(InitHand()));
 	connect(ui.m_pHandEnableBtn, SIGNAL(clicked()), this, SLOT(EnableHand()));
-	connect(ui.m_pHandRunBtn, SIGNAL(clicked()), this, SLOT(StartHand()));
 	connect(ui.m_pEmgBtn, SIGNAL(clicked()), this, SLOT(EmergHand()));
 
-
+	// Cyber Control
+	connect(ui.m_pHandCyberBtn, SIGNAL(clicked()), this, SLOT(CyberHandMode()));
+	connect(ui.m_pHandRunBtn, SIGNAL(clicked()), this, SLOT(StartCyberHand()));
+	connect(ui.m_pHandPauseBtn, SIGNAL(clicked()), this, SLOT(PauseCyberHand()));
+	// Click Control
+	connect(ui.m_pHandClickBtn, SIGNAL(clicked()), this, SLOT(ClickHandMode()));
+	connect(ui.m_pHandReadBtn, SIGNAL(clicked()), this, SLOT(UpdateHandSpin()));
+	connect(ui.m_pHandSendBtn, SIGNAL(clicked()), this, SLOT(SendHandSpin()));
+	// Grasp Control
+	connect(ui.m_pHandGraspBtn, SIGNAL(clicked()), this, SLOT(GraspHandMode()));
+	connect(ui.m_pGraspBtn, SIGNAL(clicked()), this, SLOT(GraspHand()));
+	connect(ui.m_pRlseBtn, SIGNAL(clicked()), this, SLOT(ReleaseHand()));
 	//*********************** Signals and Slots ***********************//
 
 
@@ -1899,10 +1908,10 @@ void CyberSystem::SendCmd()
 		}
 
 		// 虚拟仿真测试
-		bool send_ret = m_RobonautControl.SendConsimuMsg();
+		//bool send_ret = m_RobonautControl.SendConsimuMsg();
 
 		// 机器人测试
-//		bool send_ret = m_RobonautControl.SendRoboMsg();
+		bool send_ret = m_RobonautControl.SendRoboMsg();
 #else
 		// 以上一次发送角度作参考
 		// 如果与传感器数据差别过大，使用传感器数据重新更新
@@ -1911,13 +1920,16 @@ void CyberSystem::SendCmd()
 		{
 			jo_err(i) = last_cmd_jo(i) - ANG2DEG(g_RobotSensorDeg.rightArmJoint[i]);
 		}
-		if (jo_err.norm() > 0.35)
+		//if (jo_err.norm() > 0.5)
+		if (0)
 		{
 			for (int i = 0; i < 7; ++i)
 			{
 				m_RArmJo(i) = g_RobotSensorDeg.rightArmJoint[i];
 				m_RArmJo(i) = ANG2DEG(m_RArmJo(i));
 			}
+// 			m_CmdStr += "Revise Data!!!\r\n";
+// 			InsertCmdStr(m_CmdStr);
 		} 
 		else
 		{
@@ -1939,8 +1951,15 @@ void CyberSystem::SendCmd()
 			{
 				fabs_pose_err[i] = fabs(m_ViEulerRecv[i+1] - RefEulerPose[i]);
 			}
+			double fabs_appr_err = fabs(m_ViEulerRecv[6] - RefFinAppr);
 			bool OriTrackFin = (fabs_pose_err[0] < EulerPoseCut[0]) && (fabs_pose_err[1] < EulerPoseCut[1]) && (fabs_pose_err[2] < EulerPoseCut[2]);
 			bool PoseTrackFin = (fabs_pose_err[3] < EulerPoseCut[3]) && (fabs_pose_err[4] < EulerPoseCut[4]) && (fabs_pose_err[5] < EulerPoseCut[5]);
+			bool ApprTrackFin = (fabs_appr_err < ApprCut);
+
+			//
+			//OriTrackFin = false;
+			//PoseTrackFin = true;
+
 
 			if (OriTrackFin == false)	// 如果完成没完成姿态的调整
 			{
@@ -1979,9 +1998,44 @@ void CyberSystem::SendCmd()
 						return;
 					}
 				} 
-				else	// 完成位置和姿态的调整
+				else
 				{
-					cmd_jo = m_RArmJo;
+					ui.m_pViApprBtn->setEnabled(true);
+					if (ApprTrackFin == false)	// 完成位置和姿态调整，未完成抓取接近
+					{
+						if (m_bApprFlag == true)	// 可以进行接近
+						{
+							double ViQuatNow[7], ViQuatNext[7];
+							for (int i = 0; i < 7; ++i)
+							{
+								ViQuatNow[i] = m_ViQuatNow(i);
+							}
+							GetViNextAppr(m_ViEulerRecv, ViQuatNow, ViQuatNext);
+							for (int i = 0; i < 7; ++i)
+							{
+								m_ViQuatNext(i) = ViQuatNext[i];
+							}
+
+							bool ret = DiffKine(m_ViQuatNext, m_ViQuatNow, m_RArmJo, cmd_jo);
+							if (ret == false)		// 运动学计算错误
+							{
+								m_CmdStr += "Kinetics Calculation Occur Error!!!\r\n";
+								InsertCmdStr(m_CmdStr);
+								m_CtrlMode = OUT_CTRL;
+								return;
+							}
+						} 
+						else		// 不可以进行接近
+						{
+							cmd_jo = m_RArmJo;
+						}
+						
+					}
+					else	// 完成所有的调整
+					{
+						m_bApprFlag = false;
+						cmd_jo = m_RArmJo;
+					}
 				}
 			}
 		} 
@@ -1999,6 +2053,7 @@ void CyberSystem::SendCmd()
 		}
 
 		bool ret = m_RobonautControl.SendRoboMsg();
+		//bool send_ret = m_RobonautControl.SendConsimuMsg();
 #endif
 	}
 }
@@ -2450,27 +2505,27 @@ void CyberSystem::SetCliUIVisi(bool flag)
 	ui.m_pLJo5Sli->setEnabled(flag);
 	ui.m_pLJo6Sli->setEnabled(flag);
 
-	ui.m_pRJo1Line->setEnabled(flag);
-	ui.m_pRJo2Line->setEnabled(flag);
-	ui.m_pRJo3Line->setEnabled(flag);
-	ui.m_pRJo4Line->setEnabled(flag);
-	ui.m_pRJo5Line->setEnabled(flag);
-	ui.m_pRJo6Line->setEnabled(flag);
-	ui.m_pRJo7Line->setEnabled(flag);
+	ui.m_pRJo1Spin->setEnabled(flag);
+	ui.m_pRJo2Spin->setEnabled(flag);
+	ui.m_pRJo3Spin->setEnabled(flag);
+	ui.m_pRJo4Spin->setEnabled(flag);
+	ui.m_pRJo5Spin->setEnabled(flag);
+	ui.m_pRJo6Spin->setEnabled(flag);
+	ui.m_pRJo7Spin->setEnabled(flag);
 
-	ui.m_pLJo1Line->setEnabled(flag);
-	ui.m_pLJo2Line->setEnabled(flag);
-	ui.m_pLJo3Line->setEnabled(flag);
-	ui.m_pLJo4Line->setEnabled(flag);
-	ui.m_pLJo5Line->setEnabled(flag);
-	ui.m_pLJo6Line->setEnabled(flag);
-	ui.m_pLJo7Line->setEnabled(flag);
+	ui.m_pLJo1Spin->setEnabled(flag);
+	ui.m_pLJo2Spin->setEnabled(flag);
+	ui.m_pLJo3Spin->setEnabled(flag);
+	ui.m_pLJo4Spin->setEnabled(flag);
+	ui.m_pLJo5Spin->setEnabled(flag);
+	ui.m_pLJo6Spin->setEnabled(flag);
+	ui.m_pLJo7Spin->setEnabled(flag);
 }
 
 
-void CyberSystem::SlitoLine()
+void CyberSystem::SliderToSpin()
 {
-	float RJoTmp[7],LJoTmp[7];
+	double RJoTmp[7],LJoTmp[7];
 	RJoTmp[0] = ui.m_pRJo0Sli->value();
 	RJoTmp[1] = ui.m_pRJo1Sli->value();
 	RJoTmp[2] = ui.m_pRJo2Sli->value();
@@ -2487,62 +2542,56 @@ void CyberSystem::SlitoLine()
 	LJoTmp[5] = ui.m_pLJo5Sli->value();
 	LJoTmp[6] = ui.m_pLJo6Sli->value();
 
-	float RJoAng[7],LJoAng[7];
+	double RJoAng[7],LJoAng[7];
 	for (int i = 0; i < 7; ++i)
 	{
 		RJoAng[i] = RJoTmp[i]/100.000;
 		LJoAng[i] = LJoTmp[i]/100.000;
 	}
 
-	QString RStr[7],LStr[7];
-	for (int i = 0; i < 7; ++i)
-	{
-		RStr[i] = QString("%1").arg(RJoAng[i]);
-		LStr[i] = QString("%1").arg(LJoAng[i]);
-	}
-	ui.m_pRJo1Line->setText(RStr[0]);
-	ui.m_pRJo2Line->setText(RStr[1]);
-	ui.m_pRJo3Line->setText(RStr[2]);
-	ui.m_pRJo4Line->setText(RStr[3]);
-	ui.m_pRJo5Line->setText(RStr[4]);
-	ui.m_pRJo6Line->setText(RStr[5]);
-	ui.m_pRJo7Line->setText(RStr[6]);
+	ui.m_pRJo1Spin->setValue(RJoAng[0]);
+	ui.m_pRJo2Spin->setValue(RJoAng[1]);
+	ui.m_pRJo3Spin->setValue(RJoAng[2]);
+	ui.m_pRJo4Spin->setValue(RJoAng[3]);
+	ui.m_pRJo5Spin->setValue(RJoAng[4]);
+	ui.m_pRJo6Spin->setValue(RJoAng[5]);
+	ui.m_pRJo7Spin->setValue(RJoAng[6]);
 
-	ui.m_pLJo1Line->setText(LStr[0]);
-	ui.m_pLJo2Line->setText(LStr[1]);
-	ui.m_pLJo3Line->setText(LStr[2]);
-	ui.m_pLJo4Line->setText(LStr[3]);
-	ui.m_pLJo5Line->setText(LStr[4]);
-	ui.m_pLJo6Line->setText(LStr[5]);
-	ui.m_pLJo7Line->setText(LStr[6]);
+	ui.m_pLJo1Spin->setValue(LJoAng[0]);
+	ui.m_pLJo2Spin->setValue(LJoAng[1]);
+	ui.m_pLJo3Spin->setValue(LJoAng[2]);
+	ui.m_pLJo4Spin->setValue(LJoAng[3]);
+	ui.m_pLJo5Spin->setValue(LJoAng[4]);
+	ui.m_pLJo6Spin->setValue(LJoAng[5]);
+	ui.m_pLJo7Spin->setValue(LJoAng[6]);
 }
 
 // TODO(CJH): Change editline data to slider data
-void CyberSystem::LinetoSli()
+void CyberSystem::SpinToSlider()
 {
-	QString RStr[7],LStr[7];
-	float RJo[7],LJo[7];
+	double RJo[7],LJo[7];
+	double RJoTmp[7],LJoTmp[7];
 
-	RStr[0] = ui.m_pRJo1Line->text();
-	RStr[1] = ui.m_pRJo2Line->text();
-	RStr[2] = ui.m_pRJo3Line->text();
-	RStr[3] = ui.m_pRJo4Line->text();
-	RStr[4] = ui.m_pRJo5Line->text();
-	RStr[5] = ui.m_pRJo6Line->text();
-	RStr[6] = ui.m_pRJo7Line->text();
+	RJoTmp[0] = ui.m_pRJo1Spin->value();
+	RJoTmp[1] = ui.m_pRJo2Spin->value();
+	RJoTmp[2] = ui.m_pRJo3Spin->value();
+	RJoTmp[3] = ui.m_pRJo4Spin->value();
+	RJoTmp[4] = ui.m_pRJo5Spin->value();
+	RJoTmp[5] = ui.m_pRJo6Spin->value();
+	RJoTmp[6] = ui.m_pRJo7Spin->value();
 
-	LStr[0] = ui.m_pLJo1Line->text();
-	LStr[1] = ui.m_pLJo2Line->text();
-	LStr[2] = ui.m_pLJo3Line->text();
-	LStr[3] = ui.m_pLJo4Line->text();
-	LStr[4] = ui.m_pLJo5Line->text();
-	LStr[5] = ui.m_pLJo6Line->text();
-	LStr[6] = ui.m_pLJo7Line->text();
+	LJoTmp[0] = ui.m_pLJo1Spin->value();
+	LJoTmp[1] = ui.m_pLJo2Spin->value();
+	LJoTmp[2] = ui.m_pLJo3Spin->value();
+	LJoTmp[3] = ui.m_pLJo4Spin->value();
+	LJoTmp[4] = ui.m_pLJo5Spin->value();
+	LJoTmp[5] = ui.m_pLJo6Spin->value();
+	LJoTmp[6] = ui.m_pLJo7Spin->value();
 
 	for (int i = 0; i < 7; ++i)
 	{
-		RJo[i] = RStr[i].toFloat()*100.00;
-		LJo[i] = LStr[i].toFloat()*100.00;
+		RJo[i] = RJoTmp[i]*100.00;
+		LJo[i] = LJoTmp[i]*100.00;
 	}
 	ui.m_pRJo0Sli->setValue(RJo[0]);
 	ui.m_pRJo1Sli->setValue(RJo[1]);
@@ -2559,7 +2608,6 @@ void CyberSystem::LinetoSli()
 	ui.m_pLJo4Sli->setValue(LJo[4]);
 	ui.m_pLJo5Sli->setValue(LJo[5]);
 	ui.m_pLJo6Sli->setValue(LJo[6]);
-
 }
 
 
@@ -2607,17 +2655,24 @@ void CyberSystem::EnableHand()
 	{
 		m_bHandEnable = true;
 		m_RobonautControl.setHandEnable(m_bHandEnable);
-		ui.m_pHandRunBtn->setEnabled(true);
 		ui.m_pEmgBtn->setEnabled(true);
+
+
+		ui.m_pHandClickBtn->setEnabled(true);
+		ui.m_pHandCyberBtn->setEnabled(true);
+		ui.m_pHandGraspBtn->setEnabled(true);
 	} 
 	else
 	{
 		m_bHandEnable = false;
 		m_RobonautControl.setHandEnable(m_bHandEnable);
 		m_HandCtrlMode = HAND_OUT_CTRL;
-		ui.m_pHandRunBtn->setText("Run");
-		ui.m_pHandRunBtn->setEnabled(false);
+
 		ui.m_pEmgBtn->setEnabled(false);
+
+		ui.m_pHandClickBtn->setEnabled(false);
+		ui.m_pHandCyberBtn->setEnabled(false);
+		ui.m_pHandGraspBtn->setEnabled(false);
 	}
 
 }
@@ -2640,19 +2695,7 @@ void CyberSystem::EmergHand()
 	}
 }
 
-void CyberSystem::StartHand()
-{
-	if (m_HandCtrlMode == HAND_OUT_CTRL && ui.m_pHandRunBtn->text() == "Run")
-	{
-		m_HandCtrlMode = HAND_CYBER_CTRL;
-		ui.m_pHandRunBtn->setText("Stop");
-	} 
-	else
-	{
-		m_HandCtrlMode = HAND_OUT_CTRL;
-		ui.m_pHandRunBtn->setText("Run");
-	}
-}
+
 
 void CyberSystem::SendHandCmd()
 {
@@ -2667,6 +2710,7 @@ void CyberSystem::SendHandCmd()
 		m_RobonautControl.setHandMode(RobonautControl::ZeroForce);
 	}
 
+	// 切换控制模式
 	if (m_HandCtrlMode == OUT_CTRL)
 	{	
 		CHandData RHandData, LHandData;
@@ -2685,7 +2729,7 @@ void CyberSystem::SendHandCmd()
 			emit InsertCmdStr(m_CmdStr);
 		}
 	} 
-	else
+	else if(m_HandCtrlMode == HAND_CYBER_CTRL)
 	{
 		CHandData RHandData, LHandData;
 		for(int i = 0; i < 5; ++i)
@@ -2704,6 +2748,338 @@ void CyberSystem::SendHandCmd()
 			emit InsertCmdStr(m_CmdStr);
 		}
 	}
+	else if(m_HandCtrlMode == HAND_CLICK_CTRL)
+	{
+		CHandData RHandData, LHandData;
+		for(int i = 0; i < 5; ++i)
+		{
+			for (int j = 0; j < 3; ++j)
+			{
+				RHandData.joint[i][j] = m_RHandSendData[i][j];
+				LHandData.joint[i][j] = m_LHandSendData[i][j];
+			}
+		}
+		bool ret = m_RobonautControl.SendHandMsg(RHandData, LHandData, m_HandDataCount);
+
+		if (ret = false)
+		{
+			m_CmdStr += "Hand Data Send Error!!!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+		}
+	}
+	else if (m_HandCtrlMode == HAND_GRASP_CTRL)
+	{
+		CHandData RHandData, LHandData;
+
+		if (m_bHandGrasp == true)		// 发出抓取命令
+		{
+			for(int i = 0; i < 5; ++i)
+			{
+				for (int j = 0; j < 3; ++j)
+				{
+					RHandData.joint[i][j] = m_HandGraspJoint[i][j];
+					LHandData.joint[i][j] = m_HandReleaseJoint[i][j];
+				}
+			}
+		}
+		else		//	发出释放命令
+		{
+			for(int i = 0; i < 5; ++i)
+			{
+				for (int j = 0; j < 3; ++j)
+				{
+					RHandData.joint[i][j] = m_HandReleaseJoint[i][j];
+					LHandData.joint[i][j] = m_HandReleaseJoint[i][j];
+				}
+			}
+		}
+
+		bool ret = m_RobonautControl.SendHandMsg(RHandData, LHandData, m_HandDataCount);
+
+		if (ret = false)
+		{
+			m_CmdStr += "Hand Data Send Error!!!\r\n";
+			emit InsertCmdStr(m_CmdStr);
+		}
+	}
+}
+
+void CyberSystem::RecvHandSensor()
+{
+	bool ret = m_RobonautControl.RecvHandMsg(m_RHandData, m_LHandData);
+	if (ret = true)
+	{
+		for (int i = 0; i < 5; ++i)
+		{
+			for (int j = 0; j < 3; ++j)
+			{
+				m_RHandRecvJoint[i][j] = m_RHandData.joint[i][j];
+				m_RHandRecvTorque[i][j] = m_RHandData.torque[i][j];
+				m_LHandRecvJoint[i][j] = m_LHandData.joint[i][j];
+				m_LHandRecvTorque[i][j] = m_LHandData.torque[i][j];
+			}
+		}
+
+		if (m_HandCtrlMode == HAND_CYBER_CTRL)		// 如果处在Cyber控制的模式下，施加反馈力
+		{
+			double Force[5];
+			Force[0] = (m_RHandData.torque[0][0]+m_RHandData.torque[0][1])*1.0;
+			Force[1] = (m_RHandData.torque[1][0]+m_RHandData.torque[1][1])*0.3;
+			Force[2] = (m_RHandData.torque[2][0]+m_RHandData.torque[2][1])*0.3;
+			Force[3] = (m_RHandData.torque[3][0]+m_RHandData.torque[3][1])*0.3;
+			Force[4] = (m_RHandData.torque[4][0]+m_RHandData.torque[4][1])*0.5;
+
+			for(int i=0; i<5; i++)
+			{
+				if(Force[i] >= 1.0)
+					Force[i] = 1.0;
+
+				if(Force[i] <= 0.0)
+					Force[i] = 0.0;
+			}
+
+			m_CyberStation.setGraspForce(Force);
+		}
+
+		DisHandData();
+	} 
+	else
+	{
+		m_CmdStr += "Hand Receive Error!!!\r\n";
+		emit InsertCmdStr(m_CmdStr);
+	}
+}
+
+void CyberSystem::ClickHandMode()
+{
+	if (ui.m_pHandClickBtn->text() == "Click Mode")		// 进入Click Mode
+	{
+		// Initialize Click Hand Data
+		for (int i = 0; i < 5; ++i)
+		{
+			for (int j = 0; j < 3; ++j)
+			{
+				m_RHandSendData[i][j] = 0.0;
+				m_LHandSendData[i][j] = 0.0;
+			}
+		}
+
+		// 
+		m_HandCtrlMode = HAND_CLICK_CTRL;
+
+		ui.m_pHandReadBtn->setEnabled(true);
+		ui.m_pHandSendBtn->setEnabled(true);
+
+		ui.m_pHandCyberBtn->setEnabled(false);
+		ui.m_pHandGraspBtn->setEnabled(false);
+
+		ui.m_pHandClickBtn->setText("Stop Click");
+	}
+	else if (ui.m_pHandClickBtn->text() == "Stop Click")		// 离开Click Mode
+	{
+		m_HandCtrlMode = HAND_OUT_CTRL;
+
+		ui.m_pHandReadBtn->setEnabled(false);
+		ui.m_pHandSendBtn->setEnabled(false);
+
+		ui.m_pHandCyberBtn->setEnabled(true);
+		ui.m_pHandGraspBtn->setEnabled(true);
+
+		ui.m_pHandClickBtn->setText("Click Mode");
+	}
+}
+
+void CyberSystem::SendHandSpin()
+{
+	double RHand[5][3], LHand[5][3];
+	ReadHandSpinData(RHand, LHand);
+
+	for (int i = 0; i < 5; ++i)
+	{
+		for (int j = 0; j < 3; ++j)
+		{
+			m_RHandSendData[i][j] = RHand[i][j];
+			m_LHandSendData[i][j] = LHand[i][j];
+		}
+	}
+}
+
+void CyberSystem::UpdateHandSpin()
+{
+	SetHandSpinData(m_RHandRecvJoint, m_LHandRecvJoint);
+}
+
+void CyberSystem::CyberHandMode()
+{
+	if (ui.m_pHandCyberBtn->text() == "Cyber Mode")		// 进入Cyber Mode
+	{
+		ui.m_pHandRunBtn->setEnabled(true);
+		ui.m_pHandPauseBtn->setEnabled(true);
+
+		ui.m_pHandClickBtn->setEnabled(false);
+		ui.m_pHandGraspBtn->setEnabled(false);
+
+		ui.m_pHandCyberBtn->setText("Stop Cyber");
+	}
+	else if (ui.m_pHandCyberBtn->text() == "Stop Cyber")		// 离开Cyber Mode
+	{
+		m_HandCtrlMode = HAND_OUT_CTRL;
+
+		ui.m_pHandRunBtn->setEnabled(false);
+		ui.m_pHandPauseBtn->setEnabled(false);
+
+		ui.m_pHandClickBtn->setEnabled(true);
+		ui.m_pHandGraspBtn->setEnabled(true);
+
+		ui.m_pHandCyberBtn->setText("Cyber Mode");
+	}
+}
+
+void CyberSystem::StartCyberHand()
+{
+	m_HandCtrlMode = HAND_CYBER_CTRL;
+}
+
+void CyberSystem::PauseCyberHand()
+{
+	m_HandCtrlMode = HAND_OUT_CTRL;
+}
+
+
+
+void CyberSystem::GraspHandMode()
+{
+	if (ui.m_pHandGraspBtn->text() == "Grasp Mode")		// 进入Grasp Mode
+	{
+		m_bHandGrasp = false;
+		m_HandCtrlMode = HAND_GRASP_CTRL;
+
+		ui.m_pGraspBtn->setEnabled(true);
+		ui.m_pRlseBtn->setEnabled(true);
+
+		ui.m_pHandClickBtn->setEnabled(false);
+		ui.m_pHandGraspBtn->setEnabled(false);
+
+		ui.m_pHandGraspBtn->setText("Stop Grasp");
+	}
+	else if (ui.m_pHandGraspBtn->text() == "Stop Grasp")		// 离开Grasp Mode
+	{
+		m_HandCtrlMode = HAND_OUT_CTRL;
+
+		ui.m_pGraspBtn->setEnabled(false);
+		ui.m_pRlseBtn->setEnabled(false);
+
+		ui.m_pHandClickBtn->setEnabled(true);
+		ui.m_pHandGraspBtn->setEnabled(true);
+
+		ui.m_pHandGraspBtn->setText("Grasp Mode");
+	}
+}
+
+void CyberSystem::GraspHand()
+{
+	m_bHandGrasp = true;
+}
+
+void CyberSystem::ReleaseHand()
+{
+	m_bHandGrasp = false;
+}
+
+
+
+
+void CyberSystem::ReadHandSpinData(double RHandData[5][3], double LHandData[5][3])
+{
+	// 右手
+	// 大拇指
+	RHandData[0][2] = ui.m_pRThumbBiasSpin->value();
+	RHandData[0][0] = ui.m_pRThumbBaseSpin->value();
+	RHandData[0][1] = ui.m_pRThumbOutSpin->value();
+	// 食指
+	RHandData[1][2] = ui.m_pRIndexBiasSpin->value();
+	RHandData[1][0] = ui.m_pRIndexBaseSpin->value();
+	RHandData[1][1] = ui.m_pRIndexOutSpin->value();
+	// 中指
+	RHandData[2][2] = ui.m_pRMidBiasSpin->value();
+	RHandData[2][0] = ui.m_pRMidBaseSpin->value();
+	RHandData[2][1] = ui.m_pRMidOutSpin->value();
+	// 无名指
+	RHandData[3][2] = ui.m_pRRingBiasSpin->value();
+	RHandData[3][0] = ui.m_pRRingBaseSpin->value();
+	RHandData[3][1] = ui.m_pRRingOutSpin->value();
+	// 小指
+	RHandData[4][2] = ui.m_pRLitBiasSpin->value();
+	RHandData[4][0] = ui.m_pRLitBaseSpin->value();
+	RHandData[4][1] = ui.m_pRLitOutSpin->value();
+
+	// 左手
+	for (int i = 0; i < 5; ++i)
+	{
+		for (int j = 0; j < 3; ++j)
+		{
+			LHandData[i][j] = 0.0;
+		}
+	}
+}
+
+void CyberSystem::SetHandSpinData(const double RData[5][3], const double LData[5][3])
+{
+		// 拇指
+	ui.m_pRThumbBiasSpin->setValue(m_RHandRecvJoint[0][2]);
+	ui.m_pRThumbBaseSpin->setValue(m_RHandRecvJoint[0][0]);
+	ui.m_pRThumbOutSpin->setValue(m_RHandRecvJoint[0][1]);
+	// 食指
+	ui.m_pRIndexBiasSpin->setValue(m_RHandRecvJoint[1][2]);
+	ui.m_pRIndexBaseSpin->setValue(m_RHandRecvJoint[1][0]);
+	ui.m_pRIndexOutSpin->setValue(m_RHandRecvJoint[1][1]);
+	// 中指
+	ui.m_pRMidBiasSpin->setValue(m_RHandRecvJoint[2][2]);
+	ui.m_pRMidBaseSpin->setValue(m_RHandRecvJoint[2][0]);
+	ui.m_pRMidOutSpin->setValue(m_RHandRecvJoint[2][1]);
+	// 无名指
+	ui.m_pRRingBiasSpin->setValue(m_RHandRecvJoint[3][2]);
+	ui.m_pRRingBaseSpin->setValue(m_RHandRecvJoint[3][0]);
+	ui.m_pRRingOutSpin->setValue(m_RHandRecvJoint[3][1]);
+	// 小指
+	ui.m_pRLitBiasSpin->setValue(m_RHandRecvJoint[4][2]);
+	ui.m_pRLitBaseSpin->setValue(m_RHandRecvJoint[4][0]);
+	ui.m_pRLitOutSpin->setValue(m_RHandRecvJoint[4][1]);
+}
+
+void CyberSystem::SetGraspInit()
+{
+	m_HandReleaseJoint[0][0] = 0.0;
+	m_HandReleaseJoint[0][1] = 0.0;
+	m_HandReleaseJoint[0][2] = 0.0;
+	m_HandReleaseJoint[1][0] = 0.0;
+	m_HandReleaseJoint[1][1] = 0.0;
+	m_HandReleaseJoint[1][2] = 0.0;
+	m_HandReleaseJoint[2][0] = 0.0;
+	m_HandReleaseJoint[2][1] = 0.0;
+	m_HandReleaseJoint[2][2] = 0.0;
+	m_HandReleaseJoint[3][0] = 0.0;
+	m_HandReleaseJoint[3][1] = 0.0;
+	m_HandReleaseJoint[3][2] = 0.0;
+	m_HandReleaseJoint[4][0] = 0.0;
+	m_HandReleaseJoint[4][1] = 0.0;
+	m_HandReleaseJoint[4][2] = 0.0;
+
+	m_HandGraspJoint[0][0] = 0.0;
+	m_HandGraspJoint[0][1] = 0.0;
+	m_HandGraspJoint[0][2] = 0.0;
+	m_HandGraspJoint[1][0] = 0.0;
+	m_HandGraspJoint[1][1] = 0.0;
+	m_HandGraspJoint[1][2] = 0.0;
+	m_HandGraspJoint[2][0] = 0.0;
+	m_HandGraspJoint[2][1] = 0.0;
+	m_HandGraspJoint[2][2] = 0.0;
+	m_HandGraspJoint[3][0] = 0.0;
+	m_HandGraspJoint[3][1] = 0.0;
+	m_HandGraspJoint[3][2] = 0.0;
+	m_HandGraspJoint[4][0] = 0.0;
+	m_HandGraspJoint[4][1] = 0.0;
+	m_HandGraspJoint[4][2] = 0.0;
 }
 
 void CyberSystem::DisHandData()
@@ -2748,52 +3124,6 @@ void CyberSystem::DisHandData()
 	emit InsertRoboText(m_RoboTotalStr);
 	//	m_DisDataMutex.unlock();
 }
-
-void CyberSystem::RecvHandSensor()
-{
-	bool ret = m_RobonautControl.RecvHandMsg(m_RHandData, m_LHandData);
-	if (ret = true)
-	{
-		for (int i = 0; i < 5; ++i)
-		{
-			for (int j = 0; j < 3; ++j)
-			{
-				m_RHandRecvJoint[i][j] = m_RHandData.joint[i][j];
-				m_RHandRecvTorque[i][j] = m_RHandData.torque[i][j];
-				m_LHandRecvJoint[i][j] = m_LHandData.joint[i][j];
-				m_LHandRecvTorque[i][j] = m_LHandData.torque[i][j];
-			}
-		}
-
-		double Force[5];
-		Force[0] = (m_RHandData.torque[0][0]+m_RHandData.torque[0][1])*1.0;
-		Force[1] = (m_RHandData.torque[1][0]+m_RHandData.torque[1][1])*0.3;
-		Force[2] = (m_RHandData.torque[2][0]+m_RHandData.torque[2][1])*0.3;
-		Force[3] = (m_RHandData.torque[3][0]+m_RHandData.torque[3][1])*0.3;
-		Force[4] = (m_RHandData.torque[4][0]+m_RHandData.torque[4][1])*0.5;
-
-		for(int i=0; i<5; i++)
-		{
-			if(Force[i] >= 1.0)
-				Force[i] = 1.0;
-
-			if(Force[i] <= 0.0)
-				Force[i] = 0.0;
-		}
-
-		m_CyberStation.setGraspForce(Force);
-
-		DisHandData();
-	} 
-	else
-	{
-		m_CmdStr += "Hand Receive Error!!!\r\n";
-		emit InsertCmdStr(m_CmdStr);
-	}
-}
-
-
-
 //*********************** Kinetics Calculate ***********************//
 void CyberSystem::InitKine()
 {
@@ -2962,7 +3292,7 @@ void CyberSystem::CalJaco(const mat7x1 &mat_jo,mat6x7 &mat_jaco, double &sv_min)
 	mat_jaco(5,6) = -sin(q6)*(cos(q5)*(cos(q2)*sin(q4)+cos(q3)*cos(q4)*sin(q2))-sin(q2)*sin(q3)*sin(q5))+cos(q6)*(cos(q2)*cos(q4)-cos(q3)*sin(q2)*sin(q4));
 
 	mat6x1 sing_mat = mat_jaco.jacobiSvd().singularValues();
-	double min_sing = sing_mat(5);
+	sv_min = sing_mat(5);
 }
 
 // Damper Least Square Method
@@ -2979,6 +3309,10 @@ double CyberSystem::DampLS(double svmin)
 	else
 	{
 		lambda = pow(lambda_max, 2)*(1 - pow(svmin/sv_thr, 2));
+		if (lambda > lambda_max)
+		{
+			lambda = lambda_max;
+		}
 	}
 
 	return lambda;
@@ -3019,8 +3353,10 @@ bool CyberSystem::AngleRange(const mat7x1 &jo)
 {
 	bool ret = true;
 
-	double min_angle[7] = {ROBO_J0_MIN, ROBO_J1_MIN, ROBO_J2_MIN, ROBO_J3_MIN, ROBO_J4_MIN, ROBO_J5_MIN, ROBO_J6_MIN};
-	double max_angle[7] = {ROBO_J0_MAX, ROBO_J1_MAX, ROBO_J2_MAX, ROBO_J3_MAX, ROBO_J4_MAX, ROBO_J5_MAX, ROBO_J6_MAX};
+	// 	double min_angle[7] = {ROBO_J0_MIN, ROBO_J1_MIN, ROBO_J2_MIN, ROBO_J3_MIN, ROBO_J4_MIN, ROBO_J5_MIN, ROBO_J6_MIN};
+	// 	double max_angle[7] = {ROBO_J0_MAX, ROBO_J1_MAX, ROBO_J2_MAX, ROBO_J3_MAX, ROBO_J4_MAX, ROBO_J5_MAX, ROBO_J6_MAX};
+	double min_angle[7] = {-180, -180, -180, -180, -180, -180, -180};
+	double max_angle[7] = {180, 180, 180, 180, 180, 180, 180};
 
 	for (int i = 0; i < 7; ++i)
 	{
@@ -3047,6 +3383,9 @@ bool CyberSystem::DiffKine(const mat7x1 &pose_new, const mat7x1 &pose_ref, const
 	mat7x1 joint_feed = joint_ref;		// 反馈角度
 	mat4x4 trans_feed;		// 反馈姿态的旋转矩阵表示
 	mat7x1 quat_feed = pose_ref;		// 反馈姿态的四元数表示,初始化为当前姿态
+
+	double sv_min;		// 最小奇异值
+	double lambda = 0;		// 阻尼最小二乘系数
 
 
 	double pose_new_arr[7];
@@ -3117,13 +3456,11 @@ bool CyberSystem::DiffKine(const mat7x1 &pose_new, const mat7x1 &pose_ref, const
 		}
 
 		// calculate jacobi
-		double sv_min;
-		double lambda;
 		CalJaco(joint_feed, m_RJacoMat, sv_min);
 
 		// damper least square
 		lambda = DampLS(fabs(sv_min));		// 使用sv_min的绝对值
-		auto damp_coeff = m_RJacoMat.adjoint()*(m_RJacoMat*m_RJacoMat.adjoint() + lambda*Eigen::MatrixXd::Identity(6,6)).inverse();
+		auto damp_coeff = m_RJacoMat.transpose()*(m_RJacoMat*m_RJacoMat.transpose() + lambda*Eigen::MatrixXd::Identity(6,6)).inverse();
 
 		// gradient
 		double optimcoeff = 10;
@@ -3145,7 +3482,7 @@ bool CyberSystem::DiffKine(const mat7x1 &pose_new, const mat7x1 &pose_ref, const
 			// 改变梯度投影法的参数k，原来为100
 			dq0(i) = -1*(1.0/7.0)*(joint_ref(i) - jo_mid(i))/pow((jo_max(i) - jo_min(i)),2);
 		}
-		auto grad_coeff = optimcoeff*(Eigen::MatrixXd::Identity(7,7) - m_RJacoMat.adjoint()*(m_RJacoMat*m_RJacoMat.adjoint()).inverse()*m_RJacoMat)*dq0;
+		auto grad_coeff = optimcoeff*(Eigen::MatrixXd::Identity(7,7) - m_RJacoMat.transpose()*(m_RJacoMat*m_RJacoMat.transpose()).inverse()*m_RJacoMat)*dq0;
 
 		// control
 		auto dx = m_RVel + m_RPoseErr;
@@ -3173,15 +3510,36 @@ bool CyberSystem::DiffKine(const mat7x1 &pose_new, const mat7x1 &pose_ref, const
 	// 检测输出
 	CalDirectKine(joint, m_RFeedTrans);
 	auto err = (m_RFeedTrans - trans_new).norm();
-	if ((m_RFeedTrans - trans_new).norm() < 0.5)
+
+	if (lambda == 0)		// 阻尼最小二乘不起作用
 	{
-		return true;
-	} 
-	else
+		if ((m_RFeedTrans - trans_new).norm() < 0.5)
+		{
+			m_CmdStr += "In Normal mode!!!\r\n";
+			InsertCmdStr(m_CmdStr);
+			return true;
+		} 
+		else
+		{
+			m_CmdStr += "In normal mode, Deviation is too Large!!!\r\n";
+			InsertCmdStr(m_CmdStr);
+			return false;
+		}
+	}
+	else		// 阻尼最小二乘起作用
 	{
-		m_CmdStr += "Deviation is too Large!!!\r\n";
-		InsertCmdStr(m_CmdStr);
-		return false;
+		if ((m_RFeedTrans - trans_new).norm() < 2)
+		{
+			m_CmdStr += "In Damper mode!!!\r\n";
+			InsertCmdStr(m_CmdStr);
+			return true;
+		} 
+		else
+		{
+			m_CmdStr += "In Damper mode, Deviation is too Large!!!\r\n";
+			InsertCmdStr(m_CmdStr);
+			return false;
+		}
 	}
 }
 
@@ -3209,42 +3567,42 @@ void CyberSystem::PosePlan(const mat7x1 &StartPose, const mat7x1 &EndPose, const
 // 点击Execute按钮，进入一次路径规划控制,初始化参考角度
 void CyberSystem::ExecPlan()
 {
-// 	m_CtrlMode = PLAN_WAIT;
-// 	m_last_RTraRealQuat = m_RPlanStartQuat;
-// 	m_plan_count = 0;
-// 	m_plan_count_max = m_RPlanTime/(RobonautCommPd/1000.0);
-// 
-// 	// 初始化参考角度
-// 	double quat[7];
-// 	for (int i = 0; i < 7; ++i)
-// 	{
-// 		quat[i] = m_RPlanStartQuat(i);
-// 	}
-// 	QuaterToTrans(quat, m_RTraRealMat);
-// 	mat7x1 q = CalKine(m_RTraRealMat, m_last_arm_angle, m_last_joint_angle);
-// 
-// 	// 发送初始角度
-// 	// g_rightArmJointBuf is the Command Buffer
-// 	for (int i = 0; i < 7; ++i)
-// 	{
-// 		g_rightArmJointBuf[i] = DEG2ANG(q(i));
-// 		g_leftArmJointBuf[i] = 0;
-// 	}
-// 	if (m_bRoboConn == true)
-// 	{
-// 		bool robo_ret = m_RobonautControl.SendRoboMsg();
-// 	}
-// 	if (m_bConsimuConn == true)
-// 	{
-// 		bool consimu_ret = m_RobonautControl.SendConsimuMsg();
-// 	}
-// 
-// 	// 待机械臂来到初始的位置
-// 	m_CmdStr += "Moving to init Pose......";
-// 	InsertCmdStr(m_CmdStr);
-// 	Sleep(500);
-// 	m_CmdStr += "Success!!!\r\n";
-// 	InsertCmdStr(m_CmdStr);
+	// 	m_CtrlMode = PLAN_WAIT;
+	// 	m_last_RTraRealQuat = m_RPlanStartQuat;
+	// 	m_plan_count = 0;
+	// 	m_plan_count_max = m_RPlanTime/(RobonautCommPd/1000.0);
+	// 
+	// 	// 初始化参考角度
+	// 	double quat[7];
+	// 	for (int i = 0; i < 7; ++i)
+	// 	{
+	// 		quat[i] = m_RPlanStartQuat(i);
+	// 	}
+	// 	QuaterToTrans(quat, m_RTraRealMat);
+	// 	mat7x1 q = CalKine(m_RTraRealMat, m_last_arm_angle, m_last_joint_angle);
+	// 
+	// 	// 发送初始角度
+	// 	// g_rightArmJointBuf is the Command Buffer
+	// 	for (int i = 0; i < 7; ++i)
+	// 	{
+	// 		g_rightArmJointBuf[i] = DEG2ANG(q(i));
+	// 		g_leftArmJointBuf[i] = 0;
+	// 	}
+	// 	if (m_bRoboConn == true)
+	// 	{
+	// 		bool robo_ret = m_RobonautControl.SendRoboMsg();
+	// 	}
+	// 	if (m_bConsimuConn == true)
+	// 	{
+	// 		bool consimu_ret = m_RobonautControl.SendConsimuMsg();
+	// 	}
+	// 
+	// 	// 待机械臂来到初始的位置
+	// 	m_CmdStr += "Moving to init Pose......";
+	// 	InsertCmdStr(m_CmdStr);
+	// 	Sleep(500);
+	// 	m_CmdStr += "Success!!!\r\n";
+	// 	InsertCmdStr(m_CmdStr);
 
 	// 改变控制模式，定时器进入周期性规划
 	if (m_bRoboConn == true && m_bConsimuConn == true)
@@ -3652,7 +4010,12 @@ void CyberSystem::VisionStart()
 #if ArmDebug
 
 	// 虚拟仿真测试
-	last_cmd_jo << 0.401313, -0.497933, 0.916563, -1.61209, -0.128929, -0.487705, -0.200007;
+	//last_cmd_jo << ANG2DEG(-62.0591), ANG2DEG(-49.0389), ANG2DEG(-8.618), ANG2DEG(-57.4985), ANG2DEG(15.345), ANG2DEG(-37.3492), ANG2DEG(-21.9836);
+	// 初始化关节角
+	for (int i = 0; i < 7; ++i)
+	{
+	 	last_cmd_jo(i) = ANG2DEG(g_RobotSensorDeg.rightArmJoint[i]);
+	}
 
 	mat7x1 cmd_jo;
 
@@ -3669,26 +4032,28 @@ void CyberSystem::VisionStart()
 
 	// 机器人测试
 	// 初始化关节角
-// 	for (int i = 0; i < 7; ++i)
-// 	{
-// 		last_cmd_jo(i) = g_RobotSensorDeg.rightArmJoint[i];
-// 	}
-// 
-// 	// 更新命令发送到缓冲数组
-// 	for (int i = 0; i < 7; ++i)
-// 	{
-// 		g_rightArmJointBuf[i] = DEG2ANG(last_cmd_jo(i));
-// 		g_leftArmJointBuf[i] = 0;
-// 	}
-// 
-// 	bool ret = m_RobonautControl.SendRoboMsg();
-// 
-// 	Sleep(1000);		// 等待机械臂动到相应的位置
+	// 	for (int i = 0; i < 7; ++i)
+	// 	{
+	// 		last_cmd_jo(i) = g_RobotSensorDeg.rightArmJoint[i];
+	// 	}
+	// 
+	// 	// 更新命令发送到缓冲数组
+	// 	for (int i = 0; i < 7; ++i)
+	// 	{
+	// 		g_rightArmJointBuf[i] = DEG2ANG(last_cmd_jo(i));
+	// 		g_leftArmJointBuf[i] = 0;
+	// 	}
+	// 
+	// 	bool ret = m_RobonautControl.SendRoboMsg();
+	// 
+	// 	Sleep(1000);		// 等待机械臂动到相应的位置
 #else
+	//last_cmd_jo << ANG2DEG(-62.1245), ANG2DEG(-40.6436), ANG2DEG(-8.7226), ANG2DEG(-59.5151), ANG2DEG(14.3206), ANG2DEG(-38.3765), ANG2DEG(-21.8541);
 	// 初始化关节角
 	for (int i = 0; i < 7; ++i)
 	{
 		last_cmd_jo(i) = g_RobotSensorDeg.rightArmJoint[i];
+		last_cmd_jo(i) = ANG2DEG(last_cmd_jo(i));
 	}
 
 	// 更新命令发送到缓冲数组
@@ -3699,6 +4064,7 @@ void CyberSystem::VisionStart()
 	}
 
 	bool ret = m_RobonautControl.SendRoboMsg();
+	//bool send_ret = m_RobonautControl.SendConsimuMsg();
 
 	Sleep(1000);		// 等待机械臂动到相应的位置
 #endif
@@ -3722,18 +4088,68 @@ void CyberSystem::VisionStop()
 	ui.m_pViPauseBtn->setEnabled(false);
 }
 
+void CyberSystem::VisionAppr()
+{
+	m_bApprFlag = true;
+}
+
+// 
+void CyberSystem::GetViNextAppr(const double ViEulerRecv[], const double Quat_Ref[7], double Quat_New[7])
+{
+	double ApprRef = RefFinAppr;		// 相机中，需要达到的接近距离（Z向）
+	double ApprNow = ViEulerRecv[6];		// 目前相机中的接近距离（Z向）
+	double move_step = 1;
+	
+	if (fabs(ApprNow) > ApprRef)		// 距离调整未完成
+	{
+		mat4x4 trans_ref;		// 末端当前位姿
+		mat4x4 trans_new;		// 末端更新后位姿
+		QuaterToTrans(Quat_Ref, trans_ref);
+		mat4x4 move_mat;		// 参考机械臂末端移动矩阵
+		move_mat << 1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, SGN(ApprNow - ApprRef)*move_step,
+			0, 0, 0, 1;
+
+		trans_new = trans_ref*move_mat;
+		mat7x1 Quat_New_Mat;
+		TransToQuater(trans_new, Quat_New_Mat);
+		for (int i = 0; i < 7; ++i)
+		{
+			Quat_New[i] = Quat_New_Mat(i);
+		}
+	}
+	else		// 距离调整完成
+	{
+		for (int i = 0; i < 7; ++i)
+		{
+			Quat_New[i] = Quat_Ref[i];
+		}
+	}
+}
+
+
 // Get New Pose from Vision Data
 // Quat_Ref is the Current Pose
 // Quat_New is the Pose Planning to 
 void CyberSystem::GetViNextPos(const double ViRecv[], const mat7x1 &Quat_Ref, mat7x1 &Quat_New)
 {
 	// camera reference data
-	double ViRefPos[3] = {0, 0, 300};
+	double ViRefPos[3];
+	ViRefPos[0] = RefEulerPose[3];
+	ViRefPos[1] = RefEulerPose[4];
+	ViRefPos[2] = RefEulerPose[5];
 	mat3x1 ViMove;
 	mat3x1 BaseMove;
+	mat3x1 EndMove;
 	ViMove << (ViRecv[4] - ViRefPos[0]), (ViRecv[5] - ViRefPos[1]), (ViRecv[6] - ViRefPos[2]);
+	// 相机坐标系到机械臂末端坐标系的变换
+	EndMove(0) = -ViMove(1);
+	EndMove(1) = ViMove(0);
+	EndMove(2) = ViMove(2);
 
 	mat3x3 RotTrans;
+	
 	for (int i = 0; i < 3; ++i)
 	{
 		for (int j = 0; j < 3; ++j)
@@ -3741,7 +4157,7 @@ void CyberSystem::GetViNextPos(const double ViRecv[], const mat7x1 &Quat_Ref, ma
 			RotTrans(i, j) = m_ViTransNow(i, j);
 		}
 	}
-	BaseMove = RotTrans*ViMove;
+	BaseMove = RotTrans*EndMove;
 
 
 	// two different control distance
@@ -3751,7 +4167,7 @@ void CyberSystem::GetViNextPos(const double ViRecv[], const mat7x1 &Quat_Ref, ma
 
 	// two different distance change in a control period
 	double dis_max = 10;
-	double dis_min = 3;
+	double dis_min = 2;
 
 	// Vision Receive Data Flag
 	int Vision_Flag = (int) ViRecv[0];
@@ -3829,10 +4245,104 @@ void CyberSystem::GetViNextPos(const double ViRecv[], const mat7x1 &Quat_Ref, ma
 	}
 }
 
+
+
+// void CyberSystem::GetViNextOri(const double ViEulerRecv[], const double Quat_Ref[7], double Quat_New[7])
+// {
+// 	double move_step = ANG2DEG(0.5);
+// 	double ZEulerDegCut = EulerPoseCut[0];
+// 	double YEulerDegCut = EulerPoseCut[1];
+// 	double XEulerDegCut = EulerPoseCut[2];
+// 	double ZEulerDegRef = RefEulerPose[0];
+// 	double YEulerDegRef = RefEulerPose[1];
+// 	double XEulerDegRef = RefEulerPose[2];
+// 
+// 	double Euler[3];
+// 	for (int i = 0; i < 3; ++i)
+// 	{
+// 		Euler[i] = ViEulerRecv[i+1];
+// 	}
+// 
+// 	// 机械臂末端到相机的变换矩阵
+// 	mat4x4 EndToCamMat;
+// 	EndToCamMat << 1, 0, 0, 0, 
+// 		0, 1, 0, 0, 
+// 		0, 0, 1, 0, 
+// 		0, 0, 0, 1;
+// 
+// 	mat4x4 BaseToCamMat_Ref;	// 相机相对于基座
+// 	mat4x4 BaseToCamMat_New;
+// 	mat4x4 BaseToEndMat_Ref;	// 机械臂末端相对于基座
+// 	mat4x4 BaseToEndMat_New;
+// 
+// 	double adjust_euler[6] = {0, 0, 0, 0, 0, 0};		// 角度调节欧拉角
+// 	mat4x4 AdjustMat;		// 角度调整矩阵
+// 
+// 	QuaterToTrans(Quat_Ref, BaseToEndMat_Ref);
+// 	BaseToCamMat_Ref = BaseToEndMat_Ref*EndToCamMat;
+// 
+// 
+// 
+// #if ArmDebug		// 调试使用，每次循环更新绕末端坐标系旋转一个角度
+// 	adjust_euler[3] = ANG2DEG(1);
+// 	//	adjust_euler[4] = ANG2DEG(1);
+// 	//	adjust_euler[5] = ANG2DEG(1);
+// 
+// #else
+// 	if (fabs(Euler[0] - ZEulerDegRef) > ZEulerDegCut)		// 调整Z角
+// 	{
+// 		adjust_euler[3] = SGN(Euler[0] - ZEulerDegRef)*move_step;
+// 		m_CmdStr += "Adjusting Z\r\n";
+// 		InsertCmdStr(m_CmdStr);
+// 	}
+// 	else		// Z角调整完成
+// 	{
+// 		if (fabs(Euler[1] - YEulerDegRef) > YEulerDegCut)		// 调整Y角
+// 		{
+// 			adjust_euler[4] = SGN(Euler[1] - YEulerDegRef)*move_step;
+// 			m_CmdStr += "Adjusting Y\r\n";
+// 			InsertCmdStr(m_CmdStr);
+// 		}
+// 		else		// Y角调整完成
+// 		{
+// 			if (fabs(Euler[2] - XEulerDegRef) > XEulerDegCut)		// 调整X角
+// 			{
+// 				adjust_euler[5] = SGN(Euler[2] - XEulerDegRef)*move_step;
+// 				m_CmdStr += "Adjusting X\r\n";
+// 				InsertCmdStr(m_CmdStr);
+// 			} 
+// 			else		// 姿态调整完成
+// 			{
+// 				for (int i = 0; i < 7; ++i)
+// 				{
+// 					Quat_New[i] = Quat_Ref[i];
+// 				}
+// 				m_CmdStr += "Finish\r\n";
+// 				InsertCmdStr(m_CmdStr);
+// 				return;
+// 			}
+// 		}
+// 	}
+// #endif
+// 
+// 	EulerToTrans(adjust_euler, AdjustMat);
+// 
+// 	BaseToCamMat_New = BaseToCamMat_Ref*AdjustMat;
+// 	BaseToEndMat_New = BaseToCamMat_New*(EndToCamMat.inverse());
+// 
+// 	mat7x1 Quat_New_Mat;
+// 	TransToQuater(BaseToEndMat_New, Quat_New_Mat);
+// 	for (int i = 0; i < 7; ++i)
+// 	{
+// 		Quat_New[i] = Quat_New_Mat(i);
+// 	}
+// }
+
+
 // Planning in Euler Representation
 void CyberSystem::GetViNextOri(const double ViEulerRecv[], const double Quat_Ref[7], double Quat_New[7])
 {
-	double move_step = ANG2DEG(10);
+	double move_step = ANG2DEG(1);
 	double ZEulerDegCut = EulerPoseCut[0];
 	double YEulerDegCut = EulerPoseCut[1];
 	double XEulerDegCut = EulerPoseCut[2];
@@ -3845,36 +4355,57 @@ void CyberSystem::GetViNextOri(const double ViEulerRecv[], const double Quat_Ref
 	{
 		Euler[i] = ViEulerRecv[i+1];
 	}
+	double Quat_Ref_Rot[4];
+	for (int i = 0; i < 4; ++i)
+	{
+		Quat_Ref_Rot[i] = Quat_Ref[i+3];
+	}
 
-	// 机械臂末端到相机的变换矩阵
-	mat4x4 EndToCamMat;
-	EndToCamMat << 1, 0, 0, 0, 
-		0, 1, 0, 0, 
+	mat4x4 EndToCamMat;		// 机械臂末端到相机的变换矩阵
+	EndToCamMat << 0, -1, 0, 0, 
+		1, 0, 0, 275, 
 		0, 0, 1, 0, 
 		0, 0, 0, 1;
 
+	mat3x3 BaseToCamRot_Ref;
+	mat3x3 BaseToCamRot_New;
+	mat3x3 BaseToEndRot_Ref;
+	mat3x3 BaseToEndRot_New;
+
+
+	// 
 	mat4x4 BaseToCamMat_Ref;	// 相机相对于基座
 	mat4x4 BaseToCamMat_New;
 	mat4x4 BaseToEndMat_Ref;	// 机械臂末端相对于基座
 	mat4x4 BaseToEndMat_New;
 
-	double adjust_euler[6] = {0, 0, 0, 0, 0, 0};		// 角度调节欧拉角
-	mat4x4 AdjustMat;		// 角度调整矩阵
-
 	QuaterToTrans(Quat_Ref, BaseToEndMat_Ref);
 	BaseToCamMat_Ref = BaseToEndMat_Ref*EndToCamMat;
+	for (int i = 0; i < 3; ++i)
+	{
+		for (int j = 0; j < 3; ++j)
+		{
+			BaseToCamRot_Ref(i,j) = BaseToCamMat_Ref(i,j);
+		}
+	}
+
+
+	double adjust_euler[3] = {0, 0, 0};		// 角度调节欧拉角
+	mat3x3 AdjustMat;		// 角度调整矩阵
+
+
 
 
 
 #if ArmDebug		// 调试使用，每次循环更新绕末端坐标系旋转一个角度
-	adjust_euler[3] = ANG2DEG(3);
-	adjust_euler[4] = ANG2DEG(3);
-	adjust_euler[5] = ANG2DEG(3);
+	//adjust_euler[0] = ANG2DEG(1);
+	//adjust_euler[1] = ANG2DEG(1);
+	//adjust_euler[2] = ANG2DEG(1);
 
 #else
 	if (fabs(Euler[0] - ZEulerDegRef) > ZEulerDegCut)		// 调整Z角
 	{
-		adjust_euler[3] = SGN(Euler[0] - ZEulerDegRef)*move_step;
+		adjust_euler[0] = SGN(Euler[0] - ZEulerDegRef)*move_step;
 		m_CmdStr += "Adjusting Z\r\n";
 		InsertCmdStr(m_CmdStr);
 	}
@@ -3882,7 +4413,7 @@ void CyberSystem::GetViNextOri(const double ViEulerRecv[], const double Quat_Ref
 	{
 		if (fabs(Euler[1] - YEulerDegRef) > YEulerDegCut)		// 调整Y角
 		{
-			adjust_euler[4] = SGN(Euler[1] - YEulerDegRef)*move_step;
+			adjust_euler[1] = SGN(Euler[1] - YEulerDegRef)*move_step;
 			m_CmdStr += "Adjusting Y\r\n";
 			InsertCmdStr(m_CmdStr);
 		}
@@ -3890,7 +4421,7 @@ void CyberSystem::GetViNextOri(const double ViEulerRecv[], const double Quat_Ref
 		{
 			if (fabs(Euler[2] - XEulerDegRef) > XEulerDegCut)		// 调整X角
 			{
-				adjust_euler[5] = SGN(Euler[2] - XEulerDegRef)*move_step;
+				adjust_euler[2] = SGN(Euler[2] - XEulerDegRef)*move_step;
 				m_CmdStr += "Adjusting X\r\n";
 				InsertCmdStr(m_CmdStr);
 			} 
@@ -3908,9 +4439,22 @@ void CyberSystem::GetViNextOri(const double ViEulerRecv[], const double Quat_Ref
 	}
 #endif
 
-	EulerToTrans(adjust_euler, AdjustMat);
+	EulerToRot(adjust_euler, AdjustMat);
 
-	BaseToCamMat_New = BaseToCamMat_Ref*AdjustMat;
+	BaseToCamRot_New = BaseToCamRot_Ref*AdjustMat;
+	for (int i = 0; i < 3; ++i)
+	{
+		for (int j = 0; j < 3; ++j)
+		{
+			BaseToCamMat_New(i, j) = BaseToCamRot_New(i, j);
+		}
+	}
+	BaseToCamMat_New(0,3) = BaseToCamMat_Ref(0,3);
+	BaseToCamMat_New(1,3) = BaseToCamMat_Ref(1,3);
+	BaseToCamMat_New(2,3) = BaseToCamMat_Ref(2,3);
+	BaseToCamMat_New(3,0) = BaseToCamMat_New(3,1) = BaseToCamMat_New(3,2) = 0;
+	BaseToCamMat_New(3,3) = 1;
+
 	BaseToEndMat_New = BaseToCamMat_New*(EndToCamMat.inverse());
 
 	mat7x1 Quat_New_Mat;
@@ -3958,6 +4502,19 @@ void CyberSystem::ViRecvTrans(const double ViRecv[7], double ViEulerRecv[7])
 
 
 //*********************** Pose Representation Transfer ***********************//
+void CyberSystem::QuaterToRot(const double arr_in[4], mat3x3 &mat_out)
+{
+	// romat_outamat_oute mamat_outrix
+	mat_out(0,0) = 2*(pow(arr_in[0], 2) + pow(arr_in[1], 2)) - 1;
+	mat_out(0,1) = 2*(arr_in[1]*arr_in[2] - arr_in[0]*arr_in[3]);
+	mat_out(0,2) = 2*(arr_in[1]*arr_in[3] + arr_in[0]*arr_in[2]);
+	mat_out(1,0) = 2*(arr_in[1]*arr_in[2] + arr_in[0]*arr_in[3]);
+	mat_out(1,1) = 2*(pow(arr_in[0], 2) + pow(arr_in[2], 2)) - 1;
+	mat_out(1,2) = 2*(arr_in[2]*arr_in[3] - arr_in[0]*arr_in[1]);
+	mat_out(2,0) = 2*(arr_in[1]*arr_in[3] - arr_in[0]*arr_in[2]);
+	mat_out(2,1) = 2*(arr_in[2]*arr_in[3] + arr_in[0]*arr_in[1]);
+	mat_out(2,2) = 2*(pow(arr_in[0], 2) + pow(arr_in[3], 2)) - 1;
+}
 
 // Calculate Unit Quaternion
 // n = arr_in[3]	ex = arr_in[4]
@@ -4072,6 +4629,8 @@ void CyberSystem::EulerToRot(const double Euler[], mat3x3 &Trans)
 	Trans(2,1) = c2*s3;
 	Trans(2,2) = c2*c3;
 }
+
+
 
 void CyberSystem::EulerToTrans(const double Euler[], mat4x4 &Trans)
 {

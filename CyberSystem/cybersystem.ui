@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1479</width>
-    <height>897</height>
+    <width>1521</width>
+    <height>866</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -44,9 +44,9 @@
      <height>1080</height>
     </size>
    </property>
-   <layout class="QGridLayout" name="gridLayout_13">
+   <layout class="QGridLayout" name="gridLayout_17">
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout_29">
+     <layout class="QHBoxLayout" name="horizontalLayout_34">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_20">
         <item>
@@ -933,7 +933,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_8">
+       <layout class="QVBoxLayout" name="verticalLayout_11">
         <item>
          <widget class="QTextBrowser" name="m_pRoboDataDisBs">
           <property name="sizePolicy">
@@ -1044,9 +1044,9 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_22">
+         <layout class="QHBoxLayout" name="horizontalLayout_33">
           <item>
-           <layout class="QGridLayout" name="gridLayout">
+           <layout class="QGridLayout" name="gridLayout_13">
             <item row="0" column="0">
              <widget class="QPushButton" name="m_pJointCtrlBtn">
               <property name="enabled">
@@ -1239,69 +1239,6 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="0">
-             <widget class="QPushButton" name="m_pViCtrlBtn">
-              <property name="minimumSize">
-               <size>
-                <width>115</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>115</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>ViCtrl</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QPushButton" name="m_pViStartBtn">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>115</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>115</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>Vision Start</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="2">
-             <widget class="QPushButton" name="m_pViPauseBtn">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>115</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>115</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>Vision Pause</string>
-              </property>
-             </widget>
-            </item>
            </layout>
           </item>
           <item>
@@ -1384,24 +1321,27 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="m_pRJo1Line">
+                 <widget class="QDoubleSpinBox" name="m_pRJo1Spin">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>16777215</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -1433,24 +1373,27 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="m_pRJo2Line">
+                 <widget class="QDoubleSpinBox" name="m_pRJo2Spin">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>16777215</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -1482,24 +1425,27 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="m_pRJo3Line">
+                 <widget class="QDoubleSpinBox" name="m_pRJo3Spin">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>16777215</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -1531,24 +1477,27 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="m_pRJo4Line">
+                 <widget class="QDoubleSpinBox" name="m_pRJo4Spin">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>16777215</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -1580,24 +1529,27 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="m_pRJo5Line">
+                 <widget class="QDoubleSpinBox" name="m_pRJo5Spin">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>16777215</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -1629,24 +1581,27 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="m_pRJo6Line">
+                 <widget class="QDoubleSpinBox" name="m_pRJo6Spin">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>16777215</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -1678,24 +1633,27 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="m_pRJo7Line">
+                 <widget class="QDoubleSpinBox" name="m_pRJo7Spin">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>16777215</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -1738,24 +1696,27 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="m_pLJo1Line">
+                 <widget class="QDoubleSpinBox" name="m_pLJo1Spin">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>16777215</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -1787,24 +1748,27 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="m_pLJo2Line">
+                 <widget class="QDoubleSpinBox" name="m_pLJo2Spin">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>16777215</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -1836,24 +1800,27 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="m_pLJo3Line">
+                 <widget class="QDoubleSpinBox" name="m_pLJo3Spin">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>16777215</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -1885,24 +1852,27 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="m_pLJo4Line">
+                 <widget class="QDoubleSpinBox" name="m_pLJo4Spin">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>16777215</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -1934,24 +1904,27 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="m_pLJo5Line">
+                 <widget class="QDoubleSpinBox" name="m_pLJo5Spin">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>16777215</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -1983,24 +1956,27 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="m_pLJo6Line">
+                 <widget class="QDoubleSpinBox" name="m_pLJo6Spin">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>16777215</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -2032,24 +2008,27 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="m_pLJo7Line">
+                 <widget class="QDoubleSpinBox" name="m_pLJo7Spin">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>60</width>
-                    <height>20</height>
+                    <width>80</width>
+                    <height>16777215</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string/>
+                  <property name="decimals">
+                   <number>2</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -2263,6 +2242,115 @@
          </widget>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_32">
+          <item>
+           <widget class="QPushButton" name="m_pViCtrlBtn">
+            <property name="minimumSize">
+             <size>
+              <width>115</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>115</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>ViCtrl</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="m_pViPauseBtn">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>90</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>90</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Pause</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="m_pViStartBtn">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>90</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>90</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Adjust</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="m_pViApprBtn">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>90</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>90</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Approach</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_21">
+        <item>
+         <widget class="QTextBrowser" name="m_pCommadBs">
+          <property name="minimumSize">
+           <size>
+            <width>360</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>360</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QGroupBox" name="groupBox">
           <property name="minimumSize">
            <size>
@@ -2273,76 +2361,427 @@
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>100</height>
+            <height>16777215</height>
            </size>
           </property>
           <property name="title">
            <string>Hand Control</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_7">
-           <item row="1" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_10">
+           <item row="0" column="0">
+            <layout class="QVBoxLayout" name="verticalLayout_9">
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_11">
+              <layout class="QHBoxLayout" name="horizontalLayout_29">
                <item>
-                <widget class="QRadioButton" name="m_pNormalRd">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="text">
-                  <string>Normal</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
+                <layout class="QVBoxLayout" name="verticalLayout_2">
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_9">
+                   <item>
+                    <widget class="QRadioButton" name="m_pNormalRd">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="text">
+                      <string>Normal</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QRadioButton" name="m_pSoftRd">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="text">
+                      <string>Soft</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QRadioButton" name="m_pZeroRd">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="text">
+                      <string>Zero</string>
+                     </property>
+                     <property name="checked">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_10">
+                   <item>
+                    <widget class="QPushButton" name="m_pHandConnBtn">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="text">
+                      <string>Conn Hand</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="m_pHandEnableBtn">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="text">
+                      <string>Enable</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
                </item>
                <item>
-                <widget class="QRadioButton" name="m_pSoftRd">
+                <widget class="QPushButton" name="m_pEmgBtn">
                  <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="text">
-                  <string>Soft</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="m_pZeroRd">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="text">
-                  <string>Zero</string>
-                 </property>
-                 <property name="checked">
                   <bool>false</bool>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>70</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Emergency</string>
                  </property>
                 </widget>
                </item>
               </layout>
              </item>
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_2">
-               <item>
-                <widget class="QPushButton" name="m_pHandConnBtn">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
+              <layout class="QGridLayout" name="gridLayout">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_9">
                  <property name="text">
-                  <string>Conn Hand</string>
+                  <string>Thumb</string>
                  </property>
                 </widget>
                </item>
+               <item row="0" column="1">
+                <widget class="QDoubleSpinBox" name="m_pRThumbBiasSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QDoubleSpinBox" name="m_pRThumbBaseSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3">
+                <widget class="QDoubleSpinBox" name="m_pRThumbOutSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_10">
+                 <property name="text">
+                  <string>Index</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QDoubleSpinBox" name="m_pRIndexBiasSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QDoubleSpinBox" name="m_pRIndexBaseSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="3">
+                <widget class="QDoubleSpinBox" name="m_pRIndexOutSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_11">
+                 <property name="text">
+                  <string>Middle</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QDoubleSpinBox" name="m_pRMidBiasSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2">
+                <widget class="QDoubleSpinBox" name="m_pRMidBaseSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="3">
+                <widget class="QDoubleSpinBox" name="m_pRMidOutSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_12">
+                 <property name="text">
+                  <string>Ring</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QDoubleSpinBox" name="m_pRRingBiasSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="2">
+                <widget class="QDoubleSpinBox" name="m_pRRingBaseSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="3">
+                <widget class="QDoubleSpinBox" name="m_pRRingOutSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="label_13">
+                 <property name="text">
+                  <string>Little</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QDoubleSpinBox" name="m_pRLitBiasSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="2">
+                <widget class="QDoubleSpinBox" name="m_pRLitBaseSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="3">
+                <widget class="QDoubleSpinBox" name="m_pRLitOutSpin">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_8">
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_9">
+                <layout class="QHBoxLayout" name="horizontalLayout_22">
                  <item>
-                  <widget class="QPushButton" name="m_pHandEnableBtn">
+                  <widget class="QPushButton" name="m_pHandClickBtn">
                    <property name="enabled">
                     <bool>false</bool>
                    </property>
                    <property name="text">
-                    <string>Enable</string>
+                    <string>Click Mode</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="m_pHandReadBtn">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>Read</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="m_pHandSendBtn">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>Send</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_30">
+                 <item>
+                  <widget class="QPushButton" name="m_pHandCyberBtn">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>Cyber Mode</string>
                    </property>
                   </widget>
                  </item>
@@ -2352,7 +2791,51 @@
                     <bool>false</bool>
                    </property>
                    <property name="text">
-                    <string>Run</string>
+                    <string>Cyber Run</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="m_pHandPauseBtn">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>Cyber Pause</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_31">
+                 <item>
+                  <widget class="QPushButton" name="m_pHandGraspBtn">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>Grasp Mode</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="m_pGraspBtn">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>Grasp</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="m_pRlseBtn">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>Release</string>
                    </property>
                   </widget>
                  </item>
@@ -2360,44 +2843,12 @@
                </item>
               </layout>
              </item>
-             <item>
-              <widget class="QPushButton" name="m_pEmgBtn">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>70</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Emergency</string>
-               </property>
-              </widget>
-             </item>
             </layout>
            </item>
           </layout>
          </widget>
         </item>
        </layout>
-      </item>
-      <item>
-       <widget class="QTextBrowser" name="m_pCommadBs">
-        <property name="minimumSize">
-         <size>
-          <width>320</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>320</width>
-          <height>16777215</height>
-         </size>
-        </property>
-       </widget>
       </item>
      </layout>
     </item>
@@ -2408,7 +2859,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1479</width>
+     <width>1521</width>
      <height>26</height>
     </rect>
    </property>

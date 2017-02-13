@@ -27,7 +27,7 @@ enum CTRLMODE {OUT_CTRL, CLICK_CTRL_SIMU, CLICK_CTRL_ROBO, CLICK_CTRL_ALL,
 				CYBER_CTRL_SIMU, CYBER_CTRL_ROBO, CYBER_CTRL_ALL,
 				PLAN_CTRL_SIMU, PLAN_CTRL_ROBO, PLAN_CTRL_ALL, PLAN_WAIT,
 				VISION_CTRL};
-enum HANDCTRLMODE {HAND_OUT_CTRL, HAND_CYBER_CTRL};
+enum HANDCTRLMODE {HAND_OUT_CTRL, HAND_CYBER_CTRL, HAND_GRASP_CTRL, HAND_CLICK_CTRL};
 
 // must use 250ms
 const int RobonautCommPd = 250;
@@ -106,27 +106,41 @@ private slots:
 	void FinGloveCali();
 	void InitHand();
 	void EnableHand();
-	void StartHand();
+	void StartCyberHand();
+	void CyberHandMode();
+	void PauseCyberHand();
 	void EmergHand();
+	void ClickHandMode();
+	void UpdateHandSpin();
+	void SendHandSpin();
+	void GraspHandMode();
+	void GraspHand();
+	void ReleaseHand();
 
 private:
 	double m_RGloRawData[5][4];
 //	double m_RGloRawData[5][9];
-	double m_RGloRealData[5][3];
+	double m_RGloRealData[5][3];		// 0是基关节，1是指尖关节，2是侧摆
 	double m_LGloRawData[5][4];
 	double m_LGloRealData[5][3];
 	double m_RGloCaliK[5][3];
 	double m_RGloCaliB[5][3];
 	double m_RGloCaliData[4][5][4];
-	double m_RHandRecvJoint[5][3];
-	double m_LHandRecvJoint[5][3];
+	double m_RHandRecvJoint[5][3];		// 0是基关节，1是指尖关节，2是侧摆
+	double m_LHandRecvJoint[5][3];		// 0是基关节，1是指尖关节，2是侧摆
 	double m_RHandRecvTorque[5][3];
 	double m_LHandRecvTorque[5][3];
+	double m_RHandSendData[5][3];
+	double m_LHandSendData[5][3];
+	double m_HandGraspJoint[5][3];		// 抓取时手指的关节角数据
+	double m_HandReleaseJoint[5][3];		// 释放时手指的关节角数据
 
-	bool m_bHandConn;
-	bool m_bHandInit;
-	bool m_bHandStop;
-	bool m_bHandEnable;
+	bool m_bHandConn;		// 灵巧手连接标志
+	bool m_bHandInit;		// 初始化标志
+	bool m_bHandStop;		// 急停标志
+	bool m_bHandEnable;		// 灵巧手使能标志
+
+	bool m_bHandGrasp;		// 抓取模式下切换标志
 
 	HANDCTRLMODE m_HandCtrlMode;
 	CHandData m_RHandData, m_LHandData;
@@ -134,11 +148,14 @@ private:
 
 	bool m_RGloConn;		// Right Glove Connection
 	bool m_LGloConn;		// Left Glove Connection
-
+	
 public:
+	void SetGraspInit();		// 设置抓取时手指角度的初始化数据
 	void SendHandCmd();		// Multimedia Timer Function
 	void RecvHandSensor();	
 	void DisHandData();
+	void ReadHandSpinData(double RData[5][3], double LData[5][3]);
+	void SetHandSpinData(const double RData[5][3], const double LData[5][3]);
 	
 	//*********************** Click Control ***********************//
 public:
@@ -148,8 +165,8 @@ public:
 
 private slots:
  	void ClickCtrl();
-	void SlitoLine();
-	void LinetoSli();
+	void SliderToSpin();
+	void SpinToSlider();
 	void SliUpdata();
 	void getSliData();
 
@@ -198,7 +215,9 @@ private:
 private:
 	// 申明为const
 	double RefEulerPose[6];
+	double RefFinAppr;
 	double EulerPoseCut[6];
+	double ApprCut;
 
 	CSocketBlockClient m_VisionRecv_Client;
 	mat4x4 m_ViTransNow;
@@ -218,6 +237,7 @@ private:
 	bool m_bConnCam;
 	bool m_bViKineInit;
 	bool m_bTrackFinish;
+	bool m_bApprFlag;		// 如果m_bApprFlag = true, 表示可以在Z轴方向接近
 
 	CamThread m_CamThread;
 
@@ -226,6 +246,7 @@ public:
 	void RecvVision();
 	void GetViNextPos(const double ViRecv[], const mat7x1 &Quat_Ref, mat7x1 &Quat_New);
 	void GetViNextOri(const double ViEulerRecv[], const double Quat_Ref[7], double Quat_New[7]);
+	void GetViNextAppr(const double ViEulerRecv[], const double Quat_Ref[7], double Quat_New[7]);
 	void ViRecvTrans(const double ViRecv_in[], double ViRecv_out_Euler[]);
 
 private slots:
@@ -233,6 +254,7 @@ private slots:
 	void VisionCtrl();
 	void VisionStart();
 	void VisionStop();
+	void VisionAppr();
 
 	//*********************** Planning ***********************//
 public:
@@ -264,6 +286,7 @@ public:
 	double DampLS(double svmin);
 	bool AngleRange(const mat7x1 &jo);
 
+	void QuaterToRot(const double arr_in[4], mat3x3 &mat_out);
 	void QuaterToTrans(const double arr_in[7], mat4x4 &mat_out);
 	void TransToQuater(const mat4x4 &mat_in, mat7x1 &mat_out);
 	void RodToQuater(const mat3x1 &mat_in, mat4x1 &mat_out);
